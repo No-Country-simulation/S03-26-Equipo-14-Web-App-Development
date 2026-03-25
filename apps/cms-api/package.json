@@ -25,6 +25,7 @@
     "@nestjs/platform-express": "^11.1.11",
     "@nestjs/swagger": "^11.2.6",
     "@repo/api": "workspace:*",
+    "@workspace/database": "workspace:*",
     "@repo/env": "workspace:*",
     "@types/bcrypt": "^6.0.0",
     "bcrypt": "^6.0.0",
