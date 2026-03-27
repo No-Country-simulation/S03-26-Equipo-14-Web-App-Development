@@ -12,7 +12,7 @@
     "test:e2e": "turbo run test:e2e",
     "lint": "turbo run lint",
     "format": "prettier --write \"**/*.{ts,tsx,md}\"",
-    "clean": "rm -rf node_modules/ && rm -rf apps/*/node_modules && rm -rf packages/*/node_modules && rm -rf packages/*/dist && rm -rf apps/*/dist && rm -rf apps/*/.next && rm -rf .turbo/ && rm -rf .turbo/ &&  rm -rf pnpm-lock.yaml"
+    "clean": "rm -rf node_modules/ && rm -rf apps/*/node_modules && rm -rf packages/*/node_modules && rm -rf packages/*/dist && rm -rf apps/*/dist && rm -rf apps/*/.next && rm -rf .turbo/ && rm -rf apps/*/.turbo && rm -rf packages/*/.turbo && rm -rf pnpm-lock.yaml"
   },
   "devDependencies": {
     "@repo/eslint-config": "workspace:*",

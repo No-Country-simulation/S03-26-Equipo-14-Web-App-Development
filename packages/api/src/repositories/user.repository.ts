@@ -14,7 +14,7 @@ export class UserRepository {
 
   // update UserRole. update user, tranfer user to other project. example of methods.
 
-  async findByEmail(email: string) {
+  async findByEmail(email: string) {    
     return await this.prisma.client.user.findUnique({
       where: {
         email,
@@ -99,4 +99,18 @@ export class UserRepository {
       });
     });
   }
+
+  async setResetToken({userId, resetToken, resetTokenExpires} : { userId: string, resetToken: string, resetTokenExpires: Date}) : Promise<void>{
+    
+    await this.prisma.client.user.update({
+      where: {
+        id: userId
+      },
+      data: {
+        resetToken,
+        resetTokenExpires
+      }
+    })
+  }
+
 }

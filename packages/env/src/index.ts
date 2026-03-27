@@ -12,6 +12,9 @@ const schemaEnv = z.object({
   //cms-app
   NEXT_PUBLIC_API_URL: z.string(),
 
+  //mail
+  SGMAIL_TOKEN: z.string(),
+
   //Prisma
   PRISMA_LOGS: z.string(),
   DATABASE_URL: z.string(),

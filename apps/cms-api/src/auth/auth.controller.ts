@@ -1,5 +1,5 @@
 import { Body, Controller, Get, Post, Res } from '@nestjs/common';
-import { response, Response } from 'express';
+import { raw, response, Response } from 'express';
 import { AuthService } from './auth.service';
 import { GetUser } from './decorators/get-user.decorator';
 import { Public } from './decorators/public.decorator';
@@ -9,6 +9,8 @@ import {
 } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
 import { JwtPayload } from './types/jwt-payload.type';
+import { ResetPasswordDto } from 'src/category/dto/reset-password.dto';
+
 
 @Controller('auth')
 export class AuthController {
@@ -35,6 +37,13 @@ export class AuthController {
     };
   }
 
+  @Public()
+  @Post('forgot-password')
+  async forgotPassword(@Body() resetPasswordDto: ResetPasswordDto) {
+
+    return this.authService.forgotPassword(resetPasswordDto);
+  }
+
   @Get('me')
   async me(@GetUser() user: JwtPayload) {
     return user;
@@ -51,5 +60,7 @@ export class AuthController {
     //use service registerMember
     return this.authService.registerMember(registerMemberDto);
   }
+
+  
 
 }

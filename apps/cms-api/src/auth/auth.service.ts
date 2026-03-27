@@ -1,4 +1,4 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { compare, hash } from 'bcrypt';
 import {
@@ -9,11 +9,17 @@ import crypto from 'crypto';
 import { UserRepository } from '@repo/api';
 import { LoginDto } from './dto/login.dto';
 import { JwtPayload } from './types/jwt-payload.type';
+import sgMail from '@sendgrid/mail';
+import globalEnv from '@repo/env';
+import { ResetPasswordDto } from 'src/category/dto/reset-password.dto';
+import { resetPasswordTemplate } from 'src/mail/templates/reset-password.template';
+import { MailService } from 'src/mail/mail.service';
 
 @Injectable()
 export class AuthService {
   constructor(
     private jwtService: JwtService,
+    private mailService: MailService,
     private readonly apiUser: UserRepository,
   ) {}
 
@@ -66,7 +72,27 @@ export class AuthService {
     await this.apiUser.createMember(synthUser);
   }
 
+  async forgotPassword (resetPasswordDto: ResetPasswordDto) {
+
+    const userExist = await this.apiUser.findByEmail(resetPasswordDto.email);
+    if (!userExist) throw new NotFoundException("User not found");
+
+    const rawToken = crypto.randomInt(100000, 1000000).toString();
+    const hashedToken = await hash(rawToken, 10);
+    const resetExpiration = new Date(Date.now() + 3600000); // 1hs    
+
+    await this.mailService.sendResetPassword(userExist.email, userExist.name, rawToken);    
+    
+    await this.apiUser.setResetToken({userId: userExist.id, resetToken: hashedToken, resetTokenExpires: resetExpiration});
+
+    return {
+      message: "Email sent",      
+    }
+  }
+
   private async generateRandomPassword() {
     return crypto.randomBytes(4).toString('base64').slice(0, 6);
   }
+
+  
 }

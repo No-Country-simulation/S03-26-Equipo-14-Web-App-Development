@@ -5,9 +5,11 @@ import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
 import globalEnv from "@repo/env";
 import { UserRepository } from '@repo/api';
+import { MailModule } from 'src/mail/mail.module';
 
 @Module({
     imports: [
+        MailModule,
         PassportModule.register({
             defaultStrategy: "jwt"
         }),
@@ -17,7 +19,7 @@ import { UserRepository } from '@repo/api';
                 secret: globalEnv.JWT_SECRET,
                 signOptions: {expiresIn: "1d"}
             })
-        }),        
+        }),                
     ],
     controllers: [AuthController],
     providers: [AuthService, UserRepository]
