@@ -13,8 +13,8 @@ import {
   CategoryRepository,
   PrismaModule,
   PrismaService,
+  TagRepository,
 } from '@repo/api';
-import { TagRepository } from '@repo/api/src/repositories/tag.repository';
 import { CategoryModule } from './category/category.module';
 
 @Module({

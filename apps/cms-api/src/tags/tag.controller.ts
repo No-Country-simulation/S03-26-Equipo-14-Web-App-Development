@@ -13,19 +13,19 @@ import {
 import { TagService } from './tag.service';
 import { CreateTagDto } from './dto/tags.dto';
 
-@Controller('/tag')
+@Controller('tag')
 export class TagController {
   constructor(private readonly tagService: TagService) {}
 
-  @Get('/all')
+  @Get()
   async findAll() {
     const tagList = await this.tagService.findAll();
     if (tagList.length > 0)
-    return { message: "Here's the Tag's List!", list: tagList };
+      return { message: "Here's the Tag's List!", list: tagList };
     else return { message: "Something happened, let's see...", error: tagList };
   }
 
-  @Get('/one')
+  @Get()
   async findOne(@Query('name') name: string) {
     const getByName = await this.tagService.findOne(name);
 
@@ -43,7 +43,7 @@ export class TagController {
       : { message: "Something happened, let's see", issue: newTag };
   }
 
-  @Post('/tags')
+  @Post('tags')
   async createTags(@Body() tagDto: CreateTagDto[]) {
     const theNewTags = await this.tagService.createMany(tagDto);
 
