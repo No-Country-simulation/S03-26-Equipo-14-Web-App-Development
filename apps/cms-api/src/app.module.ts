@@ -7,11 +7,14 @@ import { ConfigModule } from '@nestjs/config';
 import { JwtStrategy } from './auth/strategies/jwt.strategy';
 import { APP_GUARD } from '@nestjs/core';
 import { JwtAuthGuard } from './auth/guards/jwt-auth.guard';
-import { UserRepository, PrismaModule, PrismaService, } from '@repo/api';
+import { UserRepository, PrismaModule } from '@repo/api';
+import { TagRepository } from '@repo/api/src/repositories/tag.repository';
+import { TagModule } from './tags/tag.module';
 
 @Module({
   imports: [
     AuthModule,
+    TagModule,
     PrismaModule,
     ConfigModule.forRoot({
       isGlobal: true,
@@ -23,6 +26,7 @@ import { UserRepository, PrismaModule, PrismaService, } from '@repo/api';
     AppService,
     JwtStrategy,
     UserRepository,
+    TagRepository,
     { provide: APP_GUARD, useClass: JwtAuthGuard },
   ],
 })

@@ -15,3 +15,7 @@ export interface CreateMemberInput {
   projectId: string;
 }
 
+export interface CreateTagInput{
+  name: string;
+  projectId?: string;
+}
