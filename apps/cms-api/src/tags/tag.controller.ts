@@ -20,8 +20,8 @@ export class TagController {
   @Get('/all')
   async findAll() {
     const tagList = await this.tagService.findAll();
-    if (tagList?.id)
-      return { message: "Here's the Tag's List!", list: tagList };
+    if (tagList.length > 0)
+    return { message: "Here's the Tag's List!", list: tagList };
     else return { message: "Something happened, let's see...", error: tagList };
   }
 

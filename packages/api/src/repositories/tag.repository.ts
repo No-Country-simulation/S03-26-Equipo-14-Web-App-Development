@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 
 import { Tag } from '@workspace/database';
 import { CreateTagInput } from './interfaces';
-import { PrismaService } from 'src/prisma/prisma.service';
+import { PrismaService } from '../prisma/prisma.service';
 
 @Injectable()
 export class TagRepository {
