@@ -16,10 +16,11 @@ async function bootstrap() {
     .setDescription('API Documentation')
     .setVersion('1.0')
     .addTag('CMS')
+    .addBearerAuth()
     .build();
 
   const documentFactory = () => SwaggerModule.createDocument(app, config);
-  SwaggerModule.setup('api', app, documentFactory);
+  SwaggerModule.setup('docs', app, documentFactory);
   //test repo/api
   const userRepo = app.get(UserRepository);
   const user = await userRepo.find();

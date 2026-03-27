@@ -15,6 +15,13 @@ export interface CreateMemberInput {
   projectId: string;
 }
 
+export interface CreateCategoryInput {
+  name: string;
+}
+
+export interface UpdateCategoryInput extends CreateCategoryInput {
+  categoryId: string;
+}
 export interface CreateTagInput{
   name: string;
   projectId?: string;

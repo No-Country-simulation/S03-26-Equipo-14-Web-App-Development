@@ -12,7 +12,7 @@
     "db:migrate": "npx dotenv-cli -e ../../.env -- npx prisma migrate dev --name",
     "db:migrate:deploy": "npx dotenv-cli -e ../../.env -- npx prisma migrate deploy",
     "db:studio": "npx prisma studio",
-    "db:seed": "tsx prisma/seed.ts"
+    "db:seed": "npx tsx prisma/seed.ts"
   },
   "dependencies": {
     "@prisma/client": "^5.22.0",

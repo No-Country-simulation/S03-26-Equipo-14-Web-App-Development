@@ -120,7 +120,6 @@ model Project_Member {
 model Category {
   id         String @id @default(uuid())
   name       String
-  project_id String
 
   testimonial Testimonial[]
 
@@ -128,7 +127,7 @@ model Category {
   updated_at DateTime @updatedAt
 
   //Rel
-  project Project @relation(fields: [project_id], references: [id])
+  project Project[]
 }
 
 model Tag {
