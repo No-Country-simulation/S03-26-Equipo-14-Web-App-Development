@@ -1,7 +1,9 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Query } from '@nestjs/common';
 import { TestimonialsService } from './testimonials.service';
 import { CreateTestimonialDto } from './dto/create-testimonial.dto';
 import { UpdateTestimonialDto } from './dto/update-testimonial.dto';
+import { TestimonialType } from '../../../../packages/database/dist';
+import { FindAllQueryTestimonialDto } from './dto/find-all-query-testimonial.dto';
 
 @Controller('testimonials')
 export class TestimonialsController {
@@ -13,8 +15,8 @@ export class TestimonialsController {
   }
 
   @Get()
-  findAll() {
-    return this.testimonialsService.findAll();
+  findAll(@Query() queryDto: FindAllQueryTestimonialDto) {
+    return this.testimonialsService.findAll(queryDto);
   }
 
   @Get(':id')
