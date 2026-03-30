@@ -6,6 +6,13 @@ dotenv.config({ path: '../../.env' });
 const schemaEnv = z.object({
   //environment
   NODE_ENV: z.string().default('development'),
+  //External Services
+  CLOUDINARY_API_SECRET: z.string(),
+  CLOUDINARY_API_KEY: z.string(),
+  GOOGLE_CLIENT_SECRET: z.string(),
+  GOOGLE_ID_CLIENT: z.string(),
+  YOUTUBE_API_KEY: z.string(),
+
   //cms-api
   JWT_SECRET: z.string(),
   JWT_RESET_TOKEN_SECRET: z.string(),
