@@ -1,3 +1,5 @@
+import { TestimonialType } from "@workspace/database";
+
 export interface CreateOwnerInput {
   name: string;
   email: string;
@@ -21,4 +23,9 @@ export interface CreateCategoryInput {
 
 export interface UpdateCategoryInput extends CreateCategoryInput {
   categoryId: string;
+}
+
+export interface FindAllTestimonialsQuery {
+  category_id?: string;
+  type?: TestimonialType;
 }
