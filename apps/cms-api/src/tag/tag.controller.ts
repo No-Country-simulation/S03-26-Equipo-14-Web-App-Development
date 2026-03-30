@@ -1,21 +1,20 @@
-import {
-  Body,
-  Controller,
-  Get,
-  Post,
-  Patch,
-  Delete,
-  Res,
-  Query,
-  Param,
-} from '@nestjs/common';
+import { Body, Controller, Post, Get, Query, Param, Delete, Patch } from '@nestjs/common';
 
 import { TagService } from './tag.service';
-import { CreateTagDto } from './dto/tags.dto';
+import { CreateTagDto } from './dto/tag.dto';
 
 @Controller('tag')
 export class TagController {
   constructor(private readonly tagService: TagService) {}
+
+  @Post()
+  async createTag(@Body() tagDto: CreateTagDto) {
+    const newTag = await this.tagService.create(tagDto.name);
+
+    return newTag.id
+      ? { message: 'Successfull', tag: newTag }
+      : { message: 'Something went wrong', issue: newTag };
+  }
 
   @Get()
   async findAll() {
@@ -32,15 +31,6 @@ export class TagController {
     return getByName.id
       ? { message: 'Tag found!', tag: getByName }
       : { message: "Something happened, let's see", issue: getByName };
-  }
-
-  @Post()
-  async createTag(@Body() tagDto: CreateTagDto) {
-    const newTag = await this.tagService.create(tagDto.name);
-
-    return newTag.id
-      ? { message: 'Tag Successfully Created!', tag: newTag }
-      : { message: "Something happened, let's see", issue: newTag };
   }
 
   @Post('tags')

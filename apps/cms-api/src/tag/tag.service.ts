@@ -1,28 +1,21 @@
-import {
-  Injectable,
-  NotFoundException,
-  ServiceUnavailableException,
-} from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { CreateTagInput } from '@repo/api/src/repositories/interfaces';
-import { TagRepository } from '@repo/api/src/repositories/tag.repository';
+import { TagRepository } from '@repo/api';
 
 @Injectable()
 export class TagService {
   constructor(private readonly apiTag: TagRepository) {}
 
   async create(name: string) {
-    try {
-      const newTag = await this.apiTag.create({ name });
+    const newTag = await this.apiTag.create({ name });
 
-      if (!newTag)
-        throw new ServiceUnavailableException(
-          'It seems like the DB had some trouble creating the tag. Have some coffee and try again later.',
-        );
+    if (!newTag)
+      throw new HttpException(
+        'Failed to create, try again later',
+        HttpStatus.NOT_FOUND,
+      );
 
-      return newTag;
-    } catch (error: Error | any) {
-      throw new Error(error?.message);
-    }
+    return newTag;
   }
 
   async createMany(names: CreateTagInput[]) {
@@ -30,8 +23,9 @@ export class TagService {
       const newTags = await this.apiTag.createMany(names);
 
       if (!newTags || newTags.length == 0)
-        throw new NotFoundException(
+        throw new HttpException(
           'It seems there is an error creating the tags, please, try again later.',
+          HttpStatus.NOT_FOUND,
         );
 
       return newTags;
@@ -45,8 +39,9 @@ export class TagService {
       const search = await this.apiTag.findAll();
 
       if (!search || search.length <= 0)
-        throw new NotFoundException(
+        throw new HttpException(
           'The search did not find the tags list. Please try again later.',
+          HttpStatus.NOT_FOUND,
         );
 
       return search;
@@ -60,8 +55,9 @@ export class TagService {
       const searchByName = await this.apiTag.findUniqueTag(name, 'name');
 
       if (!searchByName)
-        throw new NotFoundException(
+        throw new HttpException(
           'Welp, it looks like there is no tag with that name yet. Maybe you want to create one with another endpoint.',
+          HttpStatus.NOT_FOUND,
         );
 
       return searchByName;
@@ -75,15 +71,17 @@ export class TagService {
       const doesExists = await this.apiTag.findUniqueTag(id, 'id');
 
       if (!doesExists)
-        throw new NotFoundException(
+        throw new HttpException(
           "The Tag you're trying to update doesn't exist on the DB.",
+          HttpStatus.NOT_FOUND,
         );
 
       const updatedTag = await this.apiTag.upd(data);
 
       if (!updatedTag)
-        throw new NotFoundException(
+        throw new HttpException(
           'The DB must have a little issue at the moment to update the tag. Please try again later.',
+          HttpStatus.NOT_FOUND,
         );
 
       return updatedTag;
@@ -97,13 +95,17 @@ export class TagService {
       const doesExists = await this.apiTag.findUniqueTag(id, 'id');
 
       if (!doesExists)
-        throw new NotFoundException(
+        throw new HttpException(
           "The tag you're trying to delete doesn't exists.",
+          HttpStatus.NOT_FOUND,
         );
 
       const deletedRecord = await this.apiTag.delete(id);
       if (!deletedRecord.id)
-        throw new NotFoundException('The tag to delete was not found.');
+        throw new HttpException(
+          'The tag to delete was not found.',
+          HttpStatus.NOT_FOUND,
+        );
       return deletedRecord;
     } catch (error: Error | any) {
       throw new Error(error?.message);

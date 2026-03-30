@@ -3,7 +3,6 @@ import { Module } from '@nestjs/common';
 import { AppService } from './app.service';
 import { AppController } from './app.controller';
 import { AuthModule } from './auth/auth.module';
-import { TagModule } from './tags/tag.module';
 import { ConfigModule } from '@nestjs/config';
 import { JwtStrategy } from './auth/strategies/jwt.strategy';
 import { APP_GUARD } from '@nestjs/core';
@@ -12,16 +11,16 @@ import {
   UserRepository,
   CategoryRepository,
   PrismaModule,
-  PrismaService,
   TagRepository,
+  PrismaService,
 } from '@repo/api';
 import { CategoryModule } from './category/category.module';
 import { MailModule } from './mail/mail.module';
+import { TagModule } from './tag/tag.module';
 
 @Module({
   imports: [
     AuthModule,
-    TagModule,
     PrismaModule,
     ConfigModule.forRoot({
       isGlobal: true,
@@ -29,6 +28,7 @@ import { MailModule } from './mail/mail.module';
     }),
     CategoryModule,
     MailModule,
+    TagModule,
   ],
   controllers: [AppController],
   providers: [
