@@ -3,9 +3,9 @@ import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { AppModule } from './app.module';
 import cookieParser from 'cookie-parser';
 import globalEnv from '@repo/env';
-import {UserRepository} from "@repo/api"
+import { UserRepository } from '@repo/api';
 import { ValidationPipe } from '@nestjs/common';
-
+import { ResponseInterceptor } from './common/interceptors/response.interceptor';
 
 async function bootstrap() {
   console.log('NODE_ENV', globalEnv.NODE_ENV);
@@ -24,9 +24,10 @@ async function bootstrap() {
   //test repo/api
   const userRepo = app.get(UserRepository);
   const user = await userRepo.find();
-  console.log("test", user)  
+  console.log('test', user);
 
-
+  //response interceptor
+  app.useGlobalInterceptors(new ResponseInterceptor());
   //pipe for input data
   app.useGlobalPipes(
     new ValidationPipe({

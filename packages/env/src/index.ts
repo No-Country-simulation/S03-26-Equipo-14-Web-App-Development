@@ -8,6 +8,8 @@ const schemaEnv = z.object({
   NODE_ENV: z.string().default('development'),
   //cms-api
   JWT_SECRET: z.string(),
+  JWT_RESET_TOKEN_SECRET: z.string(),
+
   PORT: z.string().default('3000'),
   //cms-app
   NEXT_PUBLIC_API_URL: z.string(),

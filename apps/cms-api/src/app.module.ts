@@ -10,12 +10,13 @@ import { JwtAuthGuard } from './auth/guards/jwt-auth.guard';
 import {
   UserRepository,
   CategoryRepository,
+  TestimonialRepository,
   PrismaModule,
   TagRepository,
-  PrismaService,
 } from '@repo/api';
 import { CategoryModule } from './category/category.module';
 import { MailModule } from './mail/mail.module';
+import { TestimonialsModule } from './testimonials/testimonials.module';
 import { TagModule } from './tag/tag.module';
 
 @Module({
@@ -28,6 +29,7 @@ import { TagModule } from './tag/tag.module';
     }),
     CategoryModule,
     MailModule,
+    TestimonialsModule,
     TagModule,
   ],
   controllers: [AppController],
@@ -36,6 +38,7 @@ import { TagModule } from './tag/tag.module';
     JwtStrategy,
     UserRepository,
     CategoryRepository,
+    TestimonialRepository,
     TagRepository,
     { provide: APP_GUARD, useClass: JwtAuthGuard },
   ],

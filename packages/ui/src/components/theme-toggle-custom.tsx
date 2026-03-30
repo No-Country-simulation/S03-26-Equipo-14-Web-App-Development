@@ -14,11 +14,6 @@ const ThemeToggle = ({ size }: ThemeToggleProps) => {
     setMounted(true);
   }, []);
 
-  const isDark =
-    theme === "dark" ||
-    (theme === "system" &&
-      window.matchMedia("(prefers-color-scheme: dark)").matches);
-
   useEffect(() => {
     const saveTheme = localStorage.getItem("theme");
     if (saveTheme) {

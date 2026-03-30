@@ -1,8 +1,18 @@
 import { Injectable } from '@nestjs/common';
-import { Organization_Role } from '@workspace/database';
+import { Organization_Role, Prisma } from '@workspace/database';
 import { PrismaService } from '../prisma/prisma.service';
 import { User } from '@workspace/database';
 import { CreateMemberInput, CreateOwnerInput } from './interfaces';
+
+type UserWithOrganization = Prisma.UserGetPayload<{
+  include: {
+    organizationMembers: {
+      include: {
+        organization: true;
+      };
+    };
+  };
+}>;
 
 @Injectable()
 export class UserRepository {
@@ -14,7 +24,7 @@ export class UserRepository {
 
   // update UserRole. update user, tranfer user to other project. example of methods.
 
-  async findByEmail(email: string) {    
+  async findByEmail(email: string): Promise<UserWithOrganization | null> {
     return await this.prisma.client.user.findUnique({
       where: {
         email,
@@ -29,6 +39,33 @@ export class UserRepository {
     });
   }
 
+  async changePassword(newPassword: string, userId: string){
+    return await this.prisma.client.user.update({
+      where: {
+        id: userId
+      },
+      data: {
+        password: newPassword
+      }
+    })
+  }
+
+  async findById(userId: string, includeOrganzatonMembers?: boolean) {
+    const include = includeOrganzatonMembers ? {
+      organizationMembers: {
+        include: {
+          organization: true,
+        },
+      },
+    } : {}
+
+    return await this.prisma.client.user.findUnique({
+      where: {
+        id: userId,
+      },
+      include,
+    });
+  }    
   async createMember(data: CreateMemberInput) {
     return await this.prisma.client.$transaction(async (tx) => {
       const user = await tx.user.create({
@@ -100,17 +137,35 @@ export class UserRepository {
     });
   }
 
-  async setResetToken({userId, resetToken, resetTokenExpires} : { userId: string, resetToken: string, resetTokenExpires: Date}) : Promise<void>{
-    
+  async setResetToken({
+    userId,
+    resetToken,
+    resetTokenExpires,
+  }: {
+    userId: string;
+    resetToken: string;
+    resetTokenExpires: Date;
+  }): Promise<void> {
+    await this.prisma.client.user.update({
+      where: {
+        id: userId,
+      },
+      data: {
+        resetToken,
+        resetTokenExpires,
+      },
+    });
+  }
+
+  async deleteResetToken({userId} : { userId: string}) : Promise<void>{
     await this.prisma.client.user.update({
       where: {
         id: userId
       },
       data: {
-        resetToken,
-        resetTokenExpires
+        resetToken: null,
+        resetTokenExpires: null
       }
     })
   }
-
 }

@@ -1,9 +1,11 @@
-import { getToken } from 'next-auth/jwt';
 import type { NextRequest } from 'next/server';
 import { NextResponse } from 'next/server';
 
-export default async function middleware(request: NextRequest) {
-  const token = await getToken({ req: request });
+export default async function proxy(request: NextRequest) {
+  const isProd = process.env.NODE_ENV === 'production' ? true : false;
+  const isAuthenticated = request.cookies.get(
+    isProd ? '__Secure-next-auth.session-token' : 'next-auth.session-token',
+  )?.value;
   const pathname = request.nextUrl.pathname;
 
   // Rutas protegidas que requieren autenticación
@@ -12,12 +14,12 @@ export default async function middleware(request: NextRequest) {
     pathname.startsWith(route),
   );
 
-  if ((isProtectedRoute && !token) || pathname === '/auth') {
+  if ((isProtectedRoute && !isAuthenticated) || pathname === '/auth') {
     return NextResponse.redirect(new URL('/auth/login', request.url));
   }
 
   // Si está autenticado y trata de ir a login, redirige al dashboard
-  if (pathname === '/auth/login' && token) {
+  if (pathname === '/auth/login' && isAuthenticated) {
     return NextResponse.redirect(new URL('/dashboard', request.url));
   }
 

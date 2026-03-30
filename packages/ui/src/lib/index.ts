@@ -1,1 +1,1 @@
-export * from "@mynaui/icons-react";
+export * from 'lucide-react';

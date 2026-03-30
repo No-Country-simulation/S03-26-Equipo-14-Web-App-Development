@@ -7,6 +7,10 @@
     "lint": "eslint . --max-warnings 0"
   },
   "dependencies": {
+    "@tailwindcss/postcss": "^4.0.8",
+    "@types/node": "^20",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
     "@mynaui/icons-react": "^0.3.9",
     "@radix-ui/react-accordion": "^1.2.11",
     "@radix-ui/react-alert-dialog": "^1.1.14",
@@ -41,23 +45,20 @@
     "recharts": "2.15.4",
     "sonner": "^2.0.6",
     "tailwind-merge": "^3.0.1",
+    "tailwindcss": "^4.0.8",
     "tw-animate-css": "^1.2.4",
     "zod": "^3.24.2"
   },
   "devDependencies": {
-    "@tailwindcss/postcss": "^4.0.8",
     "@turbo/gen": "^2.4.2",
-    "@types/node": "^20",
-    "@types/react": "^19",
-    "@types/react-dom": "^19",
     "@repo/eslint-config": "workspace:*",
     "@repo/typescript-config": "workspace:*",
-    "tailwindcss": "^4.0.8",
     "typescript": "^5.7.3"
   },
   "exports": {
     ".": "./src/components/index.ts",
     "./components": "./src/components/index.ts",
+    "./lib": "./src/lib/index.ts",
     "./globals.css": "./src/styles/globals.css",
     "./postcss.config": "./postcss.config.mjs",
     "./lib/*": "./src/lib/*.ts",
