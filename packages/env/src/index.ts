@@ -9,6 +9,9 @@ const schemaEnv = z.object({
   //External Services
   CLOUDINARY_API_SECRET: z.string(),
   CLOUDINARY_API_KEY: z.string(),
+  CLOUDINARY_CLOUD_NAME: z.string(),
+  CLOUDINARY_UPLOAD_PRESET: z.string(),
+
   GOOGLE_CLIENT_SECRET: z.string(),
   GOOGLE_ID_CLIENT: z.string(),
   YOUTUBE_API_KEY: z.string(),

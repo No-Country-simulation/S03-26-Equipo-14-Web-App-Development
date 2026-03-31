@@ -1,17 +1,40 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Query } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+  Query,
+} from '@nestjs/common';
 import { TestimonialsService } from './testimonials.service';
-import { CreateTestimonialDto } from './dto/create-testimonial.dto';
-import { UpdateTestimonialDto } from './dto/update-testimonial.dto';
-import { TestimonialType } from '../../../../packages/database/dist';
+import {
+  CreateTestimonialDto,
+  CreateTestimonialQuoteDto,
+} from './dto/create-testimonial.dto';
+import { UpdateTestimonialQuoteDto } from './dto/update-testimonial.dto';
+import { Public } from 'src/auth/decorators/public.decorator';
 import { FindAllQueryTestimonialDto } from './dto/find-all-query-testimonial.dto';
-
 @Controller('testimonials')
 export class TestimonialsController {
   constructor(private readonly testimonialsService: TestimonialsService) {}
 
+  @Post('quote')
+  @Public()
+  async createQuote(@Body() createTestimonialDto: CreateTestimonialQuoteDto) {
+    await this.testimonialsService.creatQuote(createTestimonialDto);
+  }
+
   @Post()
-  create(@Body() createTestimonialDto: CreateTestimonialDto) {
-    return this.testimonialsService.create(createTestimonialDto);
+  async createTestimonial(
+    @Body()
+    createTestimonialDto: CreateTestimonialDto,
+  ) {
+    console.log('Endpoint', createTestimonialDto);
+    return await this.testimonialsService.createTestimonial(
+      createTestimonialDto,
+    );
   }
 
   @Get()
@@ -25,7 +48,10 @@ export class TestimonialsController {
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateTestimonialDto: UpdateTestimonialDto) {
+  update(
+    @Param('id') id: string,
+    @Body() updateTestimonialDto: UpdateTestimonialQuoteDto,
+  ) {
     return this.testimonialsService.update(+id, updateTestimonialDto);
   }
 
