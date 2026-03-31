@@ -50,19 +50,29 @@ export class TagService {
     }
   }
 
-  async findOne(name: string) {
+  async find(name: string | string[]) {
     try {
-      const searchByName = await this.apiTag.findUniqueTag(name, 'name');
+      console.log(name);
+      if (typeof name == 'string') {
+        const searchByName = await this.apiTag.findUniqueTag(name, 'name');
 
-      if (!searchByName)
-        throw new HttpException(
-          'Welp, it looks like there is no tag with that name yet. Maybe you want to create one with another endpoint.',
-          HttpStatus.NOT_FOUND,
-        );
+        if (!searchByName) {
+          throw new HttpException(
+            'Welp, it looks like there is no tag with that name yet. Maybe you want to create one with another endpoint.',
+            HttpStatus.NOT_FOUND,
+          );
+        }
 
-      return searchByName;
+        return searchByName;
+      } else {
+        const searchManyTags = await this.apiTag.findMany(name);
+
+        if (searchManyTags.length < 1)
+          throw new HttpException('Tags were not found.', HttpStatus.NOT_FOUND);
+        return searchManyTags;
+      }
     } catch (error: Error | any) {
-      throw new Error(error.message);
+      throw new Error(error?.message);
     }
   }
 
@@ -76,7 +86,7 @@ export class TagService {
           HttpStatus.NOT_FOUND,
         );
 
-      const updatedTag = await this.apiTag.upd(data);
+      const updatedTag = await this.apiTag.upd(data, doesExists?.id);
 
       if (!updatedTag)
         throw new HttpException(

@@ -22,7 +22,7 @@ export interface CreateCategoryInput {
 export interface UpdateCategoryInput extends CreateCategoryInput {
   categoryId: string;
 }
-export interface CreateTagInput{
+export interface CreateTagInput {
   name: string;
   projectId?: string;
 }

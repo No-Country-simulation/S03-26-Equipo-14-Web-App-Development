@@ -13,20 +13,35 @@ export class TagRepository {
   }
 
   async findUniqueTag(searchFilter: string, type: string) {
-    let name, id;
+    if (type == 'name') {
+      return (await this.prisma.client.tag.findUnique({
+        where: {
+          name: searchFilter,
+        },
+        include: {
+          projects: true,
+          testimonialTags: true,
+        },
+      })) as Tag;
+    } else {
+      return (await this.prisma.client.tag.findUnique({
+        where: {
+          id: searchFilter,
+        },
+        include: {
+          projects: true,
+          testimonialTags: true,
+        },
+      })) as Tag;
+    }
+  }
 
-    if (type == 'name') name = searchFilter;
-    else id = searchFilter;
-
-    return (await this.prisma.client.tag.findUnique({
+  async findMany(tags: string[]) {
+    return (await this.prisma.client.tag.findMany({
       where: {
-        ...(type == 'name' ? name : id),
+        name: { in: tags },
       },
-      include: {
-        projects: true,
-        testimonialTags: true,
-      },
-    })) as Tag;
+    })) as Tag[];
   }
 
   async create(data: CreateTagInput) {
@@ -43,10 +58,10 @@ export class TagRepository {
     });
   }
 
-  async upd(data: CreateTagInput) {
+  async upd(data: CreateTagInput, id: string) {
     return await this.prisma.client.tag.update({
       where: {
-        name: data.name,
+        id,
       },
       data,
     });
@@ -56,7 +71,7 @@ export class TagRepository {
     const deletedTag = this.prisma.client.tag.delete({
       where: { id: id2Delete },
     });
-    
+
     return await deletedTag;
   }
 }
