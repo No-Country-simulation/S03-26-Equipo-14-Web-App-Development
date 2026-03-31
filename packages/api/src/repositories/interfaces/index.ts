@@ -1,4 +1,4 @@
-import { Prisma, TestimonialType } from "@workspace/database";
+import { Prisma, TestimonialType } from '@workspace/database';
 
 export interface CreateOwnerInput {
   name: string;
@@ -24,7 +24,10 @@ export interface CreateCategoryInput {
 export interface UpdateCategoryInput extends CreateCategoryInput {
   categoryId: string;
 }
-
+export interface CreateTagInput {
+  name: string;
+  projectId?: string;
+}
 export interface FindAllTestimonialsQuery {
   category_id?: string;
   type?: string;

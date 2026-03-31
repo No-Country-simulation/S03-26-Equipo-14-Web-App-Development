@@ -6,3 +6,4 @@ export * from './types/user.types';
 export * from './prisma/prisma.module';
 export * from './prisma/prisma.service';
 export * from './repositories/interfaces/testimonial.interface';
+export * from './repositories/tag.repository';

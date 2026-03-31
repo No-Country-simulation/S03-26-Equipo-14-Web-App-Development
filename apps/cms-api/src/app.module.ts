@@ -12,10 +12,12 @@ import {
   CategoryRepository,
   TestimonialRepository,
   PrismaModule,
+  TagRepository,
 } from '@repo/api';
 import { CategoryModule } from './category/category.module';
 import { MailModule } from './mail/mail.module';
 import { TestimonialsModule } from './testimonials/testimonials.module';
+import { TagModule } from './tag/tag.module';
 
 @Module({
   imports: [
@@ -28,6 +30,7 @@ import { TestimonialsModule } from './testimonials/testimonials.module';
     CategoryModule,
     MailModule,
     TestimonialsModule,
+    TagModule,
   ],
   controllers: [AppController],
   providers: [
@@ -36,6 +39,7 @@ import { TestimonialsModule } from './testimonials/testimonials.module';
     UserRepository,
     CategoryRepository,
     TestimonialRepository,
+    TagRepository,
     { provide: APP_GUARD, useClass: JwtAuthGuard },
   ],
 })
