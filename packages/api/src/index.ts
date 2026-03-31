@@ -1,5 +1,6 @@
 export * from './types/testimonial.types';
 export * from './types/user.types';
+export * from "./types/organization.types"
 export * from './prisma/prisma.module';
 export * from './prisma/prisma.service';
 export * from './repositories/category.repository';
@@ -10,3 +11,4 @@ export * from './repositories/interfaces/category.interface';
 export * from './repositories/interfaces/tag.interface';
 export * from './repositories/interfaces/testimonial.interface';
 export * from './repositories/interfaces/user.interface';
+export * from "./repositories/organization-member.repository";
