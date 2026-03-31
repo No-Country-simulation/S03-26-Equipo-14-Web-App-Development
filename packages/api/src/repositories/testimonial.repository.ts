@@ -3,6 +3,10 @@ import { PrismaService } from '../prisma/prisma.service';
 import { Prisma  } from '@workspace/database';
 import {Testimonial} from '@workspace/database';
 import { FindAllTestimonialsQuery } from './interfaces';
+import {
+  CreateQuoteInput,
+  CreateTestimonialInput,
+} from './interfaces/testimonial.interface';
 
 @Injectable()
 export class TestimonialRepository {
@@ -25,4 +29,22 @@ export class TestimonialRepository {
     })
   }
 
+
+  async createQuote(quote: CreateQuoteInput) {
+
+    await await this.prisma.client.testimonial.create({
+      data: {
+        ...quote,
+      },
+    });
+  }
+
+  async createTestimonial(testimonial: CreateTestimonialInput) {
+        console.log("repo", testimonial)
+    await await this.prisma.client.testimonial.create({
+      data: {
+        ...testimonial,
+      },
+    });
+  }
 }
