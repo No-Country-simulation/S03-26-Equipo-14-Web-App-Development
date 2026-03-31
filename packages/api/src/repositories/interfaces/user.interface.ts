@@ -17,19 +17,4 @@ export interface CreateMemberInput {
   projectId: string;
 }
 
-export interface CreateCategoryInput {
-  name: string;
-}
 
-export interface UpdateCategoryInput extends CreateCategoryInput {
-  categoryId: string;
-}
-export interface CreateTagInput {
-  name: string;
-  projectId?: string;
-}
-export interface FindAllTestimonialsQuery {
-  category_id?: string;
-  type?: string;
-  orderBy?: Prisma.TestimonialOrderByWithRelationInput;
-}
