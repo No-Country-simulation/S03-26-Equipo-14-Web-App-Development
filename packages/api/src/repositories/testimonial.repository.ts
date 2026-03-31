@@ -8,6 +8,7 @@ import {
   FindAllTestimonialsQuery,
   FindByFragment,
 } from './interfaces/testimonial.interface';
+import { PartialType } from '@nestjs/mapped-types';
 
 @Injectable()
 export class TestimonialRepository {
@@ -25,6 +26,26 @@ export class TestimonialRepository {
           { content: { contains: fragment, mode: 'insensitive' } },
         ],
       },
+    });
+  }
+
+  async findByIdSelectOrganizationId(id: string) {
+    return this.prisma.client.testimonial.findUnique({
+      where: { id },
+      select: {
+        project: {
+          select: {
+            organization_id: true,
+          }
+        }
+      }
+    });
+  }
+
+  async findOneById(id: string, select?: Prisma.TestimonialSelect): Promise<any> {
+    return this.prisma.client.testimonial.findUnique({
+      where: { id },
+      select,
     });
   }
 
@@ -56,6 +77,20 @@ export class TestimonialRepository {
       data: {
         ...testimonial,
       },
+    });
+  }
+
+  async updateTestimonial(id: string, updateData: Partial<CreateTestimonialInput>, isDraft: boolean): Promise<any> {
+
+    const data = {
+      ...updateData
+    }
+
+    if(isDraft) data.status = 'draft';
+
+    return this.prisma.client.testimonial.update({
+      where: { id },
+      data
     });
   }
 }
