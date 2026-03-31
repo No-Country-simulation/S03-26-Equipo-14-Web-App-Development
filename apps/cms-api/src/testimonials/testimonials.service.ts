@@ -88,10 +88,12 @@ export class TestimonialsService {
 
     const { draft, ...updateData } = updateTestimonialDto;
 
-    const {status} : {status: string | null}= await this.api.findOneById(id, {status: true}); 
-    if(status === TestimonialStatus.published || status === TestimonialStatus.rejected || status === TestimonialStatus.review) throw new BadRequestException(`Cannot edit testimonials with status ${status}`)
+    const {status, type} : {status: string | null, type: string | null}= await this.api.findOneById(id, {status: true, type: true}); 
     
-    const result = await this.api.updateTestimonial(id, updateData, draft)
+    if(type === 'quote') throw new BadRequestException(`Cannot edit quote testimonials`)
+    if(status === TestimonialStatus.published) throw new BadRequestException(`Cannot edit testimonials with status ${status}`)
+    
+    const result = await this.api.updateTestimonial(id, updateData, draft, status === TestimonialStatus.rejected);
 
     return {
       message: 'Testimonial updated successfully',

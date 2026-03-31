@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
-import { Prisma } from '@workspace/database';
+import { Prisma, TestimonialStatus, TestimonialType } from '@workspace/database';
 import { Testimonial } from '@workspace/database';
 import {
   CreateQuoteInput,
@@ -80,14 +80,15 @@ export class TestimonialRepository {
     });
   }
 
-  async updateTestimonial(id: string, updateData: Partial<CreateTestimonialInput>, isDraft: boolean): Promise<any> {
+  async updateTestimonial(id: string, updateData: Partial<CreateTestimonialInput>, isDraft: boolean, isRejected: boolean): Promise<any> {
 
     const data = {
       ...updateData
     }
 
-    if(isDraft) data.status = 'draft';
-
+    if(isRejected && !isDraft) data.status = TestimonialStatus.pending;
+    isDraft ? data.status = TestimonialStatus.draft : data.status = TestimonialStatus.pending;
+    
     return this.prisma.client.testimonial.update({
       where: { id },
       data
