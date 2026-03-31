@@ -1,5 +1,4 @@
 import { IsArray, IsEnum, IsOptional, IsString, IsUUID } from "class-validator";
-import { TestimonialType } from "../../../../../packages/database/dist";
 
 export class FindAllQueryTestimonialDto {
     @IsOptional()
@@ -9,6 +8,9 @@ export class FindAllQueryTestimonialDto {
 
     @IsOptional()
     @IsString()
-    @IsEnum(TestimonialType)
-    type?: TestimonialType;
+    type?: string;
+
+    @IsOptional()
+    @IsString()
+    sorted?: string;
 }

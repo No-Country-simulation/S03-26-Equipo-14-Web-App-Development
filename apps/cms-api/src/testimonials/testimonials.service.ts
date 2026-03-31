@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { CreateTestimonialDto } from './dto/create-testimonial.dto';
 import { UpdateTestimonialDto } from './dto/update-testimonial.dto';
 import { TestimonialRepository } from '@repo/api';
@@ -16,7 +16,22 @@ export class TestimonialsService {
 
   findAll(queryDto: FindAllQueryTestimonialDto) {
 
-    return this.testimonialRepository.findAll(queryDto);
+    const allowedFields = ['created_at', 'rating', 'title'];
+
+    const [field, order] = queryDto.sorted
+      ? queryDto.sorted.split(':')
+      : ['created_at', 'desc'];
+
+    const safeField = allowedFields.includes(field!) ? field : 'created_at';
+    const safeOrder = order === 'asc' ? 'asc' : 'desc';
+
+    const orderBy = { [safeField!]: safeOrder };
+
+    return this.testimonialRepository.findAll({
+      type: queryDto.type,
+      category_id: queryDto.category_id,
+      orderBy,
+    });
   }
 
   findOne(id: number) {
