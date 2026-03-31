@@ -1,4 +1,4 @@
-import { TestimonialType } from "@workspace/database";
+import { Prisma, TestimonialType } from "@workspace/database";
 
 export interface CreateOwnerInput {
   name: string;
@@ -27,5 +27,6 @@ export interface UpdateCategoryInput extends CreateCategoryInput {
 
 export interface FindAllTestimonialsQuery {
   category_id?: string;
-  type?: TestimonialType;
+  type?: string;
+  orderBy?: Prisma.TestimonialOrderByWithRelationInput;
 }

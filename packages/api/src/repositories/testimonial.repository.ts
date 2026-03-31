@@ -11,10 +11,17 @@ export class TestimonialRepository {
   //addd Methods, get, delete, update
 
   async findAll(query: FindAllTestimonialsQuery): Promise<any[]>{
+    
+    const {orderBy, type, category_id} = query;
+
+    const where : Prisma.TestimonialWhereInput = {}
+
+    if(category_id) where.category_id = category_id
+    if(type) where.type = type as any
+
     return this.prisma.client.testimonial.findMany({
-      where : {
-        ...query
-      }
+      where,
+      orderBy: orderBy ?? { created_at: 'desc' }
     })
   }
 
