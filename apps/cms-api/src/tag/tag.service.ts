@@ -10,7 +10,7 @@ export class TagService {
     const newTag = await this.apiTag.create({ name });
 
     if (!newTag)
-      throw new HttpException(
+      return new HttpException(
         'Failed to create, try again later',
         HttpStatus.NOT_FOUND,
       );
@@ -23,7 +23,7 @@ export class TagService {
       const newTags = await this.apiTag.createMany(names);
 
       if (!newTags || newTags.length == 0)
-        throw new HttpException(
+        return new HttpException(
           'It seems there is an error creating the tags, please, try again later.',
           HttpStatus.NOT_FOUND,
         );
@@ -39,7 +39,7 @@ export class TagService {
       const search = await this.apiTag.findAll();
 
       if (!search || search.length <= 0)
-        throw new HttpException(
+        return new HttpException(
           'The search did not find the tags list. Please try again later.',
           HttpStatus.NOT_FOUND,
         );
@@ -52,12 +52,11 @@ export class TagService {
 
   async find(name: string | string[]) {
     try {
-      console.log(name);
       if (typeof name == 'string') {
         const searchByName = await this.apiTag.findUniqueTag(name, 'name');
 
         if (!searchByName) {
-          throw new HttpException(
+          return new HttpException(
             'Welp, it looks like there is no tag with that name yet. Maybe you want to create one with another endpoint.',
             HttpStatus.NOT_FOUND,
           );
@@ -68,7 +67,10 @@ export class TagService {
         const searchManyTags = await this.apiTag.findMany(name);
 
         if (searchManyTags.length < 1)
-          throw new HttpException('Tags were not found.', HttpStatus.NOT_FOUND);
+          return new HttpException(
+            'Tags were not found.',
+            HttpStatus.NOT_FOUND,
+          );
         return searchManyTags;
       }
     } catch (error: Error | any) {
@@ -81,7 +83,7 @@ export class TagService {
       const doesExists = await this.apiTag.findUniqueTag(id, 'id');
 
       if (!doesExists)
-        throw new HttpException(
+        return new HttpException(
           "The Tag you're trying to update doesn't exist on the DB.",
           HttpStatus.NOT_FOUND,
         );
@@ -89,7 +91,7 @@ export class TagService {
       const updatedTag = await this.apiTag.upd(data, doesExists?.id);
 
       if (!updatedTag)
-        throw new HttpException(
+        return new HttpException(
           'The DB must have a little issue at the moment to update the tag. Please try again later.',
           HttpStatus.NOT_FOUND,
         );
@@ -105,14 +107,14 @@ export class TagService {
       const doesExists = await this.apiTag.findUniqueTag(id, 'id');
 
       if (!doesExists)
-        throw new HttpException(
+        return new HttpException(
           "The tag you're trying to delete doesn't exists.",
           HttpStatus.NOT_FOUND,
         );
 
       const deletedRecord = await this.apiTag.delete(id);
       if (!deletedRecord.id)
-        throw new HttpException(
+        return new HttpException(
           'The tag to delete was not found.',
           HttpStatus.NOT_FOUND,
         );
