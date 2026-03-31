@@ -12,10 +12,14 @@ import {
   CategoryRepository,
   TestimonialRepository,
   PrismaModule,
+  TagRepository,
+  OrganizationMemberRepository,
 } from '@repo/api';
 import { CategoryModule } from './category/category.module';
 import { MailModule } from './mail/mail.module';
 import { TestimonialsModule } from './testimonials/testimonials.module';
+import { TagModule } from './tag/tag.module';
+import { OrgRolesGuard } from './common/guards/organization-role.guard';
 
 @Module({
   imports: [
@@ -28,6 +32,7 @@ import { TestimonialsModule } from './testimonials/testimonials.module';
     CategoryModule,
     MailModule,
     TestimonialsModule,
+    TagModule,
   ],
   controllers: [AppController],
   providers: [
@@ -36,7 +41,10 @@ import { TestimonialsModule } from './testimonials/testimonials.module';
     UserRepository,
     CategoryRepository,
     TestimonialRepository,
+    OrganizationMemberRepository,
+    TagRepository,
     { provide: APP_GUARD, useClass: JwtAuthGuard },
+    { provide: APP_GUARD, useClass: OrgRolesGuard },
   ],
 })
 export class AppModule {}
