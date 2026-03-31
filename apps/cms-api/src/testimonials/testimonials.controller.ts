@@ -13,13 +13,15 @@ import {
   CreateTestimonialDto,
   CreateTestimonialQuoteDto,
 } from './dto/create-testimonial.dto';
-import { UpdateTestimonialQuoteDto } from './dto/update-testimonial.dto';
+import { UpdateTestimonialDto } from './dto/update-testimonial.dto';
 import { Public } from 'src/auth/decorators/public.decorator';
 import {
   FindAllQueryTestimonialDto,
   GetByFragmentDto,
 } from './dto/find-all-query-testimonial.dto';
-import { Testimonial } from '@repo/api';
+import { OrganizationRoleEnum, Testimonial } from '@repo/api';
+import { OrgRoles } from 'src/common/decorator/organization-role.decorator';
+import { OrganizationRole } from '@repo/api';
 
 @Controller('testimonials')
 export class TestimonialsController {
@@ -57,14 +59,16 @@ export class TestimonialsController {
     return this.testimonialsService.findOne(+id);
   }
 
+  @OrgRoles(OrganizationRoleEnum.Admin, OrganizationRoleEnum.Owner, OrganizationRoleEnum.Editor)
   @Patch(':id')
   update(
     @Param('id') id: string,
-    @Body() updateTestimonialDto: UpdateTestimonialQuoteDto,
+    @Body() updateTestimonialDto: UpdateTestimonialDto,    
   ) {
-    return this.testimonialsService.update(+id, updateTestimonialDto);
+    return this.testimonialsService.update(id, updateTestimonialDto);
   }
 
+  @OrgRoles(OrganizationRoleEnum.Admin, OrganizationRoleEnum.Owner)
   @Delete(':id')
   remove(@Param('id') id: string) {
     return this.testimonialsService.remove(+id);

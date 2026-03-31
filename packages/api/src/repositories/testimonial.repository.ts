@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
-import { Prisma } from '@workspace/database';
+import { Prisma, TestimonialStatus, TestimonialType } from '@workspace/database';
 import { Testimonial } from '@workspace/database';
 import {
   CreateQuoteInput,
@@ -8,6 +8,7 @@ import {
   FindAllTestimonialsQuery,
   FindByFragment,
 } from './interfaces/testimonial.interface';
+import { PartialType } from '@nestjs/mapped-types';
 
 @Injectable()
 export class TestimonialRepository {
@@ -25,6 +26,26 @@ export class TestimonialRepository {
           { content: { contains: fragment, mode: 'insensitive' } },
         ],
       },
+    });
+  }
+
+  async findByIdSelectOrganizationId(id: string) {
+    return this.prisma.client.testimonial.findUnique({
+      where: { id },
+      select: {
+        project: {
+          select: {
+            organization_id: true,
+          }
+        }
+      }
+    });
+  }
+
+  async findOneById(id: string, select?: Prisma.TestimonialSelect): Promise<any> {
+    return this.prisma.client.testimonial.findUnique({
+      where: { id },
+      select,
     });
   }
 
@@ -56,6 +77,21 @@ export class TestimonialRepository {
       data: {
         ...testimonial,
       },
+    });
+  }
+
+  async updateTestimonial(id: string, updateData: Partial<CreateTestimonialInput>, isDraft: boolean, isRejected: boolean): Promise<any> {
+
+    const data = {
+      ...updateData
+    }
+
+    if(isRejected && !isDraft) data.status = TestimonialStatus.pending;
+    isDraft ? data.status = TestimonialStatus.draft : data.status = TestimonialStatus.pending;
+    
+    return this.prisma.client.testimonial.update({
+      where: { id },
+      data
     });
   }
 }
