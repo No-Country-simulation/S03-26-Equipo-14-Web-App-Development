@@ -1,6 +1,9 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
-import { TestimonialRepository } from '@repo/api';
-import { FindAllQueryTestimonialDto } from './dto/find-all-query-testimonial.dto';
+import { Testimonial, TestimonialRepository } from '@repo/api';
+import {
+  FindAllQueryTestimonialDto,
+  GetByFragmentDto,
+} from './dto/find-all-query-testimonial.dto';
 import {
   CreateTestimonialDto,
   CreateTestimonialQuoteDto,
@@ -9,7 +12,6 @@ import { UpdateTestimonialQuoteDto } from './dto/update-testimonial.dto';
 
 @Injectable()
 export class TestimonialsService {
-
   constructor(private readonly api: TestimonialRepository) {}
 
   async creatQuote(
@@ -56,7 +58,6 @@ export class TestimonialsService {
   }
 
   findAll(queryDto: FindAllQueryTestimonialDto) {
-
     const allowedFields = ['created_at', 'rating', 'title'];
 
     const [field, order] = queryDto.sorted
@@ -75,6 +76,10 @@ export class TestimonialsService {
     });
   }
 
+  async searchByFragment({ fragment }: GetByFragmentDto): Promise<Testimonial[]>  {
+    return await this.api.findByFragment({ fragment });
+  }
+
   findOne(id: number) {
     return `This action returns a #${id} testimonial`;
   }
@@ -86,5 +91,4 @@ export class TestimonialsService {
   remove(id: number) {
     return `This action removes a #${id} testimonial`;
   }
-
 }
