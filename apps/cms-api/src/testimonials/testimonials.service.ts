@@ -1,17 +1,58 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
-import { CreateTestimonialDto } from './dto/create-testimonial.dto';
-import { UpdateTestimonialDto } from './dto/update-testimonial.dto';
 import { TestimonialRepository } from '@repo/api';
-import { TestimonialType } from '../../../../packages/database/dist';
 import { FindAllQueryTestimonialDto } from './dto/find-all-query-testimonial.dto';
+import {
+  CreateTestimonialDto,
+  CreateTestimonialQuoteDto,
+} from './dto/create-testimonial.dto';
+import { UpdateTestimonialQuoteDto } from './dto/update-testimonial.dto';
 
 @Injectable()
 export class TestimonialsService {
 
-  constructor(private readonly testimonialRepository: TestimonialRepository) {}
+  constructor(private readonly api: TestimonialRepository) {}
 
-  create(createTestimonialDto: CreateTestimonialDto) {
-    return 'This action adds a new testimonial';
+  async creatQuote(
+    createTestimonialDto: CreateTestimonialQuoteDto,
+  ): Promise<void> {
+    const { projectId, authorPhoto, authorRole, mediaUrl, ...testimonial } =
+      createTestimonialDto;
+    const synthTestimonial = {
+      project_id: projectId,
+      author_photo: authorPhoto,
+      author_role: authorRole,
+      media_url: mediaUrl,
+      ...testimonial,
+    };
+
+    await this.api.createQuote(synthTestimonial);
+  }
+
+  async createTestimonial(createTestimonialDto: CreateTestimonialDto) {
+    console.log('service', createTestimonialDto);
+    const {
+      categoryId,
+      memberId,
+      projectId,
+      authorPhoto,
+      authorRole,
+      mediaDescription,
+      mediaUrl,
+      ...testimonial
+    } = createTestimonialDto;
+
+    const synthTestimonial = {
+      category_id: categoryId,
+      member_id: memberId,
+      project_id: projectId,
+      author_photo: authorPhoto,
+      author_role: authorRole,
+      media_url: mediaUrl,
+      media_description: mediaDescription,
+      ...testimonial,
+    };
+
+    await this.api.createTestimonial(synthTestimonial);
   }
 
   findAll(queryDto: FindAllQueryTestimonialDto) {
@@ -27,7 +68,7 @@ export class TestimonialsService {
 
     const orderBy = { [safeField!]: safeOrder };
 
-    return this.testimonialRepository.findAll({
+    return this.api.findAll({
       type: queryDto.type,
       category_id: queryDto.category_id,
       orderBy,
@@ -38,7 +79,7 @@ export class TestimonialsService {
     return `This action returns a #${id} testimonial`;
   }
 
-  update(id: number, updateTestimonialDto: UpdateTestimonialDto) {
+  update(id: number, updateTestimonialDto: UpdateTestimonialQuoteDto) {
     return `This action updates a #${id} testimonial`;
   }
 
