@@ -107,8 +107,6 @@ export const authConfig: NextAuthOptions = {
   callbacks: {
     async jwt({ token, user }) {
       if (user) {
-        console.log('user jwt  login', user);
-
         token.id = user.id;
         token.email = user.email;
         token.organizationId = (
@@ -129,8 +127,6 @@ export const authConfig: NextAuthOptions = {
         session.user.name = token.email;
         session.user.email = token.email;
       }
-      console.log('session user', session);
-
       return session;
     },
   },
