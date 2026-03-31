@@ -3,6 +3,7 @@ import { PrismaService } from '../prisma/prisma.service';
 import { Prisma, TestimonialStatus, TestimonialType } from '@workspace/database';
 import { Testimonial } from '@workspace/database';
 import {
+  ChangeStatusInput,
   CreateQuoteInput,
   CreateTestimonialInput,
   FindAllTestimonialsQuery,
@@ -15,6 +16,17 @@ export class TestimonialRepository {
   constructor(private readonly prisma: PrismaService) {}
 
   //addd Methods, get, delete, update
+
+  async changeStatus({ id, status }: ChangeStatusInput) {
+    await this.prisma.client.testimonial.update({
+      where: {
+        id: id,
+      },
+      data: {
+        status: status,
+      },
+    });
+  }
 
   async findByFragment({ fragment }: FindByFragment): Promise<Testimonial[]> {
     console.log('api', fragment);
