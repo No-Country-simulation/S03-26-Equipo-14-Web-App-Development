@@ -2,7 +2,7 @@ import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { CreateProjectDto } from './dto/create-project.dto';
 import { UpdateProjectDto } from './dto/update-project.dto';
 import { JwtPayload } from 'src/auth/types/jwt-payload.type';
-import { OrganizationMemberRepository, OrganizationMember, ProjectRepository, CreateProjectInput } from '@repo/api';
+import { OrganizationMemberRepository, OrganizationMember, ProjectRepository, CreateProjectInput, OrganizationRoleEnum } from '@repo/api';
 
 
 @Injectable()
@@ -28,8 +28,10 @@ export class ProjectsService {
     return {message: 'Project created successfully', project};
   }
 
-  findAll() {
-    return `This action returns all projects`;
+  findAll(user: JwtPayload) {
+
+    if(user.role === OrganizationRoleEnum.Owner) return this.projectRepository.findAll(user.organizationId);
+    throw new UnauthorizedException('You are not allowed to view all projects');
   }
 
   findOne(id: number) {

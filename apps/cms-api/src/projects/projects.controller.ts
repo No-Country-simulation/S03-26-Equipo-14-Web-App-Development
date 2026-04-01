@@ -17,8 +17,8 @@ export class ProjectsController {
   }
 
   @Get()
-  findAll() {
-    return this.projectsService.findAll();
+  findAll(@GetUser() user: JwtPayload) {
+    return this.projectsService.findAll(user);
   }
 
   @Get(':id')
