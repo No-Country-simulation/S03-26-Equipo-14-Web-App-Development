@@ -53,7 +53,7 @@ export class TagRepository {
   }
 
   async createMany(data: CreateTagInput[]) {
-    return await this.prisma.client.tag.createManyAndReturn({
+    return await this.prisma.client.tag.createMany({
       data,
     });
   }
