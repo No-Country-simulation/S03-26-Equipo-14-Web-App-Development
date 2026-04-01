@@ -12,3 +12,6 @@ export * from './repositories/interfaces/tag.interface';
 export * from './repositories/interfaces/testimonial.interface';
 export * from './repositories/interfaces/user.interface';
 export * from "./repositories/organization-member.repository";
+export * from "./types/organization-member.types"
+export * from "./repositories/project.repository";
+export * from "./repositories/interfaces/project.interface";
