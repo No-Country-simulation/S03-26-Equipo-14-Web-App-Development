@@ -12,7 +12,6 @@ export default async function TestimonialPage({ params }: TestimonialPageProps) 
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
-      {/* Header: solo logo */}
       <header className="border-b border-border bg-card sticky top-0 z-50 px-6 py-3">
         <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
           <Link href="/" className="flex items-center gap-2">
@@ -27,7 +26,6 @@ export default async function TestimonialPage({ params }: TestimonialPageProps) 
       </header>
 
       <main className="flex-1 flex flex-col items-center px-4 py-12">
-        {/* encabezado */}
         <div className="text-center mb-8 space-y-2">
           <h1 className="text-3xl font-bold text-foreground">
             Comparte tu experiencia
@@ -37,7 +35,6 @@ export default async function TestimonialPage({ params }: TestimonialPageProps) 
           </p>
         </div>
 
-        {/* tarjeta del formulario */}
         <div className="w-full max-w-lg bg-card rounded-2xl shadow-sm border-0 overflow-hidden">
           <TestimonialForm projectId={id} />
         </div>

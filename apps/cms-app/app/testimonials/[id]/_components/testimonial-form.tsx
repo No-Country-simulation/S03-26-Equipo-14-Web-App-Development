@@ -17,15 +17,18 @@ import {
 } from "@repo/ui/components";
 import { Camera, Pencil, Star, X } from "@repo/ui/lib";
 import { uploadToCloudinary } from '@/shared/hooks/useCloudinary';
+import { useMutation } from '@tanstack/react-query';
 
 const MAX_CHARS = 300;
 
 type TestimonialFormValues = {
-  fullName: string;
-  role: string;
-  media_url: string;
+  author: string;
+  authorRole: string;
+  mediaUrl: string;
   rating: number;
-  type: 'quote';
+  type: string;
+  authorPhoto?: string;
+  projectId?: string;
   content: string;
 };
 
@@ -41,9 +44,9 @@ export function TestimonialForm({ projectId }: TestimonialFormProps) {
 
   const form = useForm<TestimonialFormValues>({
     defaultValues: {
-      fullName: "",
-      role: "",
-      media_url: "",
+      author: "",
+      authorRole: "",
+      mediaUrl: "",
       rating: 0,
       content: "",
       type: 'quote',
@@ -71,13 +74,32 @@ export function TestimonialForm({ projectId }: TestimonialFormProps) {
     if (!file) return;
     setPhoto(file);
   };
+  const createdTestimonial = useMutation({
+    mutationFn: async (data: TestimonialFormValues) => {
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
+      const response = await fetch(`${apiUrl}/testimonials/quote`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
+      });
+      if (!response.ok) {
+        throw new Error('Failed to create testimonial');
+      }
+    },
+    onSuccess: () => { },
+    onError: (error) => {
+      console.error('Error creating testimonial:', error);
+    }
+  });
 
   async function onSubmit(data: TestimonialFormValues) {
     // TODO: enviar datos a la API con projectId
     uploadToCloudinary({ file: photo as File, folder: `${projectId}_visitors` })
       .then((result) => {
         if (result.success && result.url) {
-          console.log({ projectId, ...data, photo: result.url, type: 'quote' });
+          const testimonialData = { ...data, authorPhoto: result.url, type: 'quote', projectId };
+          createdTestimonial.mutate(testimonialData);
+          console.log({ projectId, ...data, authorPhoto: result.url, type: 'quote' });
         } else {
           console.error('Error uploading to Cloudinary:', result.error);
         }
@@ -118,7 +140,7 @@ export function TestimonialForm({ projectId }: TestimonialFormProps) {
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <FormField
             control={control}
-            name="fullName"
+            name="author"
             rules={{ required: "El nombre es requerido" }}
             render={({ field }) => (
               <FormItem>
@@ -134,7 +156,7 @@ export function TestimonialForm({ projectId }: TestimonialFormProps) {
           />
           <FormField
             control={control}
-            name="role"
+            name="authorRole"
             render={({ field }) => (
               <FormItem>
                 <FormLabel className="text-xs text-muted-foreground uppercase tracking-widest">
@@ -151,7 +173,7 @@ export function TestimonialForm({ projectId }: TestimonialFormProps) {
 
         <FormField
           control={control}
-          name="media_url"
+          name="mediaUrl"
           rules={{
             pattern: {
               value: /^$|^(https?:\/\/).+/i,
