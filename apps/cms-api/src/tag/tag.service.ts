@@ -1,4 +1,10 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import {
+  ConflictException,
+  HttpException,
+  HttpStatus,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { CreateTagInput } from '@repo/api/src/repositories/interfaces/tag.interface';
 import { TagRepository } from '@repo/api';
 
@@ -107,20 +113,15 @@ export class TagService {
       const doesExists = await this.apiTag.findUniqueTag(id, 'id');
 
       if (!doesExists)
-        return new HttpException(
+        return new NotFoundException(
           "The tag you're trying to delete doesn't exists.",
-          HttpStatus.NOT_FOUND,
         );
 
-      const deletedRecord = await this.apiTag.delete(id);
-      if (!deletedRecord.id)
-        return new HttpException(
-          'The tag to delete was not found.',
-          HttpStatus.NOT_FOUND,
-        );
-      return deletedRecord;
+      await this.apiTag.delete(id);
+
+      return { message: 'Delete success' };
     } catch (error: Error | any) {
-      throw new Error(error?.message);
+      throw new ConflictException('Delete Failed', error?.message);
     }
   }
 }

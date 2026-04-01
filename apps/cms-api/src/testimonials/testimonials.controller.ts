@@ -13,15 +13,23 @@ import {
   CreateTestimonialDto,
   CreateTestimonialQuoteDto,
 } from './dto/create-testimonial.dto';
-import { UpdateTestimonialDto } from './dto/update-testimonial.dto';
+import {
+  ChangeStatusDto,
+  UpdateTestimonialDto,
+} from './dto/update-testimonial.dto';
 import { Public } from 'src/auth/decorators/public.decorator';
 import {
   FindAllQueryTestimonialDto,
   GetByFragmentDto,
-} from './dto/find-all-query-testimonial.dto';
-import { OrganizationRoleEnum, Testimonial } from '@repo/api';
+} from './dto/get-testimonial.dto';
+
 import { OrgRoles } from 'src/common/decorator/organization-role.decorator';
-import { OrganizationRole } from '@repo/api';
+import {
+  OrganizationRoleEnum,
+  Testimonial,
+  TestimonialStatus,
+  TestimonialType,
+} from '@repo/api';
 
 @Controller('testimonials')
 export class TestimonialsController {
@@ -45,7 +53,9 @@ export class TestimonialsController {
   }
 
   @Get('byFragment')
-  async getByFragment(@Query() queryDto: GetByFragmentDto): Promise<Testimonial[]>  {
+  async getByFragment(
+    @Query() queryDto: GetByFragmentDto,
+  ): Promise<Testimonial[]> {
     return await this.testimonialsService.searchByFragment(queryDto);
   }
 
@@ -59,11 +69,25 @@ export class TestimonialsController {
     return this.testimonialsService.findOne(+id);
   }
 
-  @OrgRoles(OrganizationRoleEnum.Admin, OrganizationRoleEnum.Owner, OrganizationRoleEnum.Editor)
+  @OrgRoles(OrganizationRoleEnum.Admin, OrganizationRoleEnum.Owner)
+  @Patch('changeStatus/:id')
+  changeStatus(
+    @Param('id') id: string,
+    @Body()
+    body: ChangeStatusDto,
+  ) {
+    return this.testimonialsService.changeStatus(id, body);
+  }
+
+  @OrgRoles(
+    OrganizationRoleEnum.Admin,
+    OrganizationRoleEnum.Owner,
+    OrganizationRoleEnum.Editor,
+  )
   @Patch(':id')
   update(
     @Param('id') id: string,
-    @Body() updateTestimonialDto: UpdateTestimonialDto,    
+    @Body() updateTestimonialDto: UpdateTestimonialDto,
   ) {
     return this.testimonialsService.update(id, updateTestimonialDto);
   }

@@ -45,5 +45,6 @@ export interface FindByFragment {
 
 export interface ChangeStatusInput {
   id: string;
+  type: TestimonialType;
   status: TestimonialStatus;
 }
