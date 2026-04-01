@@ -15,33 +15,38 @@ import {
   Input,
   Textarea,
 } from "@repo/ui/components";
-import { Camera, Pencil, Star } from "@repo/ui/lib";
+import { Camera, Pencil, Star, X } from "@repo/ui/lib";
+import { uploadToCloudinary } from '@/shared/hooks/useCloudinary';
 
 const MAX_CHARS = 300;
 
 type TestimonialFormValues = {
   fullName: string;
   role: string;
+  media_url: string;
   rating: number;
+  type: 'quote';
   content: string;
 };
 
 interface TestimonialFormProps {
-  testimonialId: string;
+  projectId: string;
 }
 
-export function TestimonialForm({ testimonialId }: TestimonialFormProps) {
+export function TestimonialForm({ projectId }: TestimonialFormProps) {
   const router = useRouter();
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const [photo, setPhoto] = useState<string | null>(null);
+  const [photo, setPhoto] = useState<File | null>(null);
   const [hoveredRating, setHoveredRating] = useState(0);
 
   const form = useForm<TestimonialFormValues>({
     defaultValues: {
       fullName: "",
       role: "",
+      media_url: "",
       rating: 0,
       content: "",
+      type: 'quote',
     },
     mode: "onTouched",
   });
@@ -57,56 +62,53 @@ export function TestimonialForm({ testimonialId }: TestimonialFormProps) {
   const rating = watch("rating");
   const remaining = MAX_CHARS - (content?.length ?? 0);
 
-  const handlePhotoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handlePhotoChange = (e: React.ChangeEvent<HTMLInputElement> | null) => {
+    if (e === null) {
+      setPhoto(null);
+      return;
+    }
     const file = e.target.files?.[0];
     if (!file) return;
-    const reader = new FileReader();
-    reader.onload = () => setPhoto(reader.result as string);
-    reader.readAsDataURL(file);
+    setPhoto(file);
   };
 
   async function onSubmit(data: TestimonialFormValues) {
-    // TODO: enviar datos a la API con testimonialId
-    console.log({ testimonialId, ...data, photo });
+    // TODO: enviar datos a la API con projectId
+    uploadToCloudinary({ file: photo as File, folder: `${projectId}_visitors` })
+      .then((result) => {
+        if (result.success && result.url) {
+          console.log({ projectId, ...data, photo: result.url, type: 'quote' });
+        } else {
+          console.error('Error uploading to Cloudinary:', result.error);
+        }
+        console.log({ projectId, ...data, photo, type: 'quote' });
+      });
   }
-
   return (
     <Form {...form}>
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-6 p-8 border-t-primary border-t-4" noValidate>
         {/* foto de perfil */}
         <div className="flex flex-col items-center gap-2">
-          <div className="relative">
-            <button
-              type="button"
-              onClick={() => fileInputRef.current?.click()}
-              className="w-20 h-20 rounded-full bg-muted flex items-center justify-center border-2 border-dashed border-border overflow-hidden"
-            >
-              {photo ? (
+          <div className="relative w-20 h-20 flex border-0 rounded-lg bg-muted items-center justify-center ">
+            {!photo ? <>
+              <Camera className="w-8 h-8 text-muted-foreground" />
+              <span className="p-2 absolute bg-primary rounded-full -bottom-1 -right-1">
+                <Pencil className='w-3 h-3 text-primary-foreground' />
+              </span>
+              <Input type='file' accept="image/*" className="absolute opacity-0 w-full h-full  cursor-pointer z-10" ref={fileInputRef} onChange={handlePhotoChange} />
+            </> :
+              <>
                 <Image
-                  src={photo}
+                  src={URL.createObjectURL(photo)}
                   alt="Foto de perfil"
                   fill
-                  className="object-cover"
+                  className="object-cover rounded-lg"
                 />
-              ) : (
-                <Camera className="w-8 h-8 text-muted-foreground" />
-              )}
-            </button>
-            <button
-              type="button"
-              onClick={() => fileInputRef.current?.click()}
-              className="absolute -bottom-1 -right-1 w-6 h-6 rounded-full bg-primary flex items-center justify-center"
-            >
-              <Pencil className="w-3 h-3 text-primary-foreground" />
-            </button>
+                <span onClick={() => handlePhotoChange(null)} className="cursor-pointer p-2 absolute bg-primary rounded-full -bottom-1 -right-1">
+                  <X className='w-3 h-3 text-primary-foreground' />
+                </span>
+              </>}
           </div>
-          <input
-            ref={fileInputRef}
-            type="file"
-            accept="image/*"
-            className="hidden"
-            onChange={handlePhotoChange}
-          />
           <span className="text-xs text-muted-foreground uppercase tracking-widest">
             Foto de perfil (opcional)
           </span>
@@ -146,6 +148,32 @@ export function TestimonialForm({ testimonialId }: TestimonialFormProps) {
             )}
           />
         </div>
+
+        <FormField
+          control={control}
+          name="media_url"
+          rules={{
+            pattern: {
+              value: /^$|^(https?:\/\/).+/i,
+              message: "Ingresa una URL valida que inicie con http:// o https://",
+            },
+          }}
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel className="text-xs text-muted-foreground uppercase tracking-widest">
+                URL de video (opcional)
+              </FormLabel>
+              <FormControl>
+                <Input
+                  type="url"
+                  placeholder="Ej. https://youtube.com/watch?v=..."
+                  {...field}
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
 
         {/* calificación */}
         <FormField
@@ -202,11 +230,11 @@ export function TestimonialForm({ testimonialId }: TestimonialFormProps) {
                 Tu comentario
               </FormLabel>
               <FormControl>
-                <div className="relative">
+                <div className="relative flex w-full">
                   <Textarea
                     placeholder="Cuéntanos sobre tu experiencia con Geist EdTech..."
                     rows={5}
-                    className="resize-none pb-6"
+                    className="w-full min-w-0 resize-y break-all [overflow-wrap:anywhere]"
                     {...field}
                     onChange={(e) => {
                       if (e.target.value.length <= MAX_CHARS) {
@@ -245,18 +273,6 @@ export function TestimonialForm({ testimonialId }: TestimonialFormProps) {
             Cancelar
           </Button>
         </div>
-
-        <p className="text-center text-xs text-muted-foreground">
-          Al enviar este formulario, aceptas nuestros{" "}
-          <a href="#" className="underline hover:text-foreground">
-            Términos de Servicio
-          </a>{" "}
-          y{" "}
-          <a href="#" className="underline hover:text-foreground">
-            Privacidad
-          </a>
-          .
-        </p>
       </form>
     </Form>
   );

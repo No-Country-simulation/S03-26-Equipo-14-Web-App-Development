@@ -39,8 +39,20 @@ export default async function TestimonialPage({ params }: TestimonialPageProps) 
 
         {/* tarjeta del formulario */}
         <div className="w-full max-w-lg bg-card rounded-2xl shadow-sm border-0 overflow-hidden">
-          <TestimonialForm testimonialId={id} />
+          <TestimonialForm projectId={id} />
         </div>
+
+        <p className="text-center text-xs text-muted-foreground mt-12">
+          Al enviar este formulario, aceptas nuestros{" "}
+          <a href="#" className="underline hover:text-foreground">
+            Términos de Servicio
+          </a>{" "}
+          y{" "}
+          <a href="#" className="underline hover:text-foreground">
+            Privacidad
+          </a>
+          .
+        </p>
       </main>
 
       <LandingFooter />
