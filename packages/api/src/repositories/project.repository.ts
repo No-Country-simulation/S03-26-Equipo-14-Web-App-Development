@@ -14,4 +14,12 @@ export class ProjectRepository {
             }
         })
     }
+
+    async findAll(organization_id: string){
+        return this.prisma.client.project.findMany({
+            where: {
+                organization_id
+            }
+        })
+    }
 }
