@@ -15,3 +15,4 @@ export * from "./repositories/organization-member.repository";
 export * from "./types/organization-member.types"
 export * from "./repositories/project.repository";
 export * from "./repositories/interfaces/project.interface";
+export * from "./types/project.type"

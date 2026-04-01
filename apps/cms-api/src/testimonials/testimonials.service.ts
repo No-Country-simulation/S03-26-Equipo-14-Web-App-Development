@@ -2,8 +2,10 @@ import {
   BadRequestException,
   ConflictException,
   Injectable,
+  NotFoundException,
 } from '@nestjs/common';
 import {
+  ProjectRepository,
   Testimonial,
   TestimonialRepository,
   TestimonialStatus,
@@ -22,10 +24,11 @@ import {
   UpdateTestimonialDto,
   UpdateTestimonialQuoteDto,
 } from './dto/update-testimonial.dto';
+import { JwtPayload } from 'src/auth/types/jwt-payload.type';
 
 @Injectable()
 export class TestimonialsService {
-  constructor(private readonly api: TestimonialRepository) {}
+  constructor(private readonly api: TestimonialRepository, private readonly projectRepository: ProjectRepository) {}
 
   async creatQuote(
     createTestimonialDto: CreateTestimonialQuoteDto,
@@ -70,7 +73,8 @@ export class TestimonialsService {
     await this.api.createTestimonial(synthTestimonial);
   }
 
-  findAll(queryDto: FindAllQueryTestimonialDto) {
+  async findAll(queryDto: FindAllQueryTestimonialDto, projectId: string, user: JwtPayload) {
+
     const allowedFields = ['created_at', 'rating', 'title'];
 
     const [field, order] = queryDto.sorted
@@ -81,12 +85,17 @@ export class TestimonialsService {
     const safeOrder = order === 'asc' ? 'asc' : 'desc';
 
     const orderBy = { [safeField!]: safeOrder };
+    
+    const project = await this.projectRepository.findOneById(projectId);
+
+    if(!project) throw new NotFoundException('Project not found');
+    if(project.organization_id !== user.organizationId) throw new NotFoundException('Project not found');
 
     return this.api.findAll({
       type: queryDto.type,
       category_id: queryDto.category_id,
       orderBy,
-    });
+    }, projectId);
   }
 
   async searchByFragment({
