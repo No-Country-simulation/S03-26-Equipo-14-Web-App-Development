@@ -1,6 +1,7 @@
 import { Injectable } from "@nestjs/common";
 import { CreateProjectInput } from "./interfaces/project.interface";
 import { PrismaService } from '../prisma/prisma.service';
+import { Project } from "@workspace/database";
 
 @Injectable()
 export class ProjectRepository {
@@ -15,11 +16,9 @@ export class ProjectRepository {
         })
     }
 
-    async findAll(organization_id: string){
-        return this.prisma.client.project.findMany({
-            where: {
-                organization_id
-            }
+    async findOneById(id: string): Promise<Project | null>{
+        return this.prisma.client.project.findUnique({
+            where: {id}
         })
     }
 }
