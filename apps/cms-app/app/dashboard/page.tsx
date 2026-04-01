@@ -4,6 +4,7 @@ import { LogoutButton } from '../../shared/components/logout-button';
 
 export default function DashboardPage() {
   const { data: session } = useSession();
+
   return (
     <main>
       <div className="min-h-screen bg-gradient-to-br from-green-50 to-green-100">
