@@ -1,10 +1,10 @@
-import { IsString } from "class-validator";
+import { IsString } from 'class-validator';
+import { IsRequiredString } from 'src/common/decorator/common';
 
 export class CreateProjectDto {
-    @IsString()
-    name!: string;
+  @IsRequiredString()
+  name!: string;
 
-    @IsString()
-    description?: string;
-
+  @IsString()
+  description?: string;
 }
