@@ -2,14 +2,18 @@ import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/commo
 import { ProjectsService } from './projects.service';
 import { CreateProjectDto } from './dto/create-project.dto';
 import { UpdateProjectDto } from './dto/update-project.dto';
+import { OrgRoles } from 'src/common/decorator/organization-role.decorator';
+import { OrganizationRoleEnum } from '@repo/api';
+import { GetUser } from 'src/auth/decorators/get-user.decorator';
+import { JwtPayload } from 'src/auth/types/jwt-payload.type';
 
 @Controller('projects')
 export class ProjectsController {
   constructor(private readonly projectsService: ProjectsService) {}
 
   @Post()
-  create(@Body() createProjectDto: CreateProjectDto) {
-    return this.projectsService.create(createProjectDto);
+  create(@Body() createProjectDto: CreateProjectDto, @GetUser() user: JwtPayload) {
+    return this.projectsService.create(createProjectDto , user);
   }
 
   @Get()
