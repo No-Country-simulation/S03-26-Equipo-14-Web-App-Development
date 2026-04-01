@@ -1,15 +1,17 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
-import { TestimonialRepository } from '@repo/api';
-import { FindAllQueryTestimonialDto } from './dto/find-all-query-testimonial.dto';
+import { Testimonial, TestimonialRepository, TestimonialStatus } from '@repo/api';
+import {
+  FindAllQueryTestimonialDto,
+  GetByFragmentDto,
+} from './dto/find-all-query-testimonial.dto';
 import {
   CreateTestimonialDto,
   CreateTestimonialQuoteDto,
 } from './dto/create-testimonial.dto';
-import { UpdateTestimonialQuoteDto } from './dto/update-testimonial.dto';
+import { UpdateTestimonialDto } from './dto/update-testimonial.dto';
 
 @Injectable()
 export class TestimonialsService {
-
   constructor(private readonly api: TestimonialRepository) {}
 
   async creatQuote(
@@ -56,7 +58,6 @@ export class TestimonialsService {
   }
 
   findAll(queryDto: FindAllQueryTestimonialDto) {
-
     const allowedFields = ['created_at', 'rating', 'title'];
 
     const [field, order] = queryDto.sorted
@@ -75,16 +76,32 @@ export class TestimonialsService {
     });
   }
 
+  async searchByFragment({ fragment }: GetByFragmentDto): Promise<Testimonial[]>  {
+    return await this.api.findByFragment({ fragment });
+  }
+
   findOne(id: number) {
     return `This action returns a #${id} testimonial`;
   }
 
-  update(id: number, updateTestimonialDto: UpdateTestimonialQuoteDto) {
-    return `This action updates a #${id} testimonial`;
+  async update(id: string, updateTestimonialDto: UpdateTestimonialDto) {    
+
+    const { draft, ...updateData } = updateTestimonialDto;
+
+    const {status, type} : {status: string | null, type: string | null}= await this.api.findOneById(id, {status: true, type: true}); 
+    
+    if(type === 'quote') throw new BadRequestException(`Cannot edit quote testimonials`)
+    if(status === TestimonialStatus.published) throw new BadRequestException(`Cannot edit testimonials with status ${status}`)
+    
+    const result = await this.api.updateTestimonial(id, updateData, draft, status === TestimonialStatus.rejected);
+
+    return {
+      message: 'Testimonial updated successfully',
+      testimonialUpdated: result
+    };
   }
 
   remove(id: number) {
     return `This action removes a #${id} testimonial`;
   }
-
 }

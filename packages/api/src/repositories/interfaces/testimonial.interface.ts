@@ -1,4 +1,8 @@
-import { TestimonialStatus, TestimonialType } from '@workspace/database';
+import {
+  TestimonialStatus,
+  TestimonialType,
+  Prisma,
+} from '@workspace/database';
 export interface CreateQuoteInput {
   project_id: string;
   //category?
@@ -27,4 +31,14 @@ export interface CreateTestimonialInput {
   media_description: string;
   status: TestimonialStatus;
   slug: string;
+}
+
+export interface FindAllTestimonialsQuery {
+  category_id?: string;
+  type?: string;
+  orderBy?: Prisma.TestimonialOrderByWithRelationInput;
+}
+
+export interface FindByFragment {
+  fragment: string;
 }

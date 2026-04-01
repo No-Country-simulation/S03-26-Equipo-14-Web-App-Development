@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { Organization_Role, Prisma } from '@workspace/database';
 import { PrismaService } from '../prisma/prisma.service';
 import { User } from '@workspace/database';
-import { CreateMemberInput, CreateOwnerInput } from './interfaces';
+import { CreateMemberInput, CreateOwnerInput } from './interfaces/user.interface';
 
 type UserWithOrganization = Prisma.UserGetPayload<{
   include: {

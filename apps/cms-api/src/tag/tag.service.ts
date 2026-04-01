@@ -1,5 +1,5 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { CreateTagInput } from '@repo/api/src/repositories/interfaces';
+import { CreateTagInput } from '@repo/api/src/repositories/interfaces/tag.interface';
 import { TagRepository } from '@repo/api';
 
 @Injectable()

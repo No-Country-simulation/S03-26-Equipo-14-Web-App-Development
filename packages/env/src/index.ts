@@ -33,5 +33,12 @@ const schemaEnv = z.object({
   DIRECT_URL: z.string(),
 });
 
-const globalEnv = schemaEnv.parse(process.env);
+const result = schemaEnv.safeParse(process.env);
+
+if (!result.success) {
+  console.error('Invalid environment variables', result.error.format());
+  throw new Error('Invalid environment variables');
+}
+
+const globalEnv = result.data;
 export default globalEnv;

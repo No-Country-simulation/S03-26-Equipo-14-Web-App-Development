@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 
 import { Tag } from '@workspace/database';
-import { CreateTagInput } from './interfaces';
+import { CreateTagInput } from './interfaces/tag.interface';
 import { PrismaService } from '../prisma/prisma.service';
 
 @Injectable()
