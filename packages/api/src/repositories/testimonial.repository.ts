@@ -1,8 +1,13 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
-import { Prisma, TestimonialStatus, TestimonialType } from '@workspace/database';
+import {
+  Prisma,
+  TestimonialStatus,
+  TestimonialType,
+} from '@workspace/database';
 import { Testimonial } from '@workspace/database';
 import {
+  ChangeStatusInput,
   CreateQuoteInput,
   CreateTestimonialInput,
   FindAllTestimonialsQuery,
@@ -15,6 +20,18 @@ export class TestimonialRepository {
   constructor(private readonly prisma: PrismaService) {}
 
   //addd Methods, get, delete, update
+
+  async changeStatus({ id, status, type }: ChangeStatusInput) {
+    await this.prisma.client.testimonial.update({
+      where: {
+        id: id,
+        type: type,
+      },
+      data: {
+        status: status,
+      },
+    });
+  }
 
   async findByFragment({ fragment }: FindByFragment): Promise<Testimonial[]> {
     console.log('api', fragment);
@@ -36,13 +53,16 @@ export class TestimonialRepository {
         project: {
           select: {
             organization_id: true,
-          }
-        }
-      }
+          },
+        },
+      },
     });
   }
 
-  async findOneById(id: string, select?: Prisma.TestimonialSelect): Promise<any> {
+  async findOneById(
+    id: string,
+    select?: Prisma.TestimonialSelect,
+  ): Promise<any> {
     return this.prisma.client.testimonial.findUnique({
       where: { id },
       select,
@@ -80,18 +100,24 @@ export class TestimonialRepository {
     });
   }
 
-  async updateTestimonial(id: string, updateData: Partial<CreateTestimonialInput>, isDraft: boolean, isRejected: boolean): Promise<any> {
-
+  async updateTestimonial(
+    id: string,
+    updateData: Partial<CreateTestimonialInput>,
+    isDraft: boolean,
+    isRejected: boolean,
+  ): Promise<any> {
     const data = {
-      ...updateData
-    }
+      ...updateData,
+    };
 
-    if(isRejected && !isDraft) data.status = TestimonialStatus.pending;
-    isDraft ? data.status = TestimonialStatus.draft : data.status = TestimonialStatus.pending;
-    
+    if (isRejected && !isDraft) data.status = TestimonialStatus.pending;
+    isDraft
+      ? (data.status = TestimonialStatus.draft)
+      : (data.status = TestimonialStatus.pending);
+
     return this.prisma.client.testimonial.update({
       where: { id },
-      data
+      data,
     });
   }
 }

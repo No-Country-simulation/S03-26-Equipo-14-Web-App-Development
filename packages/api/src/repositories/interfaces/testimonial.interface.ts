@@ -42,3 +42,9 @@ export interface FindAllTestimonialsQuery {
 export interface FindByFragment {
   fragment: string;
 }
+
+export interface ChangeStatusInput {
+  id: string;
+  type: TestimonialType;
+  status: TestimonialStatus;
+}

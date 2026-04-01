@@ -20,6 +20,7 @@ import { MailModule } from './mail/mail.module';
 import { TestimonialsModule } from './testimonials/testimonials.module';
 import { TagModule } from './tag/tag.module';
 import { OrgRolesGuard } from './common/guards/organization-role.guard';
+import { ProjectsModule } from './projects/projects.module';
 
 @Module({
   imports: [
@@ -33,6 +34,7 @@ import { OrgRolesGuard } from './common/guards/organization-role.guard';
     MailModule,
     TestimonialsModule,
     TagModule,
+    ProjectsModule,
   ],
   controllers: [AppController],
   providers: [
