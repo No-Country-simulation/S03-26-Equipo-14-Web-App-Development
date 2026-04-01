@@ -21,4 +21,12 @@ export class ProjectRepository {
             where: {id}
         })
     }
+
+    async findAll(organizationId: string): Promise<Project[]>{
+        return this.prisma.client.project.findMany({
+            where: {
+                organization_id: organizationId
+            }
+        })
+    }
 }
