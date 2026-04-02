@@ -68,11 +68,12 @@ export class TestimonialRepository {
     });
   }
 
-  async findAll(query: FindAllTestimonialsQuery): Promise<any[]> {
+  async findAll(query: FindAllTestimonialsQuery, projectId: string): Promise<any[]> {
     const { orderBy, type, category_id } = query;
 
     const where: Prisma.TestimonialWhereInput = {};
 
+    if(projectId) where.project_id = projectId;
     if (category_id) where.category_id = category_id;
     if (type) where.type = type as any;
 

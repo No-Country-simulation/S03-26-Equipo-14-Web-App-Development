@@ -30,6 +30,8 @@ import {
   TestimonialStatus,
   TestimonialType,
 } from '@repo/api';
+import { GetUser } from 'src/auth/decorators/get-user.decorator';
+import { JwtPayload } from 'src/auth/types/jwt-payload.type';
 import { deleteTestimonialDTO } from './dto/delete-testimonial.dto';
 
 @Controller('testimonials')
@@ -60,9 +62,9 @@ export class TestimonialsController {
     return await this.testimonialsService.searchByFragment(queryDto);
   }
 
-  @Get()
-  findAll(@Query() queryDto: FindAllQueryTestimonialDto) {
-    return this.testimonialsService.findAll(queryDto);
+  @Get("/:projectId")
+  findAll(@Query() queryDto: FindAllQueryTestimonialDto, @Param('projectId') projectId: string, @GetUser() user: JwtPayload) {
+    return this.testimonialsService.findAll(queryDto, projectId, user);
   }
 
   @Get(':id')
