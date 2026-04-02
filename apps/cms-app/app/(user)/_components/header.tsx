@@ -8,6 +8,8 @@ export function Header() {
     '/dashboard': 'Dashboard',
     '/settings': 'Configuraciones de proyecto',
     '/widgets': 'Widgets',
+    '/help': 'Centro de ayuda',
+    '/account': 'Configuración de cuenta',
   };
   const title = titles[pathname] || 'Dashboard';
 

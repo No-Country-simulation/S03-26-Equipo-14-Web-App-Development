@@ -130,9 +130,11 @@ export function AppSidebar() {
         {/* Botón de ayuda */}
         <SidebarMenu>
           <SidebarMenuItem key="help">
-            <SidebarMenuButton tooltip="Centro de ayuda">
-              <Info />
-              <span>Centro de ayuda</span>
+            <SidebarMenuButton asChild tooltip="Centro de ayuda">
+              <a href="/help">
+                <Info />
+                <span>Centro de ayuda</span>
+              </a>
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>
@@ -160,7 +162,7 @@ export function AppSidebar() {
                 className="ml-auto size-8 group-data-[collapsible=icon]:hidden"
                 asChild
               >
-                <a href="/settings">
+                <a href="/account">
                   <Settings className="size-4" />
                 </a>
               </Button>
