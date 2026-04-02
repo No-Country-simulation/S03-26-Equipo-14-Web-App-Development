@@ -11,6 +11,7 @@ export * from './checkbox';
 export * from './collapsible';
 export * from './dialog';
 export * from './dropdown-menu';
+export * from './empty';
 export * from './field';
 export * from './form';
 export * from './hover-card';
