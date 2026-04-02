@@ -1,22 +1,12 @@
 'use client';
 
-import { useState } from 'react';
 import {
   Avatar,
   AvatarFallback,
   AvatarImage,
   Button,
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuRadioGroup,
-  DropdownMenuRadioItem,
-  DropdownMenuTrigger,
   Sidebar,
-  SidebarContent,
   SidebarFooter,
-  SidebarGroup,
-  SidebarGroupContent,
-  SidebarGroupLabel,
   SidebarHeader,
   SidebarMenu,
   SidebarMenuButton,
@@ -25,32 +15,11 @@ import {
 } from '@repo/ui/components';
 import { signOut } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
-import {
-  BookOpen,
-  LayoutDashboard,
-  Settings2,
-  Settings,
-  LogOut,
-  ChevronsUpDown,
-  Component,
-  Info,
-} from '@repo/ui/lib';
-
-const navItems = [
-  { title: 'Dashboard', url: '/dashboard', icon: LayoutDashboard },
-  { title: 'Widgets', url: '/widgets', icon: Component },
-  { title: 'Configuraciones', url: '/settings', icon: Settings2 },
-];
-
-// Cuando traigamos proyects debemos ordenar por id, siendo 0 la primera opcion para editor y "all" la primera opcion para admin/owner
-const proyects = [
-  { id: '0', title: 'Todos los proyectos' },
-  { id: '1', title: 'Proyecto1' },
-  { id: '2', title: 'Proyecto2' },
-];
+import { BookOpen, Settings, LogOut, Info } from '@repo/ui/lib';
+import { SidebarProjectSelector } from './sidebar-proyect-selector';
+import { SidebarMain } from './sidebar-main';
 
 export function AppSidebar() {
-  const [selected, setSelected] = useState<string | undefined>(proyects[0]?.id);
   const router = useRouter();
 
   const handleLogout = async () => {
@@ -77,55 +46,11 @@ export function AppSidebar() {
             </SidebarMenuButton>
           </SidebarMenuItem>
           {/* Select de proyecto */}
-          <SidebarMenuItem>
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <SidebarMenuButton
-                  tooltip="Seleccionar proyecto"
-                  className="border-2"
-                >
-                  <ChevronsUpDown className="pr-1" />
-                  <span className="truncate font-medium">
-                    {proyects.find((p) => p.id === selected)?.title ?? 'Error'}
-                  </span>
-                </SidebarMenuButton>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent>
-                <DropdownMenuRadioGroup
-                  value={selected}
-                  onValueChange={setSelected}
-                >
-                  {proyects.map((item) => (
-                    <DropdownMenuRadioItem key={item.title} value={item.id}>
-                      {item.title}
-                    </DropdownMenuRadioItem>
-                  ))}
-                </DropdownMenuRadioGroup>
-              </DropdownMenuContent>
-            </DropdownMenu>
-          </SidebarMenuItem>
+          <SidebarProjectSelector />
         </SidebarMenu>
       </SidebarHeader>
       {/* Contenido */}
-      <SidebarContent>
-        <SidebarGroup>
-          <SidebarGroupLabel>Menú del Proyecto X</SidebarGroupLabel>
-          <SidebarGroupContent>
-            <SidebarMenu>
-              {navItems.map((item) => (
-                <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton asChild tooltip={item.title}>
-                    <a href={item.url}>
-                      <item.icon />
-                      <span>{item.title}</span>
-                    </a>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
-      </SidebarContent>
+      <SidebarMain />
       <SidebarFooter>
         {/* Botón de ayuda */}
         <SidebarMenu>

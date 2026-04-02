@@ -3,7 +3,7 @@ import { getServerSession } from 'next-auth';
 import { redirect } from 'next/navigation';
 import React from 'react';
 import { SidebarProvider, SidebarInset } from '@repo/ui/components';
-import { AppSidebar } from './_components/sidebar-dashboard';
+import { AppSidebar } from './_components/sidebar';
 import { Header } from './_components/header';
 
 export default async function DashboardLayout({
