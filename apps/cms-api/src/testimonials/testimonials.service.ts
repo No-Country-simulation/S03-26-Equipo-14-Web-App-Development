@@ -4,7 +4,6 @@ import {
   Injectable,
   NotFoundException,
   NotAcceptableException,
-  NotFoundException,
 } from '@nestjs/common';
 import {
   ProjectRepository,
