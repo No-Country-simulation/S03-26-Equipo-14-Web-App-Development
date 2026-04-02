@@ -32,10 +32,10 @@ model Testimonial {
   status            TestimonialStatus @default(pending)
   title             String?
   author            String
-  author_photo      String
+  author_photo      String?
   author_role       String
   content           String
-  media_url         String
+  media_url         String?
   media_description String?
   rating            Decimal
   slug              String?
