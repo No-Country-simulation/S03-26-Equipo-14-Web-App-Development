@@ -43,7 +43,7 @@ export class TestimonialsService {
       ...testimonial,
     };
 
-    await this.api.createQuote(synthTestimonial);
+    return await this.api.createQuote(synthTestimonial);
   }
 
   async createTestimonial(createTestimonialDto: CreateTestimonialDto) {

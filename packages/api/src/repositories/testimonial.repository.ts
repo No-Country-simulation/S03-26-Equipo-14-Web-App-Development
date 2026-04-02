@@ -84,8 +84,8 @@ export class TestimonialRepository {
     });
   }
 
-  async createQuote(quote: CreateQuoteInput) {
-    await await this.prisma.client.testimonial.create({
+  async createQuote(quote: CreateQuoteInput): Promise<any> {
+    return await this.prisma.client.testimonial.create({
       data: {
         ...quote,
       },

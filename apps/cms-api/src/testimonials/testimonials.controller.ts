@@ -40,7 +40,7 @@ export class TestimonialsController {
   @Post('quote')
   @Public()
   async createQuote(@Body() createTestimonialDto: CreateTestimonialQuoteDto) {
-    await this.testimonialsService.creatQuote(createTestimonialDto);
+    return await this.testimonialsService.creatQuote(createTestimonialDto);
   }
 
   @Post()
