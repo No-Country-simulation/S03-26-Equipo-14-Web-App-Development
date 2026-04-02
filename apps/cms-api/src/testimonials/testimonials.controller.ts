@@ -32,6 +32,7 @@ import {
 } from '@repo/api';
 import { GetUser } from 'src/auth/decorators/get-user.decorator';
 import { JwtPayload } from 'src/auth/types/jwt-payload.type';
+import { deleteTestimonialDTO } from './dto/delete-testimonial.dto';
 
 @Controller('testimonials')
 export class TestimonialsController {
@@ -96,7 +97,7 @@ export class TestimonialsController {
 
   @OrgRoles(OrganizationRoleEnum.Admin, OrganizationRoleEnum.Owner)
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.testimonialsService.remove(+id);
+  async remove(@Param('id') id: string, @Body() userId: deleteTestimonialDTO) {
+    return await this.testimonialsService.removeT(id, userId);
   }
 }

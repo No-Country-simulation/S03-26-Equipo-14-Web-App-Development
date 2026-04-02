@@ -3,6 +3,8 @@ import {
   ConflictException,
   Injectable,
   NotFoundException,
+  NotAcceptableException,
+  NotFoundException,
 } from '@nestjs/common';
 import {
   ProjectRepository,
@@ -10,6 +12,7 @@ import {
   TestimonialRepository,
   TestimonialStatus,
   TestimonialType,
+  UserRepository,
 } from '@repo/api';
 import {
   FindAllQueryTestimonialDto,
@@ -25,10 +28,14 @@ import {
   UpdateTestimonialQuoteDto,
 } from './dto/update-testimonial.dto';
 import { JwtPayload } from 'src/auth/types/jwt-payload.type';
+import { deleteTestimonialDTO } from './dto/delete-testimonial.dto';
 
 @Injectable()
 export class TestimonialsService {
-  constructor(private readonly api: TestimonialRepository, private readonly projectRepository: ProjectRepository) {}
+  constructor(
+    private readonly api: TestimonialRepository, private readonly projectRepository: ProjectRepository,
+    private readonly userApi: UserRepository,
+  ) {}
 
   async creatQuote(
     createTestimonialDto: CreateTestimonialQuoteDto,
@@ -155,7 +162,45 @@ export class TestimonialsService {
     };
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} testimonial`;
+  async removeT(
+    testimonialId: string,
+    userId: deleteTestimonialDTO,
+  ): Promise<string> {
+    try {
+      //First Things First: User's Role
+      const verifyRole = await this.userApi.findById(userId.userId);
+
+      if (verifyRole?.organizationMembers[0]?.role == 'Editor')
+        throw new NotAcceptableException(
+          'Only the Owner and the Admin can use this functionality.',
+        );
+
+      //Second things Second: Verify Testimonial
+      const testimonialExists = await this.api.findOneById(testimonialId, {
+        id: true,
+        title: true,
+        status: true,
+      });
+console.log(testimonialExists)
+      if (!testimonialExists)
+        throw new NotFoundException(
+          "The Testimonial you want to delete doesn't exists on the DB. Have a nice day!",
+        );
+      else if (testimonialExists?.status != 'rejected')
+        throw new NotAcceptableException(
+          'You can only delete a Testimonial if it was rejected...',
+        );
+      //Third thing Third: Deleting the testimonial
+      const deletedTestimonial = await this.api.delete(testimonialId);
+
+      if (!deletedTestimonial?.id)
+        throw new ConflictException(
+          'There was an error deleting the testimonial. Try again later or with another id.',
+        );
+      console.log(deletedTestimonial);
+      return 'Success Deleting the Testimonial';
+    } catch (error: Error | any) {
+      throw new ConflictException(error.message);
+    }
   }
 }
