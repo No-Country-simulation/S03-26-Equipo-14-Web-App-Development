@@ -3,7 +3,6 @@ import { PrismaService } from '../prisma/prisma.service';
 import {
   Prisma,
   TestimonialStatus,
-  TestimonialType,
 } from '@workspace/database';
 import { Testimonial } from '@workspace/database';
 import {
@@ -13,7 +12,7 @@ import {
   FindAllTestimonialsQuery,
   FindByFragment,
 } from './interfaces/testimonial.interface';
-import { PartialType } from '@nestjs/mapped-types';
+//import { PartialType } from '@nestjs/mapped-types';
 
 @Injectable()
 export class TestimonialRepository {
@@ -60,7 +59,7 @@ export class TestimonialRepository {
   }
 
   async findOneById(
-    id: string,
+    id:  string,
     select?: Prisma.TestimonialSelect,
   ): Promise<any> {
     return this.prisma.client.testimonial.findUnique({
@@ -119,5 +118,9 @@ export class TestimonialRepository {
       where: { id },
       data,
     });
+  }
+
+  async delete(id: string){
+    return await this.prisma.client.testimonial.delete({where:{id}});
   }
 }
