@@ -3,7 +3,6 @@ import { PrismaService } from '../prisma/prisma.service';
 import {
   Prisma,
   TestimonialStatus,
-  TestimonialType,
 } from '@workspace/database';
 import { Testimonial } from '@workspace/database';
 import {
@@ -13,7 +12,7 @@ import {
   FindAllTestimonialsQuery,
   FindByFragment,
 } from './interfaces/testimonial.interface';
-import { PartialType } from '@nestjs/mapped-types';
+//import { PartialType } from '@nestjs/mapped-types';
 
 @Injectable()
 export class TestimonialRepository {
@@ -60,7 +59,7 @@ export class TestimonialRepository {
   }
 
   async findOneById(
-    id: string,
+    id:  string,
     select?: Prisma.TestimonialSelect,
   ): Promise<any> {
     return this.prisma.client.testimonial.findUnique({
@@ -69,11 +68,12 @@ export class TestimonialRepository {
     });
   }
 
-  async findAll(query: FindAllTestimonialsQuery): Promise<any[]> {
+  async findAll(query: FindAllTestimonialsQuery, projectId: string): Promise<any[]> {
     const { orderBy, type, category_id } = query;
 
     const where: Prisma.TestimonialWhereInput = {};
 
+    if(projectId) where.project_id = projectId;
     if (category_id) where.category_id = category_id;
     if (type) where.type = type as any;
 
@@ -83,8 +83,8 @@ export class TestimonialRepository {
     });
   }
 
-  async createQuote(quote: CreateQuoteInput) {
-    await await this.prisma.client.testimonial.create({
+  async createQuote(quote: CreateQuoteInput): Promise<any> {
+    return await this.prisma.client.testimonial.create({
       data: {
         ...quote,
       },
@@ -119,5 +119,9 @@ export class TestimonialRepository {
       where: { id },
       data,
     });
+  }
+
+  async delete(id: string){
+    return await this.prisma.client.testimonial.delete({where:{id}});
   }
 }

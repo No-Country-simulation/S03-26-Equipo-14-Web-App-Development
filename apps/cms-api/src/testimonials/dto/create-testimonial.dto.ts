@@ -1,4 +1,4 @@
-import { IsEnum, IsNumber, IsString } from 'class-validator';
+import { IsEnum, IsNumber, IsOptional, IsString } from 'class-validator';
 import { TestimonialType, TestimonialStatus } from '@repo/api';
 //testimonial quote visitor
 export class CreateTestimonialQuoteDto {
@@ -10,7 +10,8 @@ export class CreateTestimonialQuoteDto {
   @IsString()
   author!: string;
   @IsString()
-  authorPhoto!: string;
+  @IsOptional()
+  authorPhoto?: string;
   @IsString()
   authorRole!: string;
   @IsString()
@@ -18,7 +19,8 @@ export class CreateTestimonialQuoteDto {
   @IsNumber()
   rating!: number;
   @IsString()
-  mediaUrl!: string;
+  @IsOptional()
+  mediaUrl?: string;
   /* @IsEnum(TestimonialStatus)
   status!: string; // pending */
 }
