@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import {
   CreateProjectInput,
+  projectInclude,
   UpdateProjectInput,
 } from './interfaces/project.interface';
 import { PrismaService } from '../prisma/prisma.service';
@@ -17,8 +18,14 @@ export class ProjectRepository {
     });
   }
 
-  async findOneById(id: string): Promise<Project | null> {
-    return this.prisma.client.project.findUnique({
+  async findOneById(id: string, include?: projectInclude): Promise<Project | null> {
+    if(include){
+      return await this.prisma.client.project.findUnique({
+        where: {id},
+        include
+      })
+    };
+    return await this.prisma.client.project.findUnique({
       where: { id },
     });
   }
@@ -38,5 +45,13 @@ export class ProjectRepository {
         ...project,
       },
     });
+  }
+
+  async delete(id: string){
+    return this.prisma.client.project.delete({
+      where: {
+        id
+      }
+    })
   }
 }

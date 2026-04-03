@@ -46,8 +46,9 @@ export class ProjectsController {
     this.projectsService.update(id, updateProjectDto, user);
   }
 
+  @OrgRoles(OrganizationRoleEnum.Owner)
   @Delete(':id')
   remove(@Param('id') id: string) {
-    return this.projectsService.remove(+id);
+    return this.projectsService.remove(id);
   }
 }

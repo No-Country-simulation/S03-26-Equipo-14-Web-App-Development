@@ -1,6 +1,8 @@
+import { Prisma } from '../../../../packages/database/dist';
 import {
   ConflictException,
   Injectable,
+  NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
 import { CreateProjectDto } from './dto/create-project.dto';
@@ -48,7 +50,7 @@ export class ProjectsService {
       organization_id: user.organizationId,
     };
 
-    const project = await this.projectRepository.create({ data });
+    const project = await this.projectRepository.create({ data }); 
     return { message: 'Project created successfully', project };
   }
 
@@ -76,7 +78,22 @@ export class ProjectsService {
     }
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} project`;
+  async remove(id: string) {
+    try {
+
+      const theProject = await this.projectRepository.findOneById(id, {categories: true, tags: true, projectMembers: true, testimonials: true});
+
+      if(theProject == null) throw new NotFoundException("The Project you want to delete doesn't exists.");
+
+      const categories = await theProject?.categories
+      const answer = await this.projectRepository.delete(id); 
+
+
+      if(answer instanceof Prisma.PrismaClientKnownRequestError) throw new NotFoundException("It seems that the project didn't exist, so we can't delete it");
+ 
+      return `The project with id ${answer.id} and titled ${answer.name} was successfully deleted!`;
+    } catch (error: Error | any) {
+      throw new ConflictException(error)
+    }
   }
 }

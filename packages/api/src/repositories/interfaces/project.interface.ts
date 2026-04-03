@@ -9,3 +9,10 @@ export interface UpdateProjectInput {
   name: string;
   description: string;
 }
+
+export interface projectInclude {
+  projectMembers?: boolean;
+  categories?: boolean;
+  tags?: boolean;
+  testimonials: boolean;
+}
