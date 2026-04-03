@@ -17,6 +17,9 @@ import {
   OrganizationRoleEnum,
   Prisma
 } from '@repo/api';
+import crypto from 'crypto';
+import { hash } from 'bcrypt';
+
 
 @Injectable()
 export class ProjectsService {
@@ -38,7 +41,7 @@ export class ProjectsService {
       );
     if (organizationMember.role !== 'Owner')
       throw new UnauthorizedException(
-        'You are not allowed to create a project',
+        'You do not have permission for this project',
       );
   }
 
@@ -136,5 +139,24 @@ export class ProjectsService {
     } catch (error: Error | any) {
       throw new ConflictException(error);
     }
+  }
+
+  async generateApiKey(user: JwtPayload, projectId: string) {    
+    await this.VerifyOwnerCredentials(user);
+    const key = this.generateRandomKey();
+    const hashedKey = await hash(key, 10);
+    await this.projectRepository.generateApiKey(hashedKey, projectId);
+    return {
+      message: 'This is the only time you will see this API key. Store it securely.',
+      apiKey: key,
+    }
+  }
+
+  generateRandomKey(): string {
+  
+    const prefix = 'cms-api-key';
+    const random = crypto.randomBytes(32).toString('hex');
+
+    return `${prefix}_${random}`;
   }
 }

@@ -6,7 +6,7 @@ import {
   UpdateProjectInput,
 } from './interfaces/project.interface';
 import { PrismaService } from '../prisma/prisma.service';
-import { Project } from '@workspace/database';
+import { Prisma, Project } from '@workspace/database';
 
 @Injectable()
 export class ProjectRepository {
@@ -107,6 +107,15 @@ export class ProjectRepository {
         projectMembers: true,
         testimonials: true,
       }
+    })
+  }
+
+  async generateApiKey(key: string, projectId: string) {
+    await this.prisma.client.project.update({
+      where: { id: projectId },
+      data: {
+        api_key: key,
+      },
     })
   }
 }

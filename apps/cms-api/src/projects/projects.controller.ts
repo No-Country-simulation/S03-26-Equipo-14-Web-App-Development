@@ -50,4 +50,9 @@ export class ProjectsController {
   remove(@Param('id') id: string, @GetUser() user: JwtPayload) {
     return this.projectsService.remove(id, user.sub);
   }
+
+  @Post("/:projectId/api-key")
+  generateApiKey(@GetUser() user: JwtPayload, @Param('projectId') projectId: string) {
+    return this.projectsService.generateApiKey(user, projectId); 
+  }
 }
