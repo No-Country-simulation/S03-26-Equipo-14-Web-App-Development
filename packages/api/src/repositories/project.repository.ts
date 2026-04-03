@@ -16,6 +16,19 @@ export class ProjectRepository {
         ...data,
       },
     });
+  } 
+
+  async findAllAssigned(organizationId: string, orgMemberId: string): Promise<Project[]> {
+    return this.prisma.client.project.findMany({
+      where: {
+        organization_id: organizationId,
+        projectMembers: {
+          some: {
+            organization_member_id: orgMemberId
+          }
+        }
+      },
+    })
   }
 
   async findOneById(id: string, include?: projectInclude): Promise<Project | null> {

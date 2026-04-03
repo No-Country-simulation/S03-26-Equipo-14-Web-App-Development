@@ -31,7 +31,7 @@ export class ProjectsController {
   findAll(@GetUser() user: JwtPayload) {
     return this.projectsService.findAll(user);
   }
-
+  
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.projectsService.findOne(+id);

@@ -54,10 +54,20 @@ export class ProjectsService {
     return { message: 'Project created successfully', project };
   }
 
-  findAll(user: JwtPayload) {
-    if (user.role === OrganizationRoleEnum.Owner)
-      return this.projectRepository.findAll(user.organizationId);
-    throw new UnauthorizedException('You are not allowed to view all projects');
+  async findAll(user: JwtPayload) {    
+    
+    const organizationMember: OrganizationMember | null = await this.organizationMemberRepository.findMembership({
+      user_id: user.sub,
+      organization_id: user.organizationId,
+    })
+    if (!organizationMember) throw new UnauthorizedException('You are not a member of this organization');
+    if(organizationMember.role === OrganizationRoleEnum.Owner) return this.projectRepository.findAll(user.organizationId);
+    return this.projectRepository.findAllAssigned(user.organizationId, organizationMember.id);
+  
+  }
+
+  findAllAssigned(user: JwtPayload) {
+    return this.projectRepository.findAllAssigned(user.organizationId, user.sub);
   }
 
   findOne(id: number) {
