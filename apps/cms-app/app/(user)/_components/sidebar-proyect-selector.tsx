@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -9,15 +8,14 @@ import {
   SidebarMenuItem,
 } from '@repo/ui/components';
 import { ChevronsUpDown } from '@repo/ui/lib';
+import { useProjectStore } from '../../../store/useProjectStore';
 
 export function SidebarProjectSelector() {
-  // Cuando traigamos proyects debemos ordenar por id, siendo 0 la primera opcion para editor y "all" la primera opcion para admin/owner
-  const proyects = [
-    { id: '0', title: 'Todos los proyectos' },
-    { id: '1', title: 'Proyecto1' },
-    { id: '2', title: 'Proyecto2' },
-  ];
-  const [selected, setSelected] = useState<string | undefined>(proyects[0]?.id);
+  const { projects, selectedProjectId } = useProjectStore();
+  const setProjectId = useProjectStore((state) => state.setProjectId);
+
+  const currentProject =
+    projects.find((p) => p.id === selectedProjectId) || projects[0];
   return (
     <SidebarMenuItem>
       <DropdownMenu>
@@ -28,13 +26,16 @@ export function SidebarProjectSelector() {
           >
             <ChevronsUpDown className="pr-1" />
             <span className="truncate font-medium">
-              {proyects.find((p) => p.id === selected)?.title ?? 'Error'}
+              {currentProject?.title}
             </span>
           </SidebarMenuButton>
         </DropdownMenuTrigger>
         <DropdownMenuContent>
-          <DropdownMenuRadioGroup value={selected} onValueChange={setSelected}>
-            {proyects.map((item) => (
+          <DropdownMenuRadioGroup
+            value={selectedProjectId}
+            onValueChange={setProjectId}
+          >
+            {projects.map((item) => (
               <DropdownMenuRadioItem key={item.title} value={item.id}>
                 {item.title}
               </DropdownMenuRadioItem>

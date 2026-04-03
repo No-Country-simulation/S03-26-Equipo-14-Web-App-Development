@@ -8,6 +8,7 @@ import {
   SidebarMenuItem,
 } from '@repo/ui/components';
 import { LayoutDashboard, Settings2, Component } from '@repo/ui/lib';
+import { useProjectStore } from '../../../store/useProjectStore';
 
 const navItems = [
   { title: 'Dashboard', url: '/dashboard', icon: LayoutDashboard },
@@ -16,10 +17,13 @@ const navItems = [
 ];
 
 export function SidebarMain() {
+  const { projects, selectedProjectId } = useProjectStore();
+  const currentProject = projects.find((p) => p.id === selectedProjectId);
+
   return (
     <SidebarContent>
       <SidebarGroup>
-        <SidebarGroupLabel>Menú del Proyecto X</SidebarGroupLabel>
+        <SidebarGroupLabel>Menú de {currentProject?.title}</SidebarGroupLabel>
         <SidebarGroupContent>
           <SidebarMenu>
             {navItems.map((item) => (
