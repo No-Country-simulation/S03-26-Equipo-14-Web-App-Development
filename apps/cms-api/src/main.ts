@@ -7,6 +7,18 @@ import { UserRepository } from '@repo/api';
 import { ValidationPipe } from '@nestjs/common';
 import { ResponseInterceptor } from './common/interceptors/response.interceptor';
 
+const { DEV_LOCAL_APP_URL, DEV_DEPLOY_APP_URL, PROD_DEPLOY_APP_URL } =
+  globalEnv;
+
+const corsOptions = {
+  origin: [DEV_LOCAL_APP_URL, DEV_DEPLOY_APP_URL, PROD_DEPLOY_APP_URL],
+  methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+  preflightContinue: false,
+  optionsSuccessStatus: 200,
+  credentias: true,
+  allowedHeaders: 'Content-type, Accept',
+};
+
 async function bootstrap() {
   console.log('NODE_ENV', globalEnv.NODE_ENV);
   const app = await NestFactory.create(AppModule);
@@ -37,7 +49,7 @@ async function bootstrap() {
     }),
   );
   app.use(cookieParser());
-  app.enableCors();
+  app.enableCors(corsOptions);
   await app.listen(3000);
 }
 

@@ -3,6 +3,7 @@ import { PrismaService } from '../prisma/prisma.service';
 import {
   Prisma,
   TestimonialStatus,
+  TestimonialType,
 } from '@workspace/database';
 import { Testimonial } from '@workspace/database';
 import {
@@ -59,7 +60,7 @@ export class TestimonialRepository {
   }
 
   async findOneById(
-    id:  string,
+    id: string,
     select?: Prisma.TestimonialSelect,
   ): Promise<any> {
     return this.prisma.client.testimonial.findUnique({
@@ -68,12 +69,15 @@ export class TestimonialRepository {
     });
   }
 
-  async findAll(query: FindAllTestimonialsQuery, projectId: string): Promise<any[]> {
+  async findAll(
+    query: FindAllTestimonialsQuery,
+    projectId: string,
+  ): Promise<any[]> {
     const { orderBy, type, category_id } = query;
 
     const where: Prisma.TestimonialWhereInput = {};
 
-    if(projectId) where.project_id = projectId;
+    if (projectId) where.project_id = projectId;
     if (category_id) where.category_id = category_id;
     if (type) where.type = type as any;
 
@@ -84,9 +88,26 @@ export class TestimonialRepository {
   }
 
   async createQuote(quote: CreateQuoteInput): Promise<any> {
+    const {
+      author,
+      author_role,
+      author_photo,
+      content,
+      project_id,
+      rating,
+      media_url,
+    } = quote;
     return await this.prisma.client.testimonial.create({
       data: {
-        ...quote,
+        project_id: project_id,
+        type: TestimonialType.quote,
+
+        author: author,
+        author_role: author_role,
+        author_photo: author_photo || '',
+        content: content,
+        media_url: media_url || '',
+        rating: rating,
       },
     });
   }
@@ -121,7 +142,7 @@ export class TestimonialRepository {
     });
   }
 
-  async delete(id: string){
-    return await this.prisma.client.testimonial.delete({where:{id}});
+  async delete(id: string) {
+    return await this.prisma.client.testimonial.delete({ where: { id } });
   }
 }
