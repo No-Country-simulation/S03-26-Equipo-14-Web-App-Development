@@ -19,6 +19,9 @@ const schemaEnv = z.object({
   //cms-api
   JWT_SECRET: z.string(),
   JWT_RESET_TOKEN_SECRET: z.string(),
+  DEV_LOCAL_APP_URL: z.string(),
+  DEV_DEPLOY_APP_URL: z.string(),
+  PROD_DEPLOY_APP_URL: z.string(),
 
   PORT: z.string().default('3000'),
   //cms-app
