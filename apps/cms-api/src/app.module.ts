@@ -21,6 +21,7 @@ import { TestimonialsModule } from './testimonials/testimonials.module';
 import { TagModule } from './tag/tag.module';
 import { OrgRolesGuard } from './common/guards/organization-role.guard';
 import { ProjectsModule } from './projects/projects.module';
+import { AnalyticsModule } from './analytics/analytics.module';
 
 @Module({
   imports: [
@@ -35,6 +36,7 @@ import { ProjectsModule } from './projects/projects.module';
     TestimonialsModule,
     TagModule,
     ProjectsModule,
+    AnalyticsModule,
   ],
   controllers: [AppController],
   providers: [
