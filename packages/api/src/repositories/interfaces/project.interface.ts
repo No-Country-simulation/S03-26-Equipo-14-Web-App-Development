@@ -1,3 +1,5 @@
+import { Category, Project, Project_Member, Tag, Testimonial } from "@workspace/database";
+
 export interface CreateProjectInput {
   name: string;
   description?: string;
@@ -15,4 +17,11 @@ export interface projectInclude {
   categories?: boolean;
   tags?: boolean;
   testimonials: boolean;
+}
+
+export type Project2 = Project & {
+  projectMembers?: Project_Member[];
+  categories?: Category[];
+  tags?: Tag[]
+  testimonials?: Testimonial[];
 }
