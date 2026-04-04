@@ -100,6 +100,12 @@ export class ProjectRepository {
     return this.prisma.client.project.delete({
       where: {
         id
+      },include:
+      {
+        tags: true,
+        categories: true,
+        projectMembers: true,
+        testimonials: true,
       }
     })
   }

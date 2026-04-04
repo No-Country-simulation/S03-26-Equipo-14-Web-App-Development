@@ -12,6 +12,7 @@ import { JwtPayload } from 'src/auth/types/jwt-payload.type';
 import {
   OrganizationMemberRepository,
   OrganizationMember,
+  UserRepository,
   ProjectRepository,
   CreateProjectInput,
   OrganizationRoleEnum,
@@ -22,6 +23,7 @@ export class ProjectsService {
   constructor(
     private readonly organizationMemberRepository: OrganizationMemberRepository,
     private readonly projectRepository: ProjectRepository,
+    private readonly userRepository: UserRepository
   ) { }
 
   private async VerifyOwnerCredentials(user: JwtPayload) {
@@ -98,8 +100,11 @@ export class ProjectsService {
     }
   }
 
-  async remove(id: string) {
+  async remove(id: string, userId: string) {
     try {
+
+      const theRole = await this.userRepository.findById(userId);
+      if (theRole?.organizationMembers[0]?.role != "Owner") throw new ConflictException("Only the Owner can delete Projects. Have a nice Day!");
       const theProject = await this.projectRepository.findOneById(id, {
         categories: true,
         tags: true,
@@ -126,6 +131,7 @@ export class ProjectsService {
       if (answer instanceof Prisma.PrismaClientKnownRequestError) throw new NotFoundException(
         "It seems that the project didn't exist, so we can't delete it",
       );
+      console.log(answer);
       return `The project with id ${answer.id} and titled ${answer.name} was successfully deleted!`;
     } catch (error: Error | any) {
       throw new ConflictException(error);
