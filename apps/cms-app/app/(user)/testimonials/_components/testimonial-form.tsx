@@ -68,7 +68,7 @@ interface Tag {
   name: string;
 }
 
-export interface CreateTestimonialFormProps {
+export interface TestimonialFormProps {
   mode?: 'create' | 'edit';
   defaultValues?: Partial<TestimonialFormValues>;
   testimonialId?: string;
@@ -309,11 +309,11 @@ function TagsSelect({ tags, selected, onChange }: TagsSelectProps) {
 
 /* ─── Main form ──────────────────────────────────────────── */
 
-export function CreateTestimonialForm({
+export function TestimonialForm({
   mode = 'create',
   defaultValues,
   testimonialId,
-}: CreateTestimonialFormProps) {
+}: TestimonialFormProps) {
   const router = useRouter();
   const [activeTab, setActiveTab] = useState<TabValue>('caso');
 
@@ -352,9 +352,7 @@ export function CreateTestimonialForm({
     queryKey: ['tags'],
     queryFn: () => fetch(`${apiUrl}/tag`, { credentials: 'include' }).then((r) => r.json().then((data) => {
       console.log(data);
-
       return data;
-
     })),
   });
 
@@ -424,7 +422,7 @@ export function CreateTestimonialForm({
 
   return (
     <div className="min-h-screen bg-background">
-      <div className="max-w-3xl mx-auto px-4 py-8 space-y-6">
+      <div className="max-w-7xl mx-auto space-y-6">
         {/* Back */}
         <Link
           href="/dashboard"

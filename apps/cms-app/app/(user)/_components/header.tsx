@@ -10,8 +10,10 @@ export function Header() {
     '/widgets': 'Widgets',
     '/help': 'Centro de ayuda',
     '/account': 'Configuración de cuenta',
+    '/testimonials/new': 'Crear testimonio',
+    '/testimonials/edit': 'Editar testimonio',
   };
-  const title = titles[pathname] || 'Dashboard';
+  const title = Object.keys(titles).find((key) => pathname.includes(key)) ? titles[Object.keys(titles).find((key) => pathname.includes(key))!] : 'Dashboard';
 
   return (
     <header className="flex flex-row pr-10 py-4 gap-3">

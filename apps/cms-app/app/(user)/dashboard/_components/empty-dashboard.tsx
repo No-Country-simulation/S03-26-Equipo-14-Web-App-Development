@@ -1,3 +1,4 @@
+"use client";
 import {
   Button,
   Empty,
@@ -9,8 +10,10 @@ import {
 } from '@repo/ui/components';
 
 import { MessageSquareQuote, Plus } from '@repo/ui/lib';
+import { useRouter } from 'next/navigation';
 
 export function EmptyDashboard() {
+  const router = useRouter();
   return (
     <Empty className="border border-dashed">
       <EmptyHeader>
@@ -23,7 +26,7 @@ export function EmptyDashboard() {
         </EmptyDescription>
       </EmptyHeader>
       <EmptyContent className="flex-row justify-center gap-2">
-        <Button>
+        <Button onClick={() => router.push('/testimonials/new')}>
           <Plus /> Agrega tu primer testimonio
         </Button>
       </EmptyContent>
