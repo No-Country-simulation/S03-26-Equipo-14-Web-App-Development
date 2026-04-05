@@ -24,5 +24,4 @@ export default function DashboardPage() {
   }
 
   return <section className="flex flex-col gap-4 h-full">{content}</section>;
-  z;
 }
