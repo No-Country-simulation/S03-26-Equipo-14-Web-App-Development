@@ -9,10 +9,12 @@ import {
   EmptyMedia,
   EmptyTitle,
 } from '@repo/ui/components';
-
+import { useRouter } from 'next/navigation';
 import { CircleAlert, RefreshCw } from '@repo/ui/lib';
 
 export function ErrorMessage() {
+  const router = useRouter();
+
   return (
     <Empty className="border border-dashed">
       <EmptyHeader>
@@ -26,7 +28,7 @@ export function ErrorMessage() {
         </EmptyDescription>
       </EmptyHeader>
       <EmptyContent className="flex-row justify-center gap-2">
-        <Button>
+        <Button onClick={() => router.refresh()}>
           <RefreshCw /> Reintentar
         </Button>
       </EmptyContent>

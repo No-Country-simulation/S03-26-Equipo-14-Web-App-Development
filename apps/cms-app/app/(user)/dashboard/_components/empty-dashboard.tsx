@@ -7,7 +7,7 @@ import {
   EmptyMedia,
   EmptyTitle,
 } from '@repo/ui/components';
-
+import Link from 'next/link';
 import { MessageSquareQuote, Plus } from '@repo/ui/lib';
 
 export function EmptyDashboard() {
@@ -24,7 +24,9 @@ export function EmptyDashboard() {
       </EmptyHeader>
       <EmptyContent className="flex-row justify-center gap-2">
         <Button>
-          <Plus /> Agrega tu primer testimonio
+          <Link className="flex items-center gap-1" href="/form">
+            <Plus /> Agrega tu primer testimonio
+          </Link>
         </Button>
       </EmptyContent>
     </Empty>
