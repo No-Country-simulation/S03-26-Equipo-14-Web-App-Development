@@ -1,5 +1,6 @@
 import Credentials from 'next-auth/providers/credentials';
 import type { NextAuthOptions } from 'next-auth';
+import apiClient from '@/shared/lib/apiClient';
 
 declare module 'next-auth' {
   interface Session {
@@ -41,32 +42,18 @@ export const authConfig: NextAuthOptions = {
         if (!credentials?.email || !credentials?.password) {
           throw new Error('Email and password are required');
         }
-        const apiUrl = process.env.NEXT_PUBLIC_API_URL;
-
-        if (!apiUrl) {
-          throw new Error('NEXT_PUBLIC_API_URL is not configured');
-        }
-
         try {
-          const response = await fetch(`${apiUrl}/auth/login`, {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-              email: credentials.email,
-              password: credentials.password,
-            }),
+          const response = await apiClient.post<LoginResponse>('/auth/login', {
+            email: credentials.email,
+            password: credentials.password,
           });
 
-          if (!response.ok) {
-            return null;
-          }
-
-          const loginBody = (await response
-            .json()
-            .catch(() => null)) as LoginResponse | null;
-          const setCookie = response.headers.get('set-cookie') ?? '';
+          const loginBody = response.data;
+          const setCookieRaw = response.headers['set-cookie'];
+          const setCookie =
+            (Array.isArray(setCookieRaw)
+              ? setCookieRaw.join('; ')
+              : setCookieRaw) ?? '';
           const cookieTokenMatch = setCookie.match(/CMS_ACCESS_TOKEN=([^;]+)/);
           const authToken = loginBody?.access_token ?? cookieTokenMatch?.[1];
 
@@ -74,20 +61,16 @@ export const authConfig: NextAuthOptions = {
             return null;
           }
 
-          const meResponse = await fetch(`${apiUrl}/auth/me`, {
-            method: 'GET',
-            headers: {
-              Cookie: `CMS_ACCESS_TOKEN=${authToken}`,
+          const meResponse = await apiClient.get<{ data: MeResponse }>(
+            '/auth/me',
+            {
+              headers: {
+                Cookie: `CMS_ACCESS_TOKEN=${authToken}`,
+              },
             },
-          });
+          );
 
-          if (!meResponse.ok) {
-            return null;
-          }
-
-          const { data: me } = (await meResponse.json()) as {
-            data: MeResponse;
-          };
+          const me = meResponse.data.data;
 
           return {
             id: me.sub,

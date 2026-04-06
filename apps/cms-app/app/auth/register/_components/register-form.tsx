@@ -3,7 +3,9 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { BadgeCheck, BarChart2, BookOpen, CheckCircle2, Sparkles } from '@repo/ui/lib';
+import axios from 'axios';
+import apiClient from '@/shared/lib/apiClient';
+import { BadgeCheck, BookOpen, Sparkles } from '@repo/ui/lib';
 import { useForm } from 'react-hook-form';
 import {
   Badge,
@@ -32,7 +34,6 @@ type RegisterFormValues = {
 export function RegisterForm() {
   const router = useRouter();
   const [error, setError] = useState<string | null>(null);
-  const apiUrl = process.env.NEXT_PUBLIC_API_URL;
   const form = useForm<RegisterFormValues>({
     defaultValues: {
       orgName: '',
@@ -55,37 +56,20 @@ export function RegisterForm() {
     setError(null);
 
     try {
-      if (!apiUrl) {
-        throw new Error('NEXT_PUBLIC_API_URL no está configurada');
-      }
-
-      const response = await fetch(`${apiUrl}/auth/owner`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          email: data.email,
-          password: data.password,
-          name: data.ownerName,
-          organizationName: data.orgName,
-          organizationDescription: data.projectName,
-        }),
+      await apiClient.post('/auth/owner', {
+        email: data.email,
+        password: data.password,
+        name: data.ownerName,
+        organizationName: data.orgName,
+        organizationDescription: data.projectName,
       });
-
-      if (!response.ok) {
-        const body = await response.json().catch(() => null);
-        const message =
-          body && typeof body.message === 'string'
-            ? body.message
-            : 'No se pudo registrar la cuenta';
-        throw new Error(message);
-      }
 
       toast.success('Cuenta creada correctamente. Ya puedes iniciar sesión.');
       router.push('/auth/login');
     } catch (err) {
-      const message = err instanceof Error ? err.message : 'Ocurrió un error inesperado';
+      const message = axios.isAxiosError(err)
+        ? (err.response?.data?.message ?? 'No se pudo registrar la cuenta')
+        : err instanceof Error ? err.message : 'Ocurrió un error inesperado';
       setError(message);
       toast.error(message);
       console.error(err);
