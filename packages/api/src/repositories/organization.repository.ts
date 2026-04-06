@@ -1,21 +1,25 @@
 import { ConflictException, Injectable, NotFoundException } from "@nestjs/common";
-import { PrismaService } from "src/prisma/prisma.service";
+import { PrismaService } from "../prisma/prisma.service";
+import { createOrganizationInput } from "./interfaces/organization.interface";
 @Injectable()
 export class OrganizationRepository {
     constructor(private readonly prisma: PrismaService) { }
 
+    async create(orgData: createOrganizationInput) {
+        return await this.prisma.client.organization.create({
+            data: {...orgData},
+        })
+    };
     async findAll() {
         return await this.prisma.client.organization.findMany();
     }
 
-    async findOne(id: string) {
+    async findOne(char: {name?: string, description?: string, user_id?: string}) {
         return await this.prisma.client.organization.findFirst({
-            where: {
-                id
-            }
+            where: char
         })
     };
-    
+
     async findById(id: string) {
         try {
             const org = await this.prisma.client.organization.findUnique({ where: { id } });
