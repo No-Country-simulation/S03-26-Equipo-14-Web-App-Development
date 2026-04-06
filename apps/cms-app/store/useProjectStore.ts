@@ -1,9 +1,5 @@
 import { create } from 'zustand'
-
-interface Project {
-    id: string,
-    title: string,
-}
+import { Project } from '../types/testimonials'
 
 interface ProjectStore {
     projects: Project[]
