@@ -9,9 +9,14 @@ import { useProjectStore } from '@/store/useProjectStore';
 import { testimonials } from '@/store/useProjectStore';
 
 export default function DashboardPage() {
+  // Para probar cuando no hay proyectos
   // const projects = [];
-  const { projects, selectedProjectId } = useProjectStore();
+
+  // Para probar cuando no hay testimonios
+  // const { projects, selectedProjectId } = useProjectStore();
   // const testimonials = [];
+
+  const { projects, selectedProjectId } = useProjectStore();
 
   let content = <Loading />; // Estado inicial de carga
 
@@ -20,7 +25,7 @@ export default function DashboardPage() {
   } else if (testimonials.length === 0) {
     content = <EmptyDashboard />;
   } else {
-    content = <DashboardView />;
+    content = <DashboardView testimonials={testimonials} />;
   }
 
   return <section className="flex flex-col gap-4 h-full">{content}</section>;
