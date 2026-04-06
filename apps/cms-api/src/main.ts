@@ -16,7 +16,7 @@ const corsOptions = {
   preflightContinue: false,
   optionsSuccessStatus: 200,
   credentials: true,
-  allowedHeaders: 'Content-type, Accept',
+  allowedHeaders: 'Content-Type, Accept, Authorization',
 };
 
 async function bootstrap() {
