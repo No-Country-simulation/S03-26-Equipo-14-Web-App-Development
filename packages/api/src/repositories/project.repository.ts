@@ -1,6 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import {
   CreateProjectInput,
+  Project2,
+  projectInclude,
   UpdateProjectInput,
 } from './interfaces/project.interface';
 import { PrismaService } from '../prisma/prisma.service';
@@ -30,8 +32,15 @@ export class ProjectRepository {
     })
   }
 
-  async findOneById(id: string): Promise<Project | null> {
-    return this.prisma.client.project.findUnique({
+  async findOneById(id: string, include?: projectInclude): Promise<Project2 | null  > {
+    if(include){
+      const f= await this.prisma.client.project.findUnique({
+        where: {id},
+        include 
+      })
+      return f;
+    };
+    return await this.prisma.client.project.findUnique({
       where: { id },
     });
   }
@@ -51,5 +60,53 @@ export class ProjectRepository {
         ...project,
       },
     });
+  }
+
+  async disconnectFromProject(projectId: string){
+    return await this.prisma.client.project.update({
+      where: {id: projectId},
+      data:{
+        categories:{
+          set: []
+        },
+        tags:{
+          set:[]
+        },
+        projectMembers:{
+          set: []
+        }
+      },
+      include:{
+        tags: true,
+        categories: true,
+        projectMembers: true,
+      }
+    })
+  }
+
+  async disconnectTestimonials (projectId: string){
+    return this.prisma.client.project.update({
+      where: {id: projectId},
+      data:{
+        testimonials:{
+          deleteMany: {},
+        },
+      },
+      include: {testimonials: true,}
+    });
+  };
+
+  async delete(id: string){
+    return this.prisma.client.project.delete({
+      where: {
+        id
+      },include:
+      {
+        tags: true,
+        categories: true,
+        projectMembers: true,
+        testimonials: true,
+      }
+    })
   }
 }
