@@ -4,7 +4,7 @@ import { OrganizationController } from './organization.controller';
 import { OrganizationRepository, UserRepository } from '@repo/api';
 
 @Module({
-  providers: [OrganizationService, UserRepository, OrganizationRepository],
-  controllers: [OrganizationController]
+  providers: [OrganizationService, OrganizationRepository, UserRepository],
+  controllers: [OrganizationController],
 })
 export class OrganizationModule {}

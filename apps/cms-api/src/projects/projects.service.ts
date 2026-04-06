@@ -1,4 +1,3 @@
-import { Prisma } from '../../../../packages/database/dist';
 import {
   ConflictException,
   Injectable,
@@ -16,6 +15,7 @@ import {
   ProjectRepository,
   CreateProjectInput,
   OrganizationRoleEnum,
+  Prisma
 } from '@repo/api';
 
 @Injectable()
