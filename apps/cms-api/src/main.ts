@@ -15,8 +15,8 @@ const corsOptions = {
   methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
   preflightContinue: false,
   optionsSuccessStatus: 200,
-  credentias: true,
-  allowedHeaders: 'Content-type, Accept',
+  credentials: true,
+  allowedHeaders: 'Content-Type, Accept, Authorization',
 };
 
 async function bootstrap() {

@@ -16,3 +16,4 @@ export * from './repositories/interfaces/project.interface';
 export * from './repositories/interfaces/tag.interface';
 export * from './repositories/interfaces/testimonial.interface';
 export * from './repositories/interfaces/user.interface';
+export * from './repositories/analytics.repository';
