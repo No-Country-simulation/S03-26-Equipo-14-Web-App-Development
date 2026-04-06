@@ -1,7 +1,7 @@
 import { FiltersBar } from './filtersbar';
 import { TestimonialCard } from './testimonial-card';
 import { NoResults } from './no-results';
-import { Testimonial } from '@/store/useProjectStore';
+import { Testimonial } from '@/types/testimonials';
 
 export function DashboardView({
   testimonials,
