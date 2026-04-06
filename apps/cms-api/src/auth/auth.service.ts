@@ -6,7 +6,7 @@ import {
   CreateRegisterOwnerInput,
 } from './dto/register.dto';
 import crypto from 'crypto';
-import { UserRepository } from '@repo/api';
+import { OrganizationRepository, UserRepository } from '@repo/api';
 import { LoginDto } from './dto/login.dto';
 import { JwtPayload } from './types/jwt-payload.type';
 import sgMail from '@sendgrid/mail';
@@ -14,9 +14,11 @@ import globalEnv from '@repo/env';
 import { ResetPasswordDto } from 'src/auth/dto/reset-password.dto';
 import { resetPasswordTemplate } from 'src/mail/templates/reset-password.template';
 import { MailService } from 'src/mail/mail.service';
-import {ValidateTokenDto } from './dto/validate-token.dto';
+import { ValidateTokenDto } from './dto/validate-token.dto';
 import { ValidateTokenQueryDto } from './dto/validate-token-query.dto';
 import { ForgotPasswordDto } from './dto/forgot-password.dto';
+import { createOrganizationDto } from 'src/organization/dto/organization.dto';
+import { createOrganizationInput } from '@repo/api/dist/repositories/interfaces/organization.interface';
 
 @Injectable()
 export class AuthService {
@@ -24,7 +26,8 @@ export class AuthService {
     private jwtService: JwtService,
     private mailService: MailService,
     private readonly apiUser: UserRepository,
-  ) {}
+    private readonly orgApi: OrganizationRepository
+  ) { }
 
   async validateUser(email: string, pass: string): Promise<any> {
     const user = await this.apiUser.findByEmail(email);
@@ -99,8 +102,19 @@ export class AuthService {
       throw new ConflictException('Error in Member Creation');
     }
   }
+  async registerOrganization(registerOrganizationData: createOrganizationInput) {
+    try {
+      const answer = await this.orgApi.findOne(registerOrganizationData);
 
-  async forgotPassword (forgotPasswordDto: ForgotPasswordDto) {
+      if (answer != null) throw new ConflictException("That organization already exists. ");
+      const creation = await this.orgApi.create(registerOrganizationData);
+      if (!creation) throw new ConflictException("Something happened registering the organization. Try again later please.");
+      return `The Organization ${creation.name} has been successfully created!`;
+    } catch (error) {
+      throw new ConflictException(error);
+    }
+  }
+  async forgotPassword(forgotPasswordDto: ForgotPasswordDto) {
 
     const userExist = await this.apiUser.findByEmail(forgotPasswordDto.email);
     if (!userExist) throw new NotFoundException("User not found");
@@ -110,17 +124,17 @@ export class AuthService {
     const resetExpiration = new Date(Date.now() + 3600000); // 1hs
 
     console.log(rawToken)
-    await this.mailService.sendResetPassword(userExist.email, userExist.name, rawToken);    
-    
-    await this.apiUser.setResetToken({userId: userExist.id, resetToken: hashedToken, resetTokenExpires: resetExpiration});
+    await this.mailService.sendResetPassword(userExist.email, userExist.name, rawToken);
+
+    await this.apiUser.setResetToken({ userId: userExist.id, resetToken: hashedToken, resetTokenExpires: resetExpiration });
 
     return {
       message: 'Email sent',
     };
   }
 
-  async validateToken({token, email} : {token: string, email: string}) {
-    
+  async validateToken({ token, email }: { token: string, email: string }) {
+
     const userExist = await this.apiUser.findByEmail(email);
     if (!userExist) throw new NotFoundException("User not found");
 
@@ -133,18 +147,18 @@ export class AuthService {
 
     const resetToken = this.jwtService.sign({
       userId: userExist.id
-    },{
+    }, {
       secret: globalEnv.JWT_RESET_TOKEN_SECRET,
       expiresIn: '1h'
     })
 
-    await this.apiUser.deleteResetToken({userId: userExist.id});
+    await this.apiUser.deleteResetToken({ userId: userExist.id });
 
     return resetToken
   }
 
-  async resetPassword({userId, newPassword} : {userId: string, newPassword: string}) {
-    
+  async resetPassword({ userId, newPassword }: { userId: string, newPassword: string }) {
+
     const userExist = await this.apiUser.findById(userId);
     if (!userExist) throw new NotFoundException("User not found");
 

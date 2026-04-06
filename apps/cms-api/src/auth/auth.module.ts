@@ -4,7 +4,7 @@ import { PassportModule } from '@nestjs/passport';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
 import globalEnv from "@repo/env";
-import { UserRepository } from '@repo/api';
+import {OrganizationRepository, UserRepository } from '@repo/api';
 import { MailModule } from 'src/mail/mail.module';
 
 @Module({
@@ -22,6 +22,6 @@ import { MailModule } from 'src/mail/mail.module';
         }),                
     ],
     controllers: [AuthController],
-    providers: [AuthService, UserRepository]
+    providers: [AuthService, UserRepository, OrganizationRepository]
 })
 export class AuthModule {}

@@ -53,6 +53,14 @@ export class ProjectRepository {
     });
   }
 
+  async allMembers(id: string): Promise<Project2|null>{
+    return await this.prisma.client.project.findUnique({
+      where:{id},
+      include: {
+        projectMembers: true
+      }
+    })
+  }
   async update(project: UpdateProjectInput) {
     await this.prisma.client.project.update({
       where: { id: project.id },

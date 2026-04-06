@@ -85,7 +85,20 @@ export class ProjectsService {
   findOne(id: number) {
     return `This action returns a #${id} project`;
   }
+  async allProjectMembers(id: string) {
+    try {
+      const answer = await this.projectRepository.allMembers(id);
 
+      if (answer == null) throw new NotFoundException("It seems the Project you're searching doesn't exists on the DB.");
+      const theList = answer.projectMembers;
+      if (theList == undefined) throw new ConflictException("Something happened searching for the list, try again later.")
+      else if (theList.length < 1) throw new ConflictException("Sorry, it looks like the List is empty.");
+
+      return theList;
+    } catch (error) {
+      throw new ConflictException(error);
+    }
+  }
   async update(
     id: string,
     updateProjectDto: UpdateProjectDto,

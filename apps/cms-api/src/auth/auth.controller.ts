@@ -15,7 +15,7 @@ import { ValidateTokenQueryDto } from './dto/validate-token-query.dto';
 import { ForgotPasswordDto } from './dto/forgot-password.dto';
 import { JwtService } from '@nestjs/jwt';
 import globalEnv from '@repo/env';
-
+import { createOrganizationDto } from 'src/organization/dto/organization.dto';
 
 @Controller('auth')
 export class AuthController {
@@ -104,6 +104,11 @@ export class AuthController {
     return this.authService.registerMember(registerMemberDto);
   }
 
-  
+
+  @Public()
+  @Post('register')
+  async registerOrg(@Body() registerOrgDto: createOrganizationDto){
+    return this.authService.registerOrganization(registerOrgDto);
+  }
 
 }
