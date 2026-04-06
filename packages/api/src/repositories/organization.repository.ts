@@ -1,9 +1,14 @@
-import { ConflictException, Injectable, NotFoundException } from "@nestjs/common";
-import { PrismaService } from "../prisma/prisma.service";
+import {
+  ConflictException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
+import { PrismaService } from '../prisma/prisma.service';
 import { createOrganizationInput } from "./interfaces/organization.interface";
+
 @Injectable()
 export class OrganizationRepository {
-    constructor(private readonly prisma: PrismaService) { }
+  constructor(private readonly prisma: PrismaService) {}
 
     async create(orgData: createOrganizationInput) {
         return await this.prisma.client.organization.create({

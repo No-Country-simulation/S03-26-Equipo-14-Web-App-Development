@@ -44,11 +44,15 @@ export class ProjectsController {
     @GetUser() user: JwtPayload,
   ) {
     this.projectsService.update(id, updateProjectDto, user);
-  }
- 
+  } 
   
   @Delete(':id')
+<<<<<<< HEAD
   remove(@Param('id') id: string, @Body() userId: string) {
     return this.projectsService.remove(id, userId);
+=======
+  remove(@Param('id') id: string, @GetUser() user: JwtPayload) {
+    return this.projectsService.remove(id, user.sub);
+>>>>>>> 044e9e18ca6738b9b106ff7ec4c3927300e7ad6a
   }
 }
