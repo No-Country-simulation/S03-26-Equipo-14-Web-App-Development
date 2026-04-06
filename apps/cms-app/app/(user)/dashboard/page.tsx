@@ -6,7 +6,7 @@ import { NoProjects } from './_components/no-projects';
 import { Loading } from './_components/loading';
 import { DashboardView } from './_components/dashboard-view';
 import { useProjectStore } from '@/store/useProjectStore';
-import { testimonials } from '@/store/useProjectStore';
+import { testimonials } from '@/data/testimonials';
 
 export default function DashboardPage() {
   // Para probar cuando no hay proyectos
