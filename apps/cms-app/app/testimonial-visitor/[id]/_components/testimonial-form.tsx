@@ -19,6 +19,7 @@ import {
 import { Camera, Check, Pencil, Star, X } from "@repo/ui/lib";
 import { uploadToCloudinary } from '@/shared/hooks/useCloudinary';
 import { useMutation } from '@tanstack/react-query';
+import apiClient from '@/shared/lib/apiClient';
 
 const MAX_CHARS = 300;
 
@@ -66,17 +67,9 @@ export function TestimonialForm({ projectId }: TestimonialFormProps) {
   const remaining = MAX_CHARS - (content?.length ?? 0);
   const createdTestimonial = useMutation({
     mutationFn: async (data: TestimonialFormValues): Promise<void> => {
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
       const authorPhoto = data.authorPhoto ? await uploadToCloudinary({ file: data.authorPhoto, folder: `${projectId}_visitors` }) : null;
-      const response = await fetch(`${apiUrl}/testimonials/quote`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ...data, authorPhoto: authorPhoto?.url, projectId }),
-      });
-      if (!response.ok) {
-        throw new Error('Failed to create testimonial');
-      }
-      return response.json();
+      const response = await apiClient.post('/testimonials/quote', { ...data, authorPhoto: authorPhoto?.url, projectId });
+      return response.data;
     },
     onSuccess: () => {
       form.reset();

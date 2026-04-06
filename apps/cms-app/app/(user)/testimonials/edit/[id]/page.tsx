@@ -3,8 +3,7 @@
 import { useParams } from 'next/navigation';
 import { useQuery } from '@tanstack/react-query';
 import { TestimonialForm } from '../../_components/testimonial-form';
-
-const apiUrl = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3001';
+import apiClient from '@/shared/lib/apiClient';
 
 export default function EditTestimonialPage() {
   const { id } = useParams<{ id: string; }>();
@@ -12,7 +11,7 @@ export default function EditTestimonialPage() {
   const { data, isLoading, isError } = useQuery({
     queryKey: ['testimonial', id],
     queryFn: () =>
-      fetch(`${apiUrl}/testimonials/${id}`, { credentials: 'include' }).then((r) => r.json()),
+      apiClient.get(`/testimonials/${id}`).then((r) => r.data),
     enabled: !!id,
   });
 

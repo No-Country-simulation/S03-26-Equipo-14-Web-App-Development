@@ -41,7 +41,21 @@ import {
 } from '@repo/ui/lib';
 import { useFileUpload } from '@/shared/hooks/useFileUpload';
 import { uploadToCloudinary } from '@/shared/hooks/useCloudinary';
+import { handleUpload } from '@/shared/hooks/useApiYoutube';
 import { useMutation, useQuery } from '@tanstack/react-query';
+import { useSession } from 'next-auth/react';
+import apiClient from '@/shared/lib/apiClient';
+import { useProjectStore } from '@/store/useProjectStore';
+
+function toSlug(text: string): string {
+  return text
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase()
+    .trim()
+    .replace(/[^a-z0-9\s-]/g, '')
+    .replace(/\s+/g, '-');
+}
 
 /* ─── types ─────────────────────────────────────────────── */
 
@@ -72,30 +86,6 @@ export interface TestimonialFormProps {
   mode?: 'create' | 'edit';
   defaultValues?: Partial<TestimonialFormValues>;
   testimonialId?: string;
-}
-
-/* ─── upload video helper ────────────────────────────────── */
-
-async function uploadVideoToCloudinary(file: File): Promise<{ success: boolean; url?: string; error?: string; }> {
-  const cloudName = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME;
-  const uploadPreset = process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET;
-  if (!cloudName || !uploadPreset) {
-    return { success: false, error: 'Missing Cloudinary configuration' };
-  }
-  const formData = new FormData();
-  formData.append('file', file);
-  formData.append('upload_preset', uploadPreset);
-  formData.append('folder', 'testimonial_videos');
-  const response = await fetch(`https://api.cloudinary.com/v1_1/${cloudName}/video/upload`, {
-    method: 'POST',
-    body: formData,
-  });
-  if (!response.ok) {
-    const err = await response.json();
-    return { success: false, error: err.error?.message || 'Upload failed' };
-  }
-  const data = await response.json();
-  return { success: true, url: data.secure_url };
 }
 
 /* ─── DropZone sub-component ─────────────────────────────── */
@@ -340,20 +330,26 @@ export function TestimonialForm({
   const { control, handleSubmit, watch } = form;
   const isDraft = watch('isDraft');
 
-  // Fetch categories & tags
-  const apiUrl = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3001';
+  const { status, data: session } = useSession();
+  const projectId = useProjectStore((s) => s.selectedProjectId);
 
+  // Fetch categories & tags
   const { data: categories = [] } = useQuery<Category[]>({
     queryKey: ['categories'],
-    queryFn: () => fetch(`${apiUrl}/category`, { credentials: 'include' }).then((r) => r.json().then((data) => data)),
+    queryFn: async () => {
+      const r = await apiClient.get<{ data: Category[]; }>('/category');
+      return r.data.data ?? [];
+    },
+    enabled: status === 'authenticated',
   });
 
   const { data: tags = [] } = useQuery<Tag[]>({
     queryKey: ['tags'],
-    queryFn: () => fetch(`${apiUrl}/tag`, { credentials: 'include' }).then((r) => r.json().then((data) => {
-      console.log(data);
-      return data;
-    })),
+    queryFn: async () => {
+      const r = await apiClient.get<{ data: Tag[]; }>('/tag');
+      return r.data.data ?? [];
+    },
+    enabled: status === 'authenticated',
   });
 
   // Submit mutation
@@ -372,37 +368,60 @@ export function TestimonialForm({
         if (result.success) mediaUrl = result.url;
       }
       if (activeTab === 'video' && videoFile.file) {
-        const result = await uploadVideoToCloudinary(videoFile.file);
-        if (result.success) mediaUrl = result.url;
+        toast.loading('Subiendo video a la nube...', { id: 'video-upload' });
+        const youtubeUrl = await handleUpload({
+          file: videoFile.file,
+          title: data.videoSummary || 'Testimonio',
+          description: data.videoSummary,
+        });
+        toast.dismiss('video-upload');
+        mediaUrl = youtubeUrl;
       }
 
       const endpoint = mode === 'edit' && testimonialId
-        ? `${apiUrl}/testimonials/${testimonialId}`
-        : `${apiUrl}/testimonials`;
-      const method = mode === 'edit' ? 'PATCH' : 'POST';
+        ? `/testimonials/${testimonialId}`
+        : '/testimonials';
 
-      const body = {
+      const titleValue = activeTab === 'caso' ? data.title : (data.videoSummary || 'Video Testimonio');
+
+      if (mode === 'edit') {
+        const updateBody = {
+          author: data.author,
+          authorRole: data.authorRole,
+          authorPhoto: authorPhotoUrl ?? '',
+          title: titleValue,
+          content: activeTab === 'caso' ? data.content : data.videoSummary,
+          mediaUrl: mediaUrl ?? '',
+          mediaDescription: activeTab === 'video' ? data.videoSummary : '',
+          categoryId: data.categoryId,
+          slug: toSlug(titleValue),
+          rating: 5,
+          draft: data.isDraft,
+        };
+        const response = await apiClient.patch(endpoint, updateBody);
+        return response.data;
+      }
+
+      const createBody = {
         type: activeTab === 'video' ? 'video' : 'case',
+        memberId: session?.user?.id ?? '',
+        projectId: 'e37003ed-f740-417d-9d45-48fde41a9bd4',
+        categoryId: data.categoryId,
         author: data.author,
         authorRole: data.authorRole,
-        authorPhoto: authorPhotoUrl,
-        title: activeTab === 'caso' ? data.title : undefined,
+        authorPhoto: authorPhotoUrl ?? '',
+        title: titleValue,
         content: activeTab === 'caso' ? data.content : data.videoSummary,
-        mediaUrl,
-        mediaDescription: activeTab === 'video' ? data.videoSummary : undefined,
-        categoryId: data.categoryId,
-        tagIds: data.tagIds,
+        mediaUrl: mediaUrl ?? '',
+        mediaDescription: activeTab === 'video' ? data.videoSummary : '',
+        slug: toSlug(titleValue),
+        rating: 5,
         status: data.isDraft ? 'draft' : 'pending',
       };
+      console.log(createBody);
 
-      const response = await fetch(endpoint, {
-        method,
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(body),
-      });
-
-      if (!response.ok) throw new Error('Error al guardar el testimonio');
-      return response.json();
+      const response = await apiClient.post(endpoint, createBody);
+      return response.data;
     },
     onSuccess: () => {
       router.back();
@@ -588,13 +607,13 @@ export function TestimonialForm({
                 </div>
 
                 <div>
-                  <Label className="mb-2 block text-sm">Media</Label>
+                  <Label className="mb-2 block text-sm">Video</Label>
                   <DropZone
                     accept="video/mp4,video/quicktime,video/x-msvideo"
                     maxSizeMB={500}
                     icon={<Video className="w-6 h-6" />}
                     title="Arrastra y suelta tu video aquí"
-                    subtitle="O haz click para seleccionar un archivo desde tu equipo (MP4, MOV o AVI. Máx. 500 MB)"
+                    subtitle="MP4, MOV o AVI. Máx. 500 MB. Se subirá a YouTube automáticamente."
                     file={videoFile.file}
                     preview={videoFile.preview}
                     isDragging={videoFile.isDragging}
