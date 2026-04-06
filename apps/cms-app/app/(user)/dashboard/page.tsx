@@ -7,6 +7,9 @@ import { Loading } from './_components/loading';
 import { DashboardView } from './_components/dashboard-view';
 import { useProjectStore } from '@/store/useProjectStore';
 import { testimonials } from '@/data/testimonials';
+import { TestimonialModal } from './_components/testimonial-modal';
+import { useState } from 'react';
+import { Testimonial } from '@/types/testimonials';
 
 export default function DashboardPage() {
   // Para probar cuando no hay proyectos
@@ -16,7 +19,23 @@ export default function DashboardPage() {
   // const { projects, selectedProjectId } = useProjectStore();
   // const testimonials = [];
 
-  const { projects, selectedProjectId } = useProjectStore();
+  //   const [selected, setSelected] = useState<Testimonial | null>(null);
+  //   const [open, setOpen] = useState(false);
+
+  //   const handleOpen = (testimonial: Testimonial) => {
+  //     setSelected(testimonial);
+  //     setOpen(true);
+  //   };
+
+  const { projects } = useProjectStore();
+
+  const [selected, setSelected] = useState<Testimonial | null>(null);
+  const [open, setOpen] = useState(false);
+
+  const handleOpen = (t: Testimonial) => {
+    setSelected(t);
+    setOpen(true);
+  };
 
   let content = <Loading />; // Estado inicial de carga
 
@@ -25,8 +44,19 @@ export default function DashboardPage() {
   } else if (testimonials.length === 0) {
     content = <EmptyDashboard />;
   } else {
-    content = <DashboardView testimonials={testimonials} />;
+    content = (
+      <DashboardView testimonials={testimonials} onSelect={handleOpen} />
+    );
   }
 
-  return <section className="flex flex-col gap-4 h-full">{content}</section>;
+  return (
+    <>
+      <TestimonialModal
+        open={open}
+        onOpenChange={setOpen}
+        testimonial={selected}
+      />
+      <section className="flex flex-col gap-4 h-full">{content}</section>
+    </>
+  );
 }

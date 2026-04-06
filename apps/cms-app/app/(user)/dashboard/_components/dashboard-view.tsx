@@ -5,8 +5,10 @@ import { Testimonial } from '@/types/testimonials';
 
 export function DashboardView({
   testimonials,
+  onSelect,
 }: {
   testimonials: Testimonial[];
+  onSelect: (t: Testimonial) => void;
 }) {
   return (
     <>
@@ -21,6 +23,7 @@ export function DashboardView({
             author={testimonial.author}
             description={testimonial.content}
             updatedAt={testimonial.updatedAt}
+            onClick={() => onSelect(testimonial)}
           />
         ))}
       </section>
