@@ -13,7 +13,7 @@ export class OrganizationService {
 
             if (isThisOwner?.organizationMembers[0]?.role != "Owner") throw new ConflictException("The user must be an Owner to use this.");
 
-            const org = await this.orgApi.findById(orgId, ownerId);
+            const org = await this.orgApi.findById(orgId);
 
             if (org == null) throw new NotFoundException("The Organization isn't in our DB. Try with another id. Have a great day!");
             return org;
