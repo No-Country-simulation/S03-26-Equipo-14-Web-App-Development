@@ -15,7 +15,7 @@ const corsOptions = {
   methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
   preflightContinue: false,
   optionsSuccessStatus: 200,
-  credentias: true,
+  credentials: true,
   allowedHeaders: 'Content-type, Accept',
 };
 
