@@ -17,7 +17,7 @@ import { JwtPayload } from 'src/auth/types/jwt-payload.type';
 
 @Controller('projects')
 export class ProjectsController {
-  constructor(private readonly projectsService: ProjectsService) {}
+  constructor(private readonly projectsService: ProjectsService) { }
 
   @Post()
   create(
@@ -31,12 +31,15 @@ export class ProjectsController {
   findAll(@GetUser() user: JwtPayload) {
     return this.projectsService.findAll(user);
   }
-  
+
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.projectsService.findOne(+id);
   }
-
+  @Get('projectMembers/:id')
+  async(@Param('id') id: string) {
+    return this.projectsService.allProjectMembers(id);
+  }
   @Patch(':id')
   update(
     @Param('id') id: string,
@@ -47,7 +50,7 @@ export class ProjectsController {
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.projectsService.remove(+id);
+  remove(@Param('id') id: string, @GetUser() user: JwtPayload) {
+    return this.projectsService.remove(id, user.sub);
   }
 }

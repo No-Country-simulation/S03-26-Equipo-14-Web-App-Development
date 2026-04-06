@@ -5,6 +5,7 @@ export * from './types/testimonial.types';
 export * from './types/user.types';
 export * from './repositories/category.repository';
 export * from './repositories/organization-member.repository';
+export * from './repositories/organization.repository';
 export * from './repositories/project.repository';
 export * from './repositories/tag.repository';
 export * from './repositories/testimonial.repository';
@@ -17,3 +18,6 @@ export * from './repositories/interfaces/tag.interface';
 export * from './repositories/interfaces/testimonial.interface';
 export * from './repositories/interfaces/user.interface';
 export * from './repositories/analytics.repository';
+
+//-------------DB------------------
+export * from '@workspace/database';

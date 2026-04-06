@@ -14,6 +14,7 @@ import {
   PrismaModule,
   TagRepository,
   OrganizationMemberRepository,
+  OrganizationRepository,
 } from '@repo/api';
 import { CategoryModule } from './category/category.module';
 import { MailModule } from './mail/mail.module';
@@ -22,6 +23,7 @@ import { TagModule } from './tag/tag.module';
 import { OrgRolesGuard } from './common/guards/organization-role.guard';
 import { ProjectsModule } from './projects/projects.module';
 import { AnalyticsModule } from './analytics/analytics.module';
+import { OrganizationModule } from './organization/organization.module';
 
 @Module({
   imports: [
@@ -37,6 +39,7 @@ import { AnalyticsModule } from './analytics/analytics.module';
     TagModule,
     ProjectsModule,
     AnalyticsModule,
+    OrganizationModule,
   ],
   controllers: [AppController],
   providers: [
@@ -46,6 +49,7 @@ import { AnalyticsModule } from './analytics/analytics.module';
     CategoryRepository,
     TestimonialRepository,
     OrganizationMemberRepository,
+    OrganizationRepository,
     TagRepository,
     { provide: APP_GUARD, useClass: JwtAuthGuard },
     { provide: APP_GUARD, useClass: OrgRolesGuard },

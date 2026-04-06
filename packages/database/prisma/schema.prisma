@@ -108,7 +108,7 @@ model Project_Member {
   id                     String  @id @default(uuid())
   organization_member_id String
   project_id             String
-  testimonial_id         String?
+  testimonial_id         String? 
 
   testimonials Testimonial[]
 
