@@ -16,7 +16,7 @@ model User {
   name     String
   password String
 
-  resetToken String?
+  resetToken        String?
   resetTokenExpires DateTime?
 
   created_at DateTime @default(now())
@@ -30,30 +30,30 @@ model Testimonial {
   id                String            @id @default(uuid())
   type              TestimonialType
   status            TestimonialStatus @default(pending)
-  title             String
+  title             String?
   author            String
-  author_photo      String
+  author_photo      String?
   author_role       String
   content           String
-  media_url         String
-  media_description String
+  media_url         String?
+  media_description String?
   rating            Decimal
-  slug              String
+  slug              String?
 
-  category_id String
-  member_id   String
+  category_id String?
+  member_id   String?
   project_id  String
 
   testimonialTags Testimonial_Tag[]
 
-  created_at   DateTime @default(now())
-  updated_at   DateTime @updatedAt
-  published_at DateTime
+  created_at   DateTime  @default(now())
+  updated_at   DateTime  @updatedAt
+  published_at DateTime?
 
   //Rel
-  category Category       @relation(fields: [category_id], references: [id])
-  member   Project_Member @relation(fields: [member_id], references: [id])
-  project  Project        @relation(fields: [project_id], references: [id])
+  category Category?       @relation(fields: [category_id], references: [id])
+  member   Project_Member? @relation(fields: [member_id], references: [id])
+  project  Project         @relation(fields: [project_id], references: [id])
 }
 
 model Project {
@@ -121,8 +121,8 @@ model Project_Member {
 }
 
 model Category {
-  id         String @id @default(uuid())
-  name       String
+  id   String @id @default(uuid())
+  name String
 
   testimonial Testimonial[]
 
@@ -154,6 +154,7 @@ model Testimonial_Tag {
   //Rel
   tag         Tag         @relation(fields: [tag_id], references: [id])
   testimonial Testimonial @relation(fields: [testimonial_id], references: [id])
+
   @@id([tag_id, testimonial_id])
 }
 

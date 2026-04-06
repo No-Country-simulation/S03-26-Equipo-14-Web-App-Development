@@ -1,20 +1,70 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+  Query,
+} from '@nestjs/common';
 import { TestimonialsService } from './testimonials.service';
-import { CreateTestimonialDto } from './dto/create-testimonial.dto';
-import { UpdateTestimonialDto } from './dto/update-testimonial.dto';
+import {
+  CreateTestimonialDto,
+  CreateTestimonialQuoteDto,
+} from './dto/create-testimonial.dto';
+import {
+  ChangeStatusDto,
+  UpdateTestimonialDto,
+} from './dto/update-testimonial.dto';
+import { Public } from 'src/auth/decorators/public.decorator';
+import {
+  FindAllQueryTestimonialDto,
+  GetByFragmentDto,
+} from './dto/get-testimonial.dto';
+
+import { OrgRoles } from 'src/common/decorator/organization-role.decorator';
+import {
+  OrganizationRoleEnum,
+  Testimonial,
+  TestimonialStatus,
+  TestimonialType,
+} from '@repo/api';
+import { GetUser } from 'src/auth/decorators/get-user.decorator';
+import { JwtPayload } from 'src/auth/types/jwt-payload.type';
+import { deleteTestimonialDTO } from './dto/delete-testimonial.dto';
 
 @Controller('testimonials')
 export class TestimonialsController {
   constructor(private readonly testimonialsService: TestimonialsService) {}
 
-  @Post()
-  create(@Body() createTestimonialDto: CreateTestimonialDto) {
-    return this.testimonialsService.create(createTestimonialDto);
+  @Post('quote')
+  @Public()
+  async createQuote(@Body() createTestimonialDto: CreateTestimonialQuoteDto) {
+    return await this.testimonialsService.creatQuote(createTestimonialDto);
   }
 
-  @Get()
-  findAll() {
-    return this.testimonialsService.findAll();
+  @Post()
+  async createTestimonial(
+    @Body()
+    createTestimonialDto: CreateTestimonialDto,
+  ) {
+    console.log('Endpoint', createTestimonialDto);
+    return await this.testimonialsService.createTestimonial(
+      createTestimonialDto,
+    );
+  }
+
+  @Get('byFragment')
+  async getByFragment(
+    @Query() queryDto: GetByFragmentDto,
+  ): Promise<Testimonial[]> {
+    return await this.testimonialsService.searchByFragment(queryDto);
+  }
+
+  @Get("/:projectId")
+  findAll(@Query() queryDto: FindAllQueryTestimonialDto, @Param('projectId') projectId: string, @GetUser() user: JwtPayload) {
+    return this.testimonialsService.findAll(queryDto, projectId, user);
   }
 
   @Get(':id')
@@ -22,13 +72,32 @@ export class TestimonialsController {
     return this.testimonialsService.findOne(+id);
   }
 
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateTestimonialDto: UpdateTestimonialDto) {
-    return this.testimonialsService.update(+id, updateTestimonialDto);
+  @OrgRoles(OrganizationRoleEnum.Admin, OrganizationRoleEnum.Owner)
+  @Patch('changeStatus/:id')
+  changeStatus(
+    @Param('id') id: string,
+    @Body()
+    body: ChangeStatusDto,
+  ) {
+    return this.testimonialsService.changeStatus(id, body);
   }
 
+  @OrgRoles(
+    OrganizationRoleEnum.Admin,
+    OrganizationRoleEnum.Owner,
+    OrganizationRoleEnum.Editor,
+  )
+  @Patch(':id')
+  update(
+    @Param('id') id: string,
+    @Body() updateTestimonialDto: UpdateTestimonialDto,
+  ) {
+    return this.testimonialsService.update(id, updateTestimonialDto);
+  }
+
+  @OrgRoles(OrganizationRoleEnum.Admin, OrganizationRoleEnum.Owner)
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.testimonialsService.remove(+id);
+  async remove(@Param('id') id: string, @Body() userId: deleteTestimonialDTO) {
+    return await this.testimonialsService.removeT(id, userId);
   }
 }

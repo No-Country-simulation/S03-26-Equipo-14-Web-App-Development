@@ -9,6 +9,9 @@ const schemaEnv = z.object({
   //External Services
   CLOUDINARY_API_SECRET: z.string(),
   CLOUDINARY_API_KEY: z.string(),
+  CLOUDINARY_CLOUD_NAME: z.string(),
+  CLOUDINARY_UPLOAD_PRESET: z.string(),
+
   GOOGLE_CLIENT_SECRET: z.string(),
   GOOGLE_ID_CLIENT: z.string(),
   YOUTUBE_API_KEY: z.string(),
@@ -16,6 +19,9 @@ const schemaEnv = z.object({
   //cms-api
   JWT_SECRET: z.string(),
   JWT_RESET_TOKEN_SECRET: z.string(),
+  DEV_LOCAL_APP_URL: z.string(),
+  DEV_DEPLOY_APP_URL: z.string(),
+  PROD_DEPLOY_APP_URL: z.string(),
 
   PORT: z.string().default('3000'),
   //cms-app
@@ -30,5 +36,12 @@ const schemaEnv = z.object({
   DIRECT_URL: z.string(),
 });
 
-const globalEnv = schemaEnv.parse(process.env);
+const result = schemaEnv.safeParse(process.env);
+
+if (!result.success) {
+  console.error('Invalid environment variables', result.error.format());
+  throw new Error('Invalid environment variables');
+}
+
+const globalEnv = result.data;
 export default globalEnv;
