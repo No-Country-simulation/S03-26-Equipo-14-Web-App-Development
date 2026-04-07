@@ -20,7 +20,7 @@ const corsOptions = {
 };
 
 async function bootstrap() {
-  console.log('NODE_ENV', globalEnv.AES_SECRET);
+  console.log('NODE_ENV', globalEnv.NODE_ENV);
   const app = await NestFactory.create(AppModule);
   //Swagger documentation config
   const config = new DocumentBuilder()
