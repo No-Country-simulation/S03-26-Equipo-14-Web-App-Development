@@ -21,6 +21,7 @@ import {
 } from '@repo/ui/components';
 import { Search, Plus, LayoutGrid, List } from '@repo/ui/lib';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 
 const filtersPlaceholder = 'Seleccione...';
 const filters = [
@@ -47,6 +48,8 @@ const filters = [
 ];
 
 export function FiltersBar() {
+  const router = useRouter();
+
   return (
     <div className="flex flex-col gap-2">
       <div className="flex flex-row justify-between gap-4">
@@ -68,10 +71,8 @@ export function FiltersBar() {
               </TabsTrigger>
             </TabsList>
           </Tabs>
-          <Button>
-            <Link className="flex items-center gap-1" href="/form">
-              <Plus /> Agregar testimonio
-            </Link>
+          <Button onClick={() => router.push('/testimonials/new')}>
+            <Plus /> Agregar testimonio
           </Button>
         </div>
       </div>
