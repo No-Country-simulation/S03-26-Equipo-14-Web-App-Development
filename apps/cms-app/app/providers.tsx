@@ -10,13 +10,13 @@ const queryClient = new QueryClient({
     },
   },
 });
-export function Providers({ children }: { children: React.ReactNode; }) {
+export function Providers({ children }: { children: React.ReactNode }) {
   return (
     <SessionProvider>
       <QueryClientProvider client={queryClient}>
         <TooltipProvider>
           {children}
-          <Toaster richColors position="top-right" />
+          <Toaster richColors theme="light" position="top-right" />
         </TooltipProvider>
       </QueryClientProvider>
     </SessionProvider>

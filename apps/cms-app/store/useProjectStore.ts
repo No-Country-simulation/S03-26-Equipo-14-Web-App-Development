@@ -1,9 +1,5 @@
 import { create } from 'zustand'
-
-interface Project {
-    id: string,
-    title: string,
-}
+import { Project } from '../types/testimonials'
 
 interface ProjectStore {
     projects: Project[]
@@ -13,9 +9,9 @@ interface ProjectStore {
 
 export const useProjectStore = create<ProjectStore>((set) => ({
     projects: [
-        { id: '0', title: 'Todos los proyectos' },
-        { id: '1', title: 'Proyecto1' },
-        { id: '2', title: 'Proyecto2' },
+        { id: '0', value:'all' ,title: 'Todos los proyectos' },
+        { id: '1', value:'project1' ,title: 'Proyecto 1' },
+        { id: '2', value:'project2' ,title: 'Proyecto 2' },
     ],
     selectedProjectId: '0',
     setProjectId: (name) => set({ selectedProjectId: name }),

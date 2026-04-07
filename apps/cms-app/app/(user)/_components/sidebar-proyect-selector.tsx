@@ -1,48 +1,75 @@
+'use client';
+
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuRadioGroup,
-  DropdownMenuRadioItem,
-  DropdownMenuTrigger,
   SidebarMenuButton,
-  SidebarMenuItem,
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
 } from '@repo/ui/components';
-import { ChevronsUpDown } from '@repo/ui/lib';
+import { ChevronDown, Check } from '@repo/ui/lib';
 import { useProjectStore } from '../../../store/useProjectStore';
+import { useState } from 'react';
 
 export function SidebarProjectSelector() {
+  const [open, setOpen] = useState(false);
+
   const { projects, selectedProjectId } = useProjectStore();
   const setProjectId = useProjectStore((state) => state.setProjectId);
 
   const currentProject =
     projects.find((p) => p.id === selectedProjectId) || projects[0];
+
   return (
-    <SidebarMenuItem>
-      <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <SidebarMenuButton
-            tooltip="Seleccionar proyecto"
-            className="border-2"
-          >
-            <ChevronsUpDown className="pr-1" />
-            <span className="truncate font-medium">
-              {currentProject?.title}
-            </span>
-          </SidebarMenuButton>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent>
-          <DropdownMenuRadioGroup
-            value={selectedProjectId}
-            onValueChange={setProjectId}
-          >
-            {projects.map((item) => (
-              <DropdownMenuRadioItem key={item.title} value={item.id}>
-                {item.title}
-              </DropdownMenuRadioItem>
-            ))}
-          </DropdownMenuRadioGroup>
-        </DropdownMenuContent>
-      </DropdownMenu>
-    </SidebarMenuItem>
+    <Popover open={open} onOpenChange={setOpen}>
+      <PopoverTrigger asChild>
+        <SidebarMenuButton
+          role="combobox"
+          aria-expanded={open}
+          tooltip="Seleccionar proyecto"
+          className="border-2"
+        >
+          <ChevronDown className="h-3! w-3! shrink-0 opacity-50" />
+          <span className="truncate font-medium">
+            {currentProject?.title ?? 'Seleccionar proyecto'}
+          </span>
+        </SidebarMenuButton>
+      </PopoverTrigger>
+
+      <PopoverContent
+        className="w-[--radix-popover-trigger-width] p-0"
+        align="start"
+      >
+        <Command>
+          <CommandInput placeholder="Buscar proyecto..." />
+
+          <CommandEmpty>No encontrado</CommandEmpty>
+
+          <CommandGroup>
+            {projects.map((item) => {
+              const isSelected = item.id === selectedProjectId;
+              return (
+                <CommandItem
+                  key={item.id}
+                  value={item.title}
+                  onSelect={() => {
+                    setProjectId(item.id);
+                    setOpen(false);
+                  }}
+                  className="data-selected:bg-popover data-[selected=true]:bg-muted"
+                >
+                  <span className="truncate">{item.title}</span>
+                  {isSelected && <Check className="h-4 w-4" />}
+                </CommandItem>
+              );
+            })}
+          </CommandGroup>
+        </Command>
+      </PopoverContent>
+    </Popover>
   );
 }

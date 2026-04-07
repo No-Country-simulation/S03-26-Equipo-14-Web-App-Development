@@ -6,19 +6,19 @@ import {
   EmptyTitle,
 } from '@repo/ui/components';
 
-import { Ghost } from '@repo/ui/lib';
+import { LucideSearchX } from '@repo/ui/lib';
 
-export function NoProjects() {
+export function NoResults() {
   return (
     <Empty className="border border-dashed">
       <EmptyHeader>
         <EmptyMedia variant="icon">
-          <Ghost />
+          <LucideSearchX />
         </EmptyMedia>
-        <EmptyTitle>Sin proyectos asignados</EmptyTitle>
+        <EmptyTitle>Sin resultados</EmptyTitle>
         <EmptyDescription>
-          Tu lista de proyectos está vacía por ahora. Contacta a tu
-          administrador o vuelve más tarde.
+          No encontramos testimonios que coincidan con tus filtros, intenta
+          ajustar la búsqueda
         </EmptyDescription>
       </EmptyHeader>
     </Empty>
