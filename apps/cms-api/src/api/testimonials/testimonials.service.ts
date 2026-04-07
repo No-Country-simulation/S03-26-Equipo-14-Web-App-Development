@@ -32,7 +32,8 @@ import { deleteTestimonialDTO } from './dto/delete-testimonial.dto';
 @Injectable()
 export class TestimonialsService {
   constructor(
-    private readonly api: TestimonialRepository, private readonly projectRepository: ProjectRepository,
+    private readonly api: TestimonialRepository,
+    private readonly projectRepository: ProjectRepository,
     private readonly userApi: UserRepository,
   ) {}
 
@@ -79,8 +80,11 @@ export class TestimonialsService {
     await this.api.createTestimonial(synthTestimonial);
   }
 
-  async findAll(queryDto: FindAllQueryTestimonialDto, projectId: string, user: JwtPayload) {
-
+  async findAll(
+    queryDto: FindAllQueryTestimonialDto,
+    projectId: string,
+    user: JwtPayload,
+  ) {
     const allowedFields = ['created_at', 'rating', 'title'];
 
     const [field, order] = queryDto.sorted
@@ -91,17 +95,21 @@ export class TestimonialsService {
     const safeOrder = order === 'asc' ? 'asc' : 'desc';
 
     const orderBy = { [safeField!]: safeOrder };
-    
+
     const project = await this.projectRepository.findOneById(projectId);
 
-    if(!project) throw new NotFoundException('Project not found');
-    if(project.organization_id !== user.organizationId) throw new NotFoundException('Project not found');
+    if (!project) throw new NotFoundException('Project not found');
+    if (project.organization_id !== user.organizationId)
+      throw new NotFoundException('Project not found');
 
-    return this.api.findAll({
-      type: queryDto.type,
-      category_id: queryDto.category_id,
-      orderBy,
-    }, projectId);
+    return this.api.findAll(
+      {
+        type: queryDto.type,
+        category_id: queryDto.category_id,
+        orderBy,
+      },
+      projectId,
+    );
   }
 
   async searchByFragment({
@@ -131,8 +139,9 @@ export class TestimonialsService {
     }
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} testimonial`;
+  findOne(id: string) {
+    if (!id) throw new BadRequestException('query parameter not found');
+    return this.api.findById(id);
   }
 
   async update(id: string, updateTestimonialDto: UpdateTestimonialDto) {
@@ -180,7 +189,7 @@ export class TestimonialsService {
         title: true,
         status: true,
       });
-console.log(testimonialExists)
+      console.log(testimonialExists);
       if (!testimonialExists)
         throw new NotFoundException(
           "The Testimonial you want to delete doesn't exists on the DB. Have a nice day!",

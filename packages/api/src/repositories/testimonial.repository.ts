@@ -59,6 +59,12 @@ export class TestimonialRepository {
     });
   }
 
+  async findById(id: string) {
+    return this.prisma.client.testimonial.findUnique({
+      where: { id },
+    });
+  }
+
   async findOneById(
     id: string,
     select?: Prisma.TestimonialSelect,
