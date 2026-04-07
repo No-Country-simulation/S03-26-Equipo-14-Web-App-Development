@@ -10,23 +10,9 @@ import { testimonials } from '@/data/testimonials';
 import { TestimonialModal } from './_components/testimonial-modal';
 import { useState } from 'react';
 import { Testimonial } from '@/types/testimonials';
+import { toast } from '@repo/ui/components';
 
 export default function DashboardPage() {
-  // Para probar cuando no hay proyectos
-  // const projects = [];
-
-  // Para probar cuando no hay testimonios
-  // const { projects, selectedProjectId } = useProjectStore();
-  // const testimonials = [];
-
-  //   const [selected, setSelected] = useState<Testimonial | null>(null);
-  //   const [open, setOpen] = useState(false);
-
-  //   const handleOpen = (testimonial: Testimonial) => {
-  //     setSelected(testimonial);
-  //     setOpen(true);
-  //   };
-
   const { projects } = useProjectStore();
 
   const [selected, setSelected] = useState<Testimonial | null>(null);
@@ -37,7 +23,14 @@ export default function DashboardPage() {
     setOpen(true);
   };
 
-  let content = <Loading />; // Estado inicial de carga
+  const handleDelete = async (id: string) => {
+    // await deleteTestimonial(id);
+    setOpen(false);
+    setSelected(null);
+    toast.success('Eliminado correctamente');
+  };
+
+  let content = <Loading />;
 
   if (projects.length === 0) {
     content = <NoProjects />;
@@ -55,6 +48,7 @@ export default function DashboardPage() {
         open={open}
         onOpenChange={setOpen}
         testimonial={selected}
+        onDelete={handleDelete}
       />
       <section className="flex flex-col gap-4 h-full">{content}</section>
     </>

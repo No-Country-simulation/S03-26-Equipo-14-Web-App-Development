@@ -16,6 +16,7 @@ import {
   DialogContent,
   DialogFooter,
   DialogHeader,
+  DialogTitle,
   Field,
   FieldLabel,
   Textarea,
@@ -25,25 +26,33 @@ import { Testimonial } from '@/types/testimonials';
 import { TestimonialTypeBadge } from './testimonial-type-badge';
 import { TestimonialStatusBadge } from './testimonial-status-badge';
 import { useRouter } from 'next/navigation';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 export function TestimonialModal({
   open,
   onOpenChange,
   testimonial,
+  onDelete,
 }: {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   testimonial: Testimonial | null;
+  onDelete: (id: string) => void;
 }) {
   const [isEditing, setIsEditing] = useState(false);
   const router = useRouter();
+  useEffect(() => {
+    if (!open) {
+      setIsEditing(false);
+    }
+  }, [open]);
   if (!testimonial) return null;
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent>
         {/* Header */}
         <DialogHeader className="flex flex-row gap-1">
+          <DialogTitle className="sr-only">{testimonial.title}</DialogTitle>
           <TestimonialTypeBadge type={testimonial.type} />
           <TestimonialStatusBadge status={testimonial.status} />
         </DialogHeader>
@@ -95,7 +104,13 @@ export function TestimonialModal({
                   <AlertDialogCancel variant="outline">
                     Cancelar
                   </AlertDialogCancel>
-                  <AlertDialogAction variant="destructive">
+                  <AlertDialogAction
+                    variant="destructive"
+                    onClick={() => {
+                      if (!testimonial) return;
+                      onDelete(testimonial.id);
+                    }}
+                  >
                     Eliminar
                   </AlertDialogAction>
                 </AlertDialogFooter>
@@ -151,6 +166,7 @@ export function TestimonialModal({
               Publicar <CloudUpload />
             </Button>
           </div>
+          {/* Solo debe funcionar para el caso de: un admin/owner que rechaza un testimonio editor */}
           <div className={`${isEditing ? 'flex' : 'hidden'}`}>
             <Field>
               <FieldLabel htmlFor="textarea-message">Observaciones</FieldLabel>
