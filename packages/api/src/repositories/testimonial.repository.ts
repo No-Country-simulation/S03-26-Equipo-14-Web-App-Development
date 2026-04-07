@@ -119,10 +119,19 @@ export class TestimonialRepository {
   }
 
   async createTestimonial(testimonial: CreateTestimonialInput) {
-    console.log('repo', testimonial);
+    //fix asociate tags, and category, and project, and member project,
+    const { tags, ...rest } = testimonial;
+
     await await this.prisma.client.testimonial.create({
       data: {
-        ...testimonial,
+        ...rest,
+        ...(tags?.length && {
+          testimonialTags: {
+            createMany: {
+              data: tags.map((tagId) => ({ tag_id: tagId })),
+            },
+          },
+        }),
       },
     });
   }
