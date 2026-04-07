@@ -1,6 +1,5 @@
 generator client {
   provider      = "prisma-client-js"
-  // output        = "../src/generated/prisma/client"
   binaryTargets = ["native", "rhel-openssl-3.0.x"]
 }
 
@@ -11,149 +10,120 @@ datasource db {
 }
 
 model User {
-  id       String @id @default(uuid())
-  email    String @unique
-  name     String
-  password String
-
-  resetToken        String?
-  resetTokenExpires DateTime?
-
-  created_at DateTime @default(now())
-  updated_at DateTime @updatedAt
-
-  //Rel
+  id                  String                @id @default(uuid())
+  email               String                @unique
+  name                String
+  password            String
+  created_at          DateTime              @default(now())
+  updated_at          DateTime              @updatedAt
+  resetToken          String?
+  resetTokenExpires   DateTime?
   organizationMembers Organization_Member[]
 }
 
 model Testimonial {
   id                String            @id @default(uuid())
   type              TestimonialType
-  status            TestimonialStatus @default(pending)
   title             String?
+  content           String?
   author            String
   author_photo      String?
   author_role       String?
-  content           String?
   media_url         String?
   media_description String?
+  status            TestimonialStatus @default(pending)
   rating            Decimal?
   slug              String?
-
-  category_id String?
-  member_id   String?
-  project_id  String
-
-  testimonialTags Testimonial_Tag[]
-
-  created_at   DateTime  @default(now())
-  updated_at   DateTime  @updatedAt
-  published_at DateTime?
-
-  //Rel
-  category Category?       @relation(fields: [category_id], references: [id])
-  member   Project_Member? @relation(fields: [member_id], references: [id])
-  project  Project         @relation(fields: [project_id], references: [id])
+  created_at        DateTime          @default(now())
+  updated_at        DateTime          @updatedAt
+  published_at      DateTime?
+  category_id       String?
+  member_id         String?
+  project_id        String
+  category          Category?         @relation(fields: [category_id], references: [id])
+  member            Project_Member?   @relation(fields: [member_id], references: [id])
+  project           Project           @relation(fields: [project_id], references: [id])
+  testimonialTags   Testimonial_Tag[]
 }
 
 model Project {
-  id              String  @id @default(uuid())
+  id              String           @id @default(uuid())
   name            String
   description     String?
   api_key         String?
   organization_id String
-
-  projectMembers Project_Member[]
-  categories     Category[]
-  testimonials   Testimonial[]
-  tags           Tag[]
-
-  created_at DateTime @default(now())
-  updated_at DateTime @updatedAt
-
-  //Rel
-  organization Organization @relation(fields: [organization_id], references: [id])
+  created_at      DateTime         @default(now())
+  updated_at      DateTime         @updatedAt
+  organization    Organization     @relation(fields: [organization_id], references: [id])
+  projectMembers  Project_Member[]
+  testimonials    Testimonial[]
+  categories      Category[]
+  tags            Tag[]            @relation("ProjectToTag")
 }
 
 model Organization {
-  id          String  @id @default(uuid())
-  name        String
-  description String?
-  user_id     String
-
-  projects            Project[]
+  id                  String                @id @default(uuid())
+  name                String
+  description         String?
+  created_at          DateTime              @default(now())
+  updated_at          DateTime              @updatedAt
+  user_id             String
   organizationMembers Organization_Member[]
-
-  created_at DateTime @default(now())
-  updated_at DateTime @updatedAt
+  projects            Project[]
 }
 
 model Organization_Member {
   id              String            @id @default(uuid())
-  organization_id String
   user_id         String
+  organization_id String
   role            Organization_Role @default(Editor)
-
-  projectMembers Project_Member[]
-
-  created_at DateTime @default(now())
-  updated_at DateTime @updatedAt
-
-  //Rel
-  user         User         @relation(fields: [user_id], references: [id])
-  organization Organization @relation(fields: [organization_id], references: [id])
+  created_at      DateTime          @default(now())
+  updated_at      DateTime          @updatedAt
+  organization    Organization      @relation(fields: [organization_id], references: [id])
+  user            User              @relation(fields: [user_id], references: [id])
+  projectMembers  Project_Member[]
 }
 
 model Project_Member {
-  id                     String  @id @default(uuid())
+  id                     String              @id @default(uuid())
   organization_member_id String
   project_id             String
   testimonial_id         String?
-
-  testimonials Testimonial[]
-
-  created_at DateTime @default(now())
-  updated_at DateTime @updatedAt
-
-  //Rel
-  organization_member Organization_Member @relation(fields: [organization_member_id], references: [id])
-  project             Project             @relation(fields: [project_id], references: [id])
+  created_at             DateTime            @default(now())
+  updated_at             DateTime            @updatedAt
+  organization_member    Organization_Member @relation(fields: [organization_member_id], references: [id])
+  project                Project             @relation(fields: [project_id], references: [id])
+  testimonials           Testimonial[]
 }
 
 model Category {
-  id   String @id @default(uuid())
-  name String
+  id          String        @id @default(uuid())
+  name        String
+  project_id  String
+
+  created_at  DateTime      @default(now())
+  updated_at  DateTime      @updatedAt
 
   testimonial Testimonial[]
-
-  created_at DateTime @default(now())
-  updated_at DateTime @updatedAt
-
-  //Rel
-  project Project[]
+    project     Project       @relation(fields: [project_id], references: [id], onDelete: Cascade)
 }
 
 model Tag {
-  id   String @id @default(uuid())
-  name String @unique
-
+  id              String            @id @default(uuid())
+  name            String            @unique
+  created_at      DateTime          @default(now())
+  updated_at      DateTime          @updatedAt
   testimonialTags Testimonial_Tag[]
-  projects        Project[]
-
-  created_at DateTime @default(now())
-  updated_at DateTime @updatedAt
+  projects        Project[]         @relation("ProjectToTag")
 }
 
 model Testimonial_Tag {
   tag_id         String
   testimonial_id String
-
-  created_at DateTime @default(now())
-  updated_at DateTime @updatedAt
-
-  //Rel
-  tag         Tag         @relation(fields: [tag_id], references: [id])
-  testimonial Testimonial @relation(fields: [testimonial_id], references: [id])
+  created_at     DateTime    @default(now())
+  updated_at     DateTime    @updatedAt
+  tag            Tag         @relation(fields: [tag_id], references: [id])
+  testimonial    Testimonial @relation(fields: [testimonial_id], references: [id])
 
   @@id([tag_id, testimonial_id])
 }
