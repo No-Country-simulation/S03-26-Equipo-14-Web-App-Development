@@ -11,13 +11,13 @@ import { LoginDto } from './dto/login.dto';
 import { JwtPayload } from './types/jwt-payload.type';
 import sgMail from '@sendgrid/mail';
 import globalEnv from '@repo/env';
-import { ResetPasswordDto } from 'src/auth/dto/reset-password.dto';
-import { resetPasswordTemplate } from 'src/mail/templates/reset-password.template';
-import { MailService } from 'src/mail/mail.service';
-import { ValidateTokenDto } from './dto/validate-token.dto';
+import { ResetPasswordDto } from 'src/api/auth/dto/reset-password.dto';
+import { resetPasswordTemplate } from 'src/api/mail/templates/reset-password.template';
+import { MailService } from 'src/api/mail/mail.service';
+import {ValidateTokenDto } from './dto/validate-token.dto';
 import { ValidateTokenQueryDto } from './dto/validate-token-query.dto';
 import { ForgotPasswordDto } from './dto/forgot-password.dto';
-import { createOrganizationDto } from 'src/organization/dto/organization.dto';
+import { createOrganizationDto } from 'src/api/organization/dto/organization.dto';
 import { createOrganizationInput } from '@repo/api/dist/repositories/interfaces/organization.interface';
 
 @Injectable()

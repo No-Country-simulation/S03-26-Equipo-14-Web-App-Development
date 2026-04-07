@@ -1,7 +1,7 @@
 import { Controller, Get, Param } from '@nestjs/common';
 import { AnalyticsService } from './analytics.service';
-import { GetUser } from 'src/auth/decorators/get-user.decorator';
-import { JwtPayload } from 'src/auth/types/jwt-payload.type';
+import { GetUser } from 'src/api/auth/decorators/get-user.decorator';
+import { JwtPayload } from 'src/api/auth/types/jwt-payload.type';
 
 @Controller('analytics')
 export class AnalyticsController {

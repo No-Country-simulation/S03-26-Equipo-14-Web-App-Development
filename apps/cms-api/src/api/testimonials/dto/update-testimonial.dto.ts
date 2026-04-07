@@ -6,7 +6,7 @@ import {
 import { IsBoolean } from 'class-validator';
 import { IsEnum, IsString } from 'class-validator';
 import { TestimonialStatus, TestimonialType } from '@repo/api';
-import { IsRequiredString } from 'src/common/decorator/common';
+import { IsRequiredString } from 'src/api/common/decorator/common';
 
 export class UpdateTestimonialDto extends PartialType(
   OmitType(CreateTestimonialDto, [

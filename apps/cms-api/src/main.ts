@@ -5,7 +5,7 @@ import cookieParser from 'cookie-parser';
 import globalEnv from '@repo/env';
 import { UserRepository } from '@repo/api';
 import { ValidationPipe } from '@nestjs/common';
-import { ResponseInterceptor } from './common/interceptors/response.interceptor';
+import { ResponseInterceptor } from './api/common/interceptors/response.interceptor';
 
 const { DEV_LOCAL_APP_URL, DEV_DEPLOY_APP_URL, PROD_DEPLOY_APP_URL } =
   globalEnv;

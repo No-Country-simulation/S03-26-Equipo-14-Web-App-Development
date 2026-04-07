@@ -9,13 +9,13 @@ import {
 } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
 import { JwtPayload } from './types/jwt-payload.type';
-import { ResetPasswordDto } from 'src/auth/dto/reset-password.dto';
+import { ResetPasswordDto } from 'src/api/auth/dto/reset-password.dto';
 import { ValidateTokenDto } from './dto/validate-token.dto';
 import { ValidateTokenQueryDto } from './dto/validate-token-query.dto';
 import { ForgotPasswordDto } from './dto/forgot-password.dto';
 import { JwtService } from '@nestjs/jwt';
 import globalEnv from '@repo/env';
-import { createOrganizationDto } from 'src/organization/dto/organization.dto';
+import { createOrganizationDto } from 'src/api/organization/dto/organization.dto';
 
 @Controller('auth')
 export class AuthController {

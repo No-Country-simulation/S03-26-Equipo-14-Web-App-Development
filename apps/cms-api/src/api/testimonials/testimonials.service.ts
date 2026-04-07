@@ -26,7 +26,7 @@ import {
   UpdateTestimonialDto,
   UpdateTestimonialQuoteDto,
 } from './dto/update-testimonial.dto';
-import { JwtPayload } from 'src/auth/types/jwt-payload.type';
+import { JwtPayload } from 'src/api/auth/types/jwt-payload.type';
 import { deleteTestimonialDTO } from './dto/delete-testimonial.dto';
 
 @Injectable()

@@ -1,6 +1,6 @@
 import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
-import { AnalyticsRepository, Decimal, ProjectRepository } from '@repo/api';
-import { JwtPayload } from 'src/auth/types/jwt-payload.type';
+import { AnalyticsRepository, Decimal, OrganizationMemberRepository, ProjectRepository } from '@repo/api';
+import { JwtPayload } from 'src/api/auth/types/jwt-payload.type';
 
 @Injectable()
 export class AnalyticsService {

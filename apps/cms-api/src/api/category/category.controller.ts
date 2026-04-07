@@ -10,7 +10,7 @@ import {
 import { CategoryService } from './category.service';
 import { CreateCategoryDto } from './dto/create-category.dto';
 import { UpdateCategoryDto } from './dto/update-category.dto';
-import { Public } from 'src/auth/decorators/public.decorator';
+import { Public } from 'src/api/auth/decorators/public.decorator';
 
 @Controller('category')
 export class CategoryController {
