@@ -1,4 +1,5 @@
-"use client";
+'use client';
+
 import {
   Button,
   Empty,
@@ -8,7 +9,6 @@ import {
   EmptyMedia,
   EmptyTitle,
 } from '@repo/ui/components';
-import Link from 'next/link';
 import { MessageSquareQuote, Plus } from '@repo/ui/lib';
 import { useRouter } from 'next/navigation';
 
