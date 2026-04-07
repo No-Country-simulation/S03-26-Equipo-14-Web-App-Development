@@ -20,6 +20,16 @@ export class OrganizationService {
             throw new ConflictException(error);
         }
     }
+    async findAll(type?: string, vars?: createOrganizationDto){
+        try {
+            const answer = await this.orgApi.findAll(type, vars);
+            if(answer.length<1) throw new NotFoundException("It looks like there aren't any Organization with your description... yet.");
+
+            return answer;
+        } catch (error) {
+         throw new ConflictException(error);   
+        }
+    }
     async byId(orgId: string, ownerId: string) {
         try {
             const isThisOwner = await this.userApi.findById(ownerId, true);

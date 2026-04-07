@@ -1,4 +1,4 @@
-import { IsNotEmpty, IsString } from "class-validator"
+import { IsNotEmpty, IsOptional, IsString } from "class-validator"
 
 export class proofOwnership {
     @IsString()
@@ -8,13 +8,14 @@ export class proofOwnership {
 
 export class createOrganizationDto{
     @IsString()
-    @IsNotEmpty()
+    @IsOptional()
     name!: string
 
     @IsString()
+    @IsOptional()
     description!: string
 
     @IsString()
-    @IsNotEmpty()
+    @IsOptional()
     user_id!: string
 }
