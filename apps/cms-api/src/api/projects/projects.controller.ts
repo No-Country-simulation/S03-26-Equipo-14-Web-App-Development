@@ -15,7 +15,7 @@ import { JwtPayload } from 'src/api/auth/types/jwt-payload.type';
 
 @Controller('projects')
 export class ProjectsController {
-  constructor(private readonly projectsService: ProjectsService) { }
+  constructor(private readonly projectsService: ProjectsService) {}
 
   @Post()
   create(
@@ -32,7 +32,7 @@ export class ProjectsController {
 
   @Get(':id')
   findOne(@Param('id') id: string) {
-    return this.projectsService.findOne(+id);
+    return this.projectsService.findOne(id);
   }
   @Get('projectMembers/:id')
   async(@Param('id') id: string) {
@@ -52,8 +52,11 @@ export class ProjectsController {
     return this.projectsService.remove(id, user.sub);
   }
 
-  @Post("/:projectId/api-key")
-  generateApiKey(@GetUser() user: JwtPayload, @Param('projectId') projectId: string) {
-    return this.projectsService.createApiKey(user, projectId); 
+  @Post('/:projectId/api-key')
+  generateApiKey(
+    @GetUser() user: JwtPayload,
+    @Param('projectId') projectId: string,
+  ) {
+    return this.projectsService.createApiKey(user, projectId);
   }
 }

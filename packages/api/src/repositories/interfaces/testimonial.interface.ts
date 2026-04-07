@@ -22,16 +22,17 @@ export interface CreateTestimonialInput {
   project_id: string;
 
   type: TestimonialType;
-  title: string;
+  title?: string;
   author: string;
-  author_photo: string;
-  author_role: string;
-  content: string;
-  rating: number;
+  author_photo?: string;
+  author_role?: string;
+  content?: string;
+
   media_url: string;
   media_description: string;
   status: TestimonialStatus;
-  slug: string;
+  slug?: string;
+  tags?: string[];
 }
 
 export interface FindAllTestimonialsQuery {

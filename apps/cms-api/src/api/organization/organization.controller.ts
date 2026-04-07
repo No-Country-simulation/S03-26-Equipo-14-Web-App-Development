@@ -10,7 +10,7 @@ export class OrganizationController {
     async create(@Body() data: createOrganizationDto) {
         return await this.organizationServices.create(data);
     }
-    @Post("All")
+    @Get("all")
     async findAll(@Query('type') type?: string, @Body() vars?: createOrganizationDto){
         return await this.organizationServices.findAll(type, vars);
     }

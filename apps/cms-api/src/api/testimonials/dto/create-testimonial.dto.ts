@@ -1,4 +1,10 @@
-import { IsEnum, IsNumber, IsOptional, IsString } from 'class-validator';
+import {
+  IsArray,
+  IsEnum,
+  IsNumber,
+  IsOptional,
+  IsString,
+} from 'class-validator';
 import { TestimonialType, TestimonialStatus } from '@repo/api';
 //testimonial quote visitor
 export class CreateTestimonialQuoteDto {
@@ -21,8 +27,6 @@ export class CreateTestimonialQuoteDto {
   @IsString()
   @IsOptional()
   mediaUrl?: string;
-  /* @IsEnum(TestimonialStatus)
-  status!: string; // pending */
 }
 export class CreateTestimonialDto {
   @IsString()
@@ -35,17 +39,15 @@ export class CreateTestimonialDto {
   @IsEnum(TestimonialType)
   type!: TestimonialType; //default image
   @IsString()
-  title!: string;
+  title?: string;
   @IsString()
-  content!: string;
+  content?: string;
   @IsString()
   author!: string;
   @IsString()
-  authorPhoto!: string;
+  authorPhoto?: string;
   @IsString()
-  authorRole!: string;
-  @IsNumber()
-  rating!: number;
+  authorRole?: string;
   @IsString()
   mediaUrl!: string;
   @IsString()
@@ -53,5 +55,7 @@ export class CreateTestimonialDto {
   @IsEnum(TestimonialStatus)
   status!: TestimonialStatus; //draft or pending
   @IsString()
-  slug!: string;
+  slug?: string;
+  @IsArray()
+  tags?: string[];
 }
