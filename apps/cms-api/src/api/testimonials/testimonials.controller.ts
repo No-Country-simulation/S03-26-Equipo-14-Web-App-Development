@@ -67,9 +67,9 @@ export class TestimonialsController {
     return this.testimonialsService.findAll(queryDto, projectId, user);
   }
 
-  @Get(':id')
+  @Get('/getById/:id')
   findOne(@Param('id') id: string) {
-    return this.testimonialsService.findOne(+id);
+    return this.testimonialsService.findOne(id);
   }
 
   @OrgRoles(OrganizationRoleEnum.Admin, OrganizationRoleEnum.Owner)
