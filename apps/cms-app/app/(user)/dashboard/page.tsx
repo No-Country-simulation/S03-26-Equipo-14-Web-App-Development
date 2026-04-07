@@ -27,7 +27,7 @@ export default function DashboardPage() {
     // await deleteTestimonial(id);
     setOpen(false);
     setSelected(null);
-    toast.success('Eliminado correctamente');
+    toast.success('Testimonio eliminado con éxito');
   };
 
   let content = <Loading />;
