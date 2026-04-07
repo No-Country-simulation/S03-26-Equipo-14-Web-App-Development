@@ -4,8 +4,8 @@ import { PassportModule } from '@nestjs/passport';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
 import globalEnv from "@repo/env";
-import {OrganizationRepository, UserRepository } from '@repo/api';
-import { MailModule } from 'src/mail/mail.module';
+import { UserRepository } from '@repo/api';
+import { MailModule } from 'src/api/mail/mail.module';
 
 @Module({
     imports: [

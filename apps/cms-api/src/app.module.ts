@@ -2,11 +2,11 @@ import { Module } from '@nestjs/common';
 
 import { AppService } from './app.service';
 import { AppController } from './app.controller';
-import { AuthModule } from './auth/auth.module';
+import { AuthModule } from './api/auth/auth.module';
 import { ConfigModule } from '@nestjs/config';
-import { JwtStrategy } from './auth/strategies/jwt.strategy';
+import { JwtStrategy } from './api/auth/strategies/jwt.strategy';
 import { APP_GUARD } from '@nestjs/core';
-import { JwtAuthGuard } from './auth/guards/jwt-auth.guard';
+import { JwtAuthGuard } from './api/auth/guards/jwt-auth.guard';
 import {
   UserRepository,
   CategoryRepository,
@@ -16,43 +16,20 @@ import {
   OrganizationMemberRepository,
   OrganizationRepository,
 } from '@repo/api';
-import { CategoryModule } from './category/category.module';
-import { MailModule } from './mail/mail.module';
-import { TestimonialsModule } from './testimonials/testimonials.module';
-import { TagModule } from './tag/tag.module';
-import { OrgRolesGuard } from './common/guards/organization-role.guard';
-import { ProjectsModule } from './projects/projects.module';
-import { AnalyticsModule } from './analytics/analytics.module';
-import { OrganizationModule } from './organization/organization.module';
+import { CategoryModule } from './api/category/category.module';
+import { MailModule } from './api/mail/mail.module';
+import { TestimonialsModule } from './api/testimonials/testimonials.module';
+import { TagModule } from './api/tag/tag.module';
+import { OrgRolesGuard } from './api/common/guards/organization-role.guard';
+import { ProjectsModule } from './api/projects/projects.module';
+import { AnalyticsModule } from './api/analytics/analytics.module';
+import { OrganizationModule } from './api/organization/organization.module';
+import { ApiModule } from './api/api.module';
+import { PublicModule } from './public/public.module';
 
 @Module({
-  imports: [
-    AuthModule,
-    PrismaModule,
-    ConfigModule.forRoot({
-      isGlobal: true,
-      envFilePath: '../../.env',
-    }),
-    CategoryModule,
-    MailModule,
-    TestimonialsModule,
-    TagModule,
-    ProjectsModule,
-    AnalyticsModule,
-    OrganizationModule,
-  ],
+  imports: [ApiModule, PublicModule],
   controllers: [AppController],
-  providers: [
-    AppService,
-    JwtStrategy,
-    UserRepository,
-    CategoryRepository,
-    TestimonialRepository,
-    OrganizationMemberRepository,
-    OrganizationRepository,
-    TagRepository,
-    { provide: APP_GUARD, useClass: JwtAuthGuard },
-    { provide: APP_GUARD, useClass: OrgRolesGuard },
-  ],
+  providers: [AppService],
 })
 export class AppModule {}

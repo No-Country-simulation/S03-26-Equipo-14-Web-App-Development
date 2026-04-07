@@ -7,7 +7,7 @@ import {
 } from '@nestjs/common';
 import { CreateProjectDto } from './dto/create-project.dto';
 import { UpdateProjectDto } from './dto/update-project.dto';
-import { JwtPayload } from 'src/auth/types/jwt-payload.type';
+import { JwtPayload } from 'src/api/auth/types/jwt-payload.type';
 import {
   OrganizationMemberRepository,
   OrganizationMember,

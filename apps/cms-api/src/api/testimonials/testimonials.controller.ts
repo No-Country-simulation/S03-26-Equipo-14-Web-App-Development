@@ -17,21 +17,21 @@ import {
   ChangeStatusDto,
   UpdateTestimonialDto,
 } from './dto/update-testimonial.dto';
-import { Public } from 'src/auth/decorators/public.decorator';
+import { Public } from 'src/api/auth/decorators/public.decorator';
 import {
   FindAllQueryTestimonialDto,
   GetByFragmentDto,
 } from './dto/get-testimonial.dto';
 
-import { OrgRoles } from 'src/common/decorator/organization-role.decorator';
+import { OrgRoles } from 'src/api/common/decorator/organization-role.decorator';
 import {
   OrganizationRoleEnum,
   Testimonial,
   TestimonialStatus,
   TestimonialType,
 } from '@repo/api';
-import { GetUser } from 'src/auth/decorators/get-user.decorator';
-import { JwtPayload } from 'src/auth/types/jwt-payload.type';
+import { GetUser } from 'src/api/auth/decorators/get-user.decorator';
+import { JwtPayload } from 'src/api/auth/types/jwt-payload.type';
 import { deleteTestimonialDTO } from './dto/delete-testimonial.dto';
 
 @Controller('testimonials')
