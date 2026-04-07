@@ -44,4 +44,12 @@ export class OrganizationRepository {
             throw new ConflictException(error);
         }
     }
+    async memberList(id: string){
+        return await this.prisma.client.organization.findUnique({
+            where:{id},
+            include: {
+                organizationMembers: true,
+            }
+        })
+    }
 } 
