@@ -14,7 +14,7 @@ export class OrganizationController {
     async findAll(@Query('type') type?: string, @Body() vars?: createOrganizationDto){
         return await this.organizationServices.findAll(type, vars);
     }
-    @Post(':id')
+    @Get(':id')
     async getById(@Param('id') id: string, @Body() ownerDto: proofOwnership) {
         return this.organizationServices.byId(id, ownerDto.ownerId);
     }
