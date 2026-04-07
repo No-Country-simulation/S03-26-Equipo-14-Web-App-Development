@@ -2,12 +2,14 @@ import { Injectable } from "@nestjs/common";
 import { PrismaService } from '../prisma/prisma.service';
 import { TestimonialRepository } from "./testimonial.repository";
 import { Decimal } from "@workspace/database";
+import { ProjectRepository } from "./project.repository";
 
 @Injectable()
 export class AnalyticsRepository {
     constructor(
         private readonly prisma: PrismaService,
         private readonly testimonialRepository: TestimonialRepository,
+        private readonly projectRepository: ProjectRepository
     ){}
 
     async getProjectCalification(projectId: string): Promise<{rating: Decimal | null}> {
@@ -22,4 +24,8 @@ export class AnalyticsRepository {
 
         return _avg 
     }
-}
+
+    async counterProjects(organization_id: string){
+        return await this.projectRepository.findAll(organization_id);
+    }
+ }
