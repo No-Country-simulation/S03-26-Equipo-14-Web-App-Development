@@ -33,11 +33,15 @@ export function TestimonialModal({
   onOpenChange,
   testimonial,
   onDelete,
+  onPublish,
+  onReject,
 }: {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   testimonial: Testimonial | null;
   onDelete: (id: string) => void;
+  onPublish: (id: string) => void;
+  onReject: (id: string) => void;
 }) {
   const [isEditing, setIsEditing] = useState(false);
   const router = useRouter();
@@ -162,7 +166,12 @@ export function TestimonialModal({
               </>
             )}
           </Button> */}
-            <Button>
+            <Button
+              onClick={() => {
+                if (!testimonial) return;
+                onPublish(testimonial.id);
+              }}
+            >
               Publicar <CloudUpload />
             </Button>
           </div>
@@ -178,7 +187,13 @@ export function TestimonialModal({
                 <Button variant="outline" onClick={() => setIsEditing(false)}>
                   Cancelar
                 </Button>
-                <Button variant="destructive">
+                <Button
+                  variant="destructive"
+                  onClick={() => {
+                    if (!testimonial) return;
+                    onReject(testimonial.id);
+                  }}
+                >
                   Enviar observaciones y rechazar <CircleX />
                 </Button>
               </div>

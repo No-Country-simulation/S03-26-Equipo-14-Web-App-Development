@@ -30,6 +30,20 @@ export default function DashboardPage() {
     toast.success('Testimonio eliminado con éxito');
   };
 
+  const handlePublish = async (id: string) => {
+    // await publishTestimonial(id);
+    setOpen(false);
+    setSelected(null);
+    toast.success('Testimonio publicado con éxito');
+  };
+
+  const handleReject = async (id: string) => {
+    // await rejectTestimonial(id);
+    setOpen(false);
+    setSelected(null);
+    toast.success('Testimonio rechazado con éxito');
+  };
+
   let content = <Loading />;
 
   if (projects.length === 0) {
@@ -49,6 +63,8 @@ export default function DashboardPage() {
         onOpenChange={setOpen}
         testimonial={selected}
         onDelete={handleDelete}
+        onPublish={handlePublish}
+        onReject={handleReject}
       />
       <section className="flex flex-col gap-4 h-full">{content}</section>
     </>
