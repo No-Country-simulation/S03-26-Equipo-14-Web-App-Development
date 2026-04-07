@@ -1,4 +1,13 @@
 import {
+  AlertDialog,
+  AlertDialogTrigger,
+  AlertDialogContent,
+  AlertDialogCancel,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogAction,
   Avatar,
   AvatarImage,
   AvatarFallback,
@@ -7,12 +16,16 @@ import {
   DialogContent,
   DialogFooter,
   DialogHeader,
+  Field,
+  FieldLabel,
+  Textarea,
 } from '@repo/ui/components';
-import { CircleAlert, CloudUpload } from '@repo/ui/lib';
+import { CircleAlert, CloudUpload, CircleX } from '@repo/ui/lib';
 import { Testimonial } from '@/types/testimonials';
 import { TestimonialTypeBadge } from './testimonial-type-badge';
 import { TestimonialStatusBadge } from './testimonial-status-badge';
 import { useRouter } from 'next/navigation';
+import { useState } from 'react';
 
 export function TestimonialModal({
   open,
@@ -23,6 +36,7 @@ export function TestimonialModal({
   onOpenChange: (open: boolean) => void;
   testimonial: Testimonial | null;
 }) {
+  const [isEditing, setIsEditing] = useState(false);
   const router = useRouter();
   if (!testimonial) return null;
   return (
@@ -60,12 +74,33 @@ export function TestimonialModal({
             >
               Editar
             </Button>
-            <Button
-              size="xs"
-              className="p-1 bg-background border border-destructive hover:bg-red-100"
-            >
-              <span className="text-destructive">Eliminar</span>
-            </Button>
+            <AlertDialog>
+              <AlertDialogTrigger asChild>
+                <Button
+                  size="xs"
+                  className="p-1 bg-background border border-destructive hover:bg-red-100"
+                >
+                  <span className="text-destructive">Eliminar</span>
+                </Button>
+              </AlertDialogTrigger>
+              <AlertDialogContent size="sm">
+                <AlertDialogHeader>
+                  <AlertDialogTitle>¿Eliminar testimonio?</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    Esta acción no se puede deshacer, se borrará permanentemente
+                    de tu dashboard
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel variant="outline">
+                    Cancelar
+                  </AlertDialogCancel>
+                  <AlertDialogAction variant="destructive">
+                    Eliminar
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
           </div>
         </section>
         {/* Contenido */}
@@ -88,17 +123,18 @@ export function TestimonialModal({
         </section>
         {/* Footer */}
         <DialogFooter>
-          {/* Sirve para: 
+          <div className={`${isEditing ? 'hidden' : 'flex'}`}>
+            {/* Sirve para: 
             - un editor que rechaza un testimonio visitor
             - un admin/owner que rechaza un testimonio editor */}
-          <Button variant="destructive">
-            Rechazar <CircleAlert />
-          </Button>
+            <Button variant="destructive" onClick={() => setIsEditing(true)}>
+              Rechazar <CircleAlert />
+            </Button>
 
-          {/* Sirve para: 
+            {/* Sirve para: 
             - un editor que aprueba un testimonio visitor
             - un admin/owner que "aprueba" un testimonio editor */}
-          {/* <Button>
+            {/* <Button>
             {rolDelMember === 'editor' ? (
               <>
                 <CircleCheck />
@@ -111,9 +147,27 @@ export function TestimonialModal({
               </>
             )}
           </Button> */}
-          <Button>
-            Publicar <CloudUpload />
-          </Button>
+            <Button>
+              Publicar <CloudUpload />
+            </Button>
+          </div>
+          <div className={`${isEditing ? 'flex' : 'hidden'}`}>
+            <Field>
+              <FieldLabel htmlFor="textarea-message">Observaciones</FieldLabel>
+              <Textarea
+                id="textarea-message"
+                placeholder="Escribe aquí los motivos por los que se rechaza el testimonio..."
+              />
+              <div className="flex gap-1 justify-end">
+                <Button variant="outline" onClick={() => setIsEditing(false)}>
+                  Cancelar
+                </Button>
+                <Button variant="destructive">
+                  Enviar observaciones y rechazar <CircleX />
+                </Button>
+              </div>
+            </Field>
+          </div>
         </DialogFooter>
       </DialogContent>
     </Dialog>
