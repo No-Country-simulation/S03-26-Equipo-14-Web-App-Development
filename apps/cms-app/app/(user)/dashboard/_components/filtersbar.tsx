@@ -20,7 +20,7 @@ import {
   TabsTrigger,
 } from '@repo/ui/components';
 import { Search, Plus, LayoutGrid, List } from '@repo/ui/lib';
-import Link from 'next/link';
+import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 
 const filtersPlaceholder = 'Seleccione...';
@@ -48,6 +48,8 @@ const filters = [
 ];
 
 export function FiltersBar() {
+  const [layout, setLayout] = useState('grid');
+  const [order, setOrder] = useState('newest');
   const router = useRouter();
 
   return (
@@ -61,7 +63,7 @@ export function FiltersBar() {
           {/* <InputGroupAddon align="inline-end">12 results</InputGroupAddon> */}
         </InputGroup>
         <div className="flex flex-row gap-4">
-          <Tabs defaultValue="grid">
+          <Tabs defaultValue={layout} onValueChange={setLayout}>
             <TabsList>
               <TabsTrigger value="grid">
                 <LayoutGrid />
@@ -106,7 +108,7 @@ export function FiltersBar() {
           </FieldGroup>
         </FieldSet>
 
-        <Tabs defaultValue="newest">
+        <Tabs defaultValue={order} onValueChange={setOrder}>
           <TabsList>
             <TabsTrigger value="newest">Recientes</TabsTrigger>
             <TabsTrigger value="oldest">Antiguos</TabsTrigger>
