@@ -1,7 +1,9 @@
 import { IsNotEmpty, IsString } from "class-validator"
 
-export interface proofOwnership {
-    ownerId: string
+export class proofOwnership {
+    @IsString()
+    @IsNotEmpty()
+    ownerId!: string
 }
 
 export class createOrganizationDto{

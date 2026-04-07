@@ -10,8 +10,8 @@ export class OrganizationController {
     async create(@Body() data: createOrganizationDto) {
         return await this.organizationServices.create(data);
     }
-    @Get(":id")
-    async getById(@Param('id') id: string, @Body() ownerStuff: proofOwnership) {
-        return this.organizationServices.byId(id, ownerStuff.ownerId);
+    @Post(':id')
+    async getById(@Param('id') id: string, @Body() ownerDto: proofOwnership) {
+        return this.organizationServices.byId(id, ownerDto.ownerId);
     }
 }
