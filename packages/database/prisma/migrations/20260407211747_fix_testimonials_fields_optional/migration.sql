@@ -1,0 +1,4 @@
+-- AlterTable
+ALTER TABLE "Testimonial" ALTER COLUMN "content" DROP NOT NULL,
+ALTER COLUMN "author_role" DROP NOT NULL,
+ALTER COLUMN "rating" DROP NOT NULL;

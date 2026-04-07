@@ -33,11 +33,11 @@ model Testimonial {
   title             String?
   author            String
   author_photo      String?
-  author_role       String
-  content           String
+  author_role       String?
+  content           String?
   media_url         String?
   media_description String?
-  rating            Decimal
+  rating            Decimal?
   slug              String?
 
   category_id String?
@@ -108,7 +108,7 @@ model Project_Member {
   id                     String  @id @default(uuid())
   organization_member_id String
   project_id             String
-  testimonial_id         String? 
+  testimonial_id         String?
 
   testimonials Testimonial[]
 
