@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, Post } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, Query } from '@nestjs/common';
 import { OrganizationService } from './organization.service';
 import { createOrganizationDto, proofOwnership } from './dto/organization.dto';
 
@@ -9,6 +9,10 @@ export class OrganizationController {
     @Post()
     async create(@Body() data: createOrganizationDto) {
         return await this.organizationServices.create(data);
+    }
+    @Post("All")
+    async findAll(@Query('type') type?: string, @Body() vars?: createOrganizationDto){
+        return await this.organizationServices.findAll(type, vars);
     }
     @Post(':id')
     async getById(@Param('id') id: string, @Body() ownerDto: proofOwnership) {

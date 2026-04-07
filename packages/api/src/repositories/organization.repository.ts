@@ -4,7 +4,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
-import { createOrganizationInput } from "./interfaces/organization.interface";
+import { createOrganizationInput, searchOrganizationInput } from "./interfaces/organization.interface";
 
 @Injectable()
 export class OrganizationRepository {
@@ -15,8 +15,17 @@ export class OrganizationRepository {
             data: {...orgData},
         })
     };
-    async findAll() {
-        return await this.prisma.client.organization.findMany();
+    async findAll(type?: string, vars?: searchOrganizationInput) {
+        switch (type) {
+            case "name":
+                return await this.prisma.client.organization.findMany({where: {name: vars?.name}});
+            case "description":
+                return await this.prisma.client.organization.findMany({where: {description: vars?.description}});
+            case "user_id":
+                 return await this.prisma.client.organization.findMany({where: {user_id: vars?.user_id}});
+            default:
+                 return await this.prisma.client.organization.findMany();
+        }
     }
 
     async findOne(char: {name?: string, description?: string, user_id?: string}) {
