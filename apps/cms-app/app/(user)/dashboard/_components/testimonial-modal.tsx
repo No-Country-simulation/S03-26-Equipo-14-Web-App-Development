@@ -28,6 +28,15 @@ import { TestimonialStatusBadge } from './testimonial-status-badge';
 import { useRouter } from 'next/navigation';
 import { useState, useEffect } from 'react';
 
+interface TestimonialModalProps {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  testimonial: Testimonial | null;
+  onDelete: (id: string) => void;
+  onPublish: (id: string) => void;
+  onReject: (id: string) => void;
+}
+
 export function TestimonialModal({
   open,
   onOpenChange,
@@ -35,14 +44,7 @@ export function TestimonialModal({
   onDelete,
   onPublish,
   onReject,
-}: {
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
-  testimonial: Testimonial | null;
-  onDelete: (id: string) => void;
-  onPublish: (id: string) => void;
-  onReject: (id: string) => void;
-}) {
+}: TestimonialModalProps) {
   const [isEditing, setIsEditing] = useState(false);
   const router = useRouter();
   useEffect(() => {

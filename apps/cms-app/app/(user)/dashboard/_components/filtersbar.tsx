@@ -60,7 +60,6 @@ export function FiltersBar() {
           <InputGroupAddon>
             <Search />
           </InputGroupAddon>
-          {/* <InputGroupAddon align="inline-end">12 results</InputGroupAddon> */}
         </InputGroup>
         <div className="flex flex-row gap-4">
           <Tabs defaultValue={layout} onValueChange={setLayout}>

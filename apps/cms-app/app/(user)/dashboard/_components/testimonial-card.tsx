@@ -1,5 +1,4 @@
 import {
-  Badge,
   Card,
   CardAction,
   CardHeader,
@@ -7,7 +6,6 @@ import {
   CardFooter,
   Separator,
 } from '@repo/ui/components';
-import { File, Video, Quote } from '@repo/ui/lib';
 import { TestimonialStatus, TestimonialType } from '@/model/model';
 import { TestimonialTypeBadge } from './testimonial-type-badge';
 import { TestimonialStatusBadge } from './testimonial-status-badge';
