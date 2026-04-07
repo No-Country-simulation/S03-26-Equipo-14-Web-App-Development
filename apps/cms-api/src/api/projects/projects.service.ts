@@ -86,8 +86,8 @@ export class ProjectsService {
     );
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} project`;
+  findOne(id: string) {
+    return this.projectRepository.findOneById(id);
   }
   async allProjectMembers(id: string) {
     try {
