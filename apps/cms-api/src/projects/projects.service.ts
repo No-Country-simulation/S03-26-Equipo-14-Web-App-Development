@@ -15,19 +15,20 @@ import {
   ProjectRepository,
   CreateProjectInput,
   OrganizationRoleEnum,
-  Prisma
+  Prisma,
 } from '@repo/api';
 import crypto from 'crypto';
-import { hash } from 'bcrypt';
-
+import { JwtService } from '@nestjs/jwt';
+import env from '@repo/env';
 
 @Injectable()
 export class ProjectsService {
   constructor(
+    private readonly jwtService: JwtService,
     private readonly organizationMemberRepository: OrganizationMemberRepository,
     private readonly projectRepository: ProjectRepository,
-    private readonly userRepository: UserRepository
-  ) { }
+    private readonly userRepository: UserRepository,
+  ) {}
 
   private async VerifyOwnerCredentials(user: JwtPayload) {
     const organizationMember: OrganizationMember | null =
@@ -118,9 +119,11 @@ export class ProjectsService {
 
   async remove(id: string, userId: string) {
     try {
-
       const theRole = await this.userRepository.findById(userId);
-      if (theRole?.organizationMembers[0]?.role != "Owner") throw new ConflictException("Only the Owner can delete Projects. Have a nice Day!");
+      if (theRole?.organizationMembers[0]?.role != 'Owner')
+        throw new ConflictException(
+          'Only the Owner can delete Projects. Have a nice Day!',
+        );
       const theProject = await this.projectRepository.findOneById(id, {
         categories: true,
         tags: true,
@@ -134,19 +137,36 @@ export class ProjectsService {
         );
       const { categories, projectMembers, tags, testimonials } = theProject;
 
+      if (
+        categories != undefined ||
+        projectMembers != undefined ||
+        tags != undefined ||
+        testimonials != undefined
+      ) {
+        const disconnect =
+          await this.projectRepository.disconnectFromProject(id);
+        const deleteTestimonial =
+          await this.projectRepository.disconnectTestimonials(id);
 
-      if (categories != undefined || projectMembers != undefined || tags != undefined || testimonials != undefined) {
-        const disconnect = await this.projectRepository.disconnectFromProject(id);
-        const deleteTestimonial = await this.projectRepository.disconnectTestimonials(id);
-
-        if (disconnect.categories.length > 0 && disconnect.tags.length > 0 && disconnect.projectMembers.length > 0) throw new NotAcceptableException("Something went wrong disconnecting related stuff with the actual project, try again later please.");
-        else if (deleteTestimonial.testimonials.length > 0) throw new ConflictException("It seems that there are registers that don't want to be deleted yet. Try again later please.");
+        if (
+          disconnect.categories.length > 0 &&
+          disconnect.tags.length > 0 &&
+          disconnect.projectMembers.length > 0
+        )
+          throw new NotAcceptableException(
+            'Something went wrong disconnecting related stuff with the actual project, try again later please.',
+          );
+        else if (deleteTestimonial.testimonials.length > 0)
+          throw new ConflictException(
+            "It seems that there are registers that don't want to be deleted yet. Try again later please.",
+          );
       }
 
       const answer = await this.projectRepository.delete(id);
-      if (answer instanceof Prisma.PrismaClientKnownRequestError) throw new NotFoundException(
-        "It seems that the project didn't exist, so we can't delete it",
-      );
+      if (answer instanceof Prisma.PrismaClientKnownRequestError)
+        throw new NotFoundException(
+          "It seems that the project didn't exist, so we can't delete it",
+        );
       console.log(answer);
       return `The project with id ${answer.id} and titled ${answer.name} was successfully deleted!`;
     } catch (error: Error | any) {
@@ -154,22 +174,59 @@ export class ProjectsService {
     }
   }
 
-  async generateApiKey(user: JwtPayload, projectId: string) {    
+  async createApiKey(user: JwtPayload, projectId: string) {
     await this.VerifyOwnerCredentials(user);
-    const key = this.generateRandomKey();
-    const hashedKey = await hash(key, 10);
+    const orgId = user.organizationId;
+
+    const hashedKey = await this.generateApiKey(projectId, orgId);
+
     await this.projectRepository.generateApiKey(hashedKey, projectId);
     return {
-      message: 'This is the only time you will see this API key. Store it securely.',
-      apiKey: key,
-    }
+      message:
+        'This is the only time you will see this API key. Store it securely.',
+      apiKey: hashedKey,
+    };
   }
 
-  generateRandomKey(): string {
-  
+  private async encript(token: string): Promise<string> {
     const prefix = 'cms-api-key';
-    const random = crypto.randomBytes(32).toString('hex');
+    const iv = crypto.randomBytes(16);
+    const ciphar = crypto.createCipheriv('aes-256-cbc', env.AES_SECRET, iv);
+    const encrypted = Buffer.concat([ciphar.update(token), ciphar.final()]);
+    return `${prefix}:${iv.toString('base64url')}:${encrypted.toString('base64url')}`;
+  }
 
-    return `${prefix}_${random}`;
+  decrypt(text: string): string {
+    //used in embeding system
+    const [prefix, ivHex, encryptedHex] = text.split(':');
+
+    if (prefix || !ivHex || !encryptedHex) {
+      throw new Error('Invalid apiKey format');
+    }
+
+    const iv = Buffer.from(ivHex, 'base64url');
+    const encrypted = Buffer.from(encryptedHex, 'base64url');
+    const decipher = crypto.createDecipheriv('aes-256-cbc', env.AES_SECRET, iv);
+    return Buffer.concat([
+      decipher.update(encrypted),
+      decipher.final(),
+    ]).toString();
+  }
+
+  private async generateApiKey(
+    projectId: string,
+    orgId: string,
+  ): Promise<string> {
+    const payload = JSON.stringify({ projectId, orgId });
+
+    return this.encript(payload);
+  }
+
+  async decodeApiKey(
+    apiKey: string,
+  ): Promise<{ projectId: string; orgId: string }> {
+    //used in embeding system
+    const payload = this.decrypt(apiKey);
+    return JSON.parse(payload);
   }
 }

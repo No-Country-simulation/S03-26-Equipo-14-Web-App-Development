@@ -56,6 +56,6 @@ export class ProjectsController {
 
   @Post("/:projectId/api-key")
   generateApiKey(@GetUser() user: JwtPayload, @Param('projectId') projectId: string) {
-    return this.projectsService.generateApiKey(user, projectId); 
+    return this.projectsService.createApiKey(user, projectId); 
   }
 }
