@@ -2,24 +2,17 @@ import {
   Avatar,
   AvatarImage,
   AvatarFallback,
-  Badge,
   Button,
   Dialog,
   DialogContent,
   DialogFooter,
   DialogHeader,
 } from '@repo/ui/components';
-import {
-  File,
-  Video,
-  Quote,
-  CircleAlert,
-  CloudUpload,
-  CircleCheck,
-} from '@repo/ui/lib';
+import { CircleAlert, CloudUpload } from '@repo/ui/lib';
 import { Testimonial } from '@/types/testimonials';
 import { TestimonialTypeBadge } from './testimonial-type-badge';
 import { TestimonialStatusBadge } from './testimonial-status-badge';
+import { useRouter } from 'next/navigation';
 
 export function TestimonialModal({
   open,
@@ -30,6 +23,7 @@ export function TestimonialModal({
   onOpenChange: (open: boolean) => void;
   testimonial: Testimonial | null;
 }) {
+  const router = useRouter();
   if (!testimonial) return null;
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -56,14 +50,21 @@ export function TestimonialModal({
             </div>
           </div>
           <div className="flex gap-1">
-            <Button size="xs" variant="outline" className="p-1">
-              <span className="text-xs">Editar</span>
+            <Button
+              size="xs"
+              variant="outline"
+              className="p-1"
+              onClick={() =>
+                router.push(`/testimonials/edit/${testimonial.id}`)
+              }
+            >
+              Editar
             </Button>
             <Button
               size="xs"
               className="p-1 bg-background border border-destructive hover:bg-red-100"
             >
-              <span className="text-xs text-destructive">Eliminar</span>
+              <span className="text-destructive">Eliminar</span>
             </Button>
           </div>
         </section>
