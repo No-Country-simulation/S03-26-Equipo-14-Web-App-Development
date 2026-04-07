@@ -17,7 +17,7 @@ import { MailService } from 'src/api/mail/mail.service';
 import {ValidateTokenDto } from './dto/validate-token.dto';
 import { ValidateTokenQueryDto } from './dto/validate-token-query.dto';
 import { ForgotPasswordDto } from './dto/forgot-password.dto';
-import { createOrganizationDto } from 'src/organization/dto/organization.dto';
+import { createOrganizationDto } from 'src/api/organization/dto/organization.dto';
 import { createOrganizationInput } from '@repo/api/dist/repositories/interfaces/organization.interface';
 
 @Injectable()
