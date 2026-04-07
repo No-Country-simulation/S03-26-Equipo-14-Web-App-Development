@@ -44,7 +44,7 @@ export function TestimonialCard({
         </p>
         <Separator />
       </CardContent>
-      <CardFooter>
+      <CardFooter className="h-full">
         <p className="text-xs font-normal text-muted-foreground">{updatedAt}</p>
       </CardFooter>
     </Card>
