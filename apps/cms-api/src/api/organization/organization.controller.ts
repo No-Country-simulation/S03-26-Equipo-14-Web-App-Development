@@ -1,6 +1,8 @@
-import { Body, Controller, Get, Param, Post, Query } from '@nestjs/common';
+import { Body, Controller, Get, Param, Patch, Post, Query } from '@nestjs/common';
 import { OrganizationService } from './organization.service';
-import { createOrganizationDto, proofOwnership } from './dto/organization.dto';
+import { createOrganizationDto, proofOwnership, UpdateOrganizationDto } from './dto/organization.dto';
+import { GetUser } from '../auth/decorators/get-user.decorator';
+import { JwtPayload } from '../auth/types/jwt-payload.type';
 
 @Controller('organization')
 export class OrganizationController {
@@ -17,5 +19,10 @@ export class OrganizationController {
     @Get(':id')
     async getById(@Param('id') id: string, @Body() ownerDto: proofOwnership) {
         return this.organizationServices.byId(id, ownerDto.ownerId);
+    }
+
+    @Patch()
+    async update(@Body() data: UpdateOrganizationDto, @GetUser() user: JwtPayload) {
+        return await this.organizationServices.update(data, user);
     }
 }

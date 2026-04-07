@@ -1,11 +1,13 @@
-import { Injectable } from '@nestjs/common';
-import { OrganizationRepository, UserRepository } from '@repo/api';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { OrganizationMemberRepository, OrganizationRepository, OrganizationRoleEnum, UserRepository } from '@repo/api';
 import { ConflictException, NotFoundException } from '@nestjs/common';
-import { createOrganizationDto } from './dto/organization.dto';
+import { createOrganizationDto, UpdateOrganizationDto} from './dto/organization.dto';
+import { JwtPayload } from '../auth/types/jwt-payload.type';
 @Injectable()
 export class OrganizationService {
     constructor(private readonly orgApi: OrganizationRepository,
-        private readonly userApi: UserRepository
+        private readonly userApi: UserRepository,
+        private readonly orgMemberApi: OrganizationMemberRepository
     ) { }
 
     async create(orgData: createOrganizationDto) {
@@ -44,5 +46,13 @@ export class OrganizationService {
             throw new ConflictException(error)
         }
 
+    }
+
+    async update(data : UpdateOrganizationDto, user: JwtPayload){
+        const isOwner = await this.orgMemberApi.findMembership({user_id: user.sub, organization_id: user.organizationId});
+        if(!isOwner) throw new UnauthorizedException('You are not a member of this organization');
+        if(isOwner.role != OrganizationRoleEnum.Owner) throw new UnauthorizedException('You are not the owner of this organization');
+
+        return this.orgApi.update(user.organizationId, data);        
     }
 }

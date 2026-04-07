@@ -4,7 +4,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
-import { createOrganizationInput, searchOrganizationInput } from "./interfaces/organization.interface";
+import { createOrganizationInput, searchOrganizationInput, updateOrganizationInput } from "./interfaces/organization.interface";
 
 @Injectable()
 export class OrganizationRepository {
@@ -43,5 +43,12 @@ export class OrganizationRepository {
         } catch (error: any | Error) {
             throw new ConflictException(error);
         }
+    }
+
+    async update(id: string, data: updateOrganizationInput){
+        return await this.prisma.client.organization.update({
+            where: {id},
+            data
+        })
     }
 } 
