@@ -10,6 +10,11 @@ export class AnalyticsController {
   async countProjects(@Param('id') id: string) {
     return await this.analyticsService.counterProjects(id);
   }
+
+  @Get('counterTestimonials/:id')
+  async countTestimonials(@Param('id') id: string){
+    return await this.analyticsService.counterTestimonials(id);
+  }
   @Get('project/:projectId/rating')
   async getProjectCalification(@Param('projectId') projectId: string, @GetUser() user: JwtPayload) {
     return await this.analyticsService.getProjectCalification(projectId, user);
