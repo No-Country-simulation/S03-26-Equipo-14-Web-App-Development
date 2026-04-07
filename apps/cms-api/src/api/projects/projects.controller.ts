@@ -10,8 +10,6 @@ import {
 import { ProjectsService } from './projects.service';
 import { CreateProjectDto } from './dto/create-project.dto';
 import { UpdateProjectDto } from './dto/update-project.dto';
-import { OrgRoles } from 'src/api/common/decorator/organization-role.decorator';
-import { OrganizationRoleEnum } from '@repo/api';
 import { GetUser } from 'src/api/auth/decorators/get-user.decorator';
 import { JwtPayload } from 'src/api/auth/types/jwt-payload.type';
 
