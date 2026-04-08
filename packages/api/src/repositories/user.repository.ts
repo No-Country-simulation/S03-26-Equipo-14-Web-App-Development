@@ -123,7 +123,7 @@ export class UserRepository {
         },
       });
 
-      const org = await tx.organization.create({
+      const org = await tx.organization.create  ({
         data: {
           name: data.organizationName,
           description: data.organizationDescription,

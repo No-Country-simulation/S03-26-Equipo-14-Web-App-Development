@@ -79,13 +79,28 @@ export class TestimonialRepository {
     query: FindAllTestimonialsQuery,
     projectId: string,
   ): Promise<any[]> {
-    const { orderBy, type, category_id } = query;
-
+    const { orderBy, type, category_id, fragment } = query;    
     const where: Prisma.TestimonialWhereInput = {};
 
     if (projectId) where.project_id = projectId;
     if (category_id) where.category_id = category_id;
     if (type) where.type = type as any;
+    if (fragment) {
+      where.OR = [
+        {
+          title: {
+            contains: fragment,
+            mode: 'insensitive',
+          },
+        },
+        {
+          content: {
+            contains: fragment,
+            mode: 'insensitive',
+          },
+        },
+      ];
+    }
 
     return this.prisma.client.testimonial.findMany({
       where,
