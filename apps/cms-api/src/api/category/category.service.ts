@@ -7,26 +7,27 @@ import { CategoryRepository } from '@repo/api';
 export class CategoryService {
   constructor(private readonly api: CategoryRepository) {}
 
-  create(createCategoryDto: CreateCategoryDto) {
-    return this.api.create(createCategoryDto);
+  create(projectId: string, createCategoryDto: CreateCategoryDto) {
+    return this.api.create(projectId, createCategoryDto);
   }
 
-  findAll() {
-    return this.api.findAll();
+  findAll(projectId: string) {
+    return this.api.findAll(projectId);
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} category`;
+  findOne(id: string, projectId: string) {
+    return this.api.findOne(id, projectId);
   }
 
-  update(id: string, updateCategoryDto: UpdateCategoryDto) {
+  update(id: string, projectId: string, updateCategoryDto: UpdateCategoryDto) {
     return this.api.update({
+      projectId: projectId,
       categoryId: id,
       name: updateCategoryDto.name!,
     });
   }
 
-  remove(id: string) {
-    return this.api.deleteById(id);
+  remove(id: string, projectId: string) {
+    return this.api.deleteById(id, projectId);
   }
 }

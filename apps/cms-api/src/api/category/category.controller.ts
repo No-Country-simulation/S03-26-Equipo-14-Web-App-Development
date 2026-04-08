@@ -12,37 +12,48 @@ import { CreateCategoryDto } from './dto/create-category.dto';
 import { UpdateCategoryDto } from './dto/update-category.dto';
 import { Public } from 'src/api/auth/decorators/public.decorator';
 
-@Controller('category')
+@Controller('categories/:projectId/')
 export class CategoryController {
   constructor(private readonly categoryService: CategoryService) {}
 
+  // POST /categories/:projectId/
   @Post()
-  add(@Body() createCategoryDto: CreateCategoryDto) {
-    return this.categoryService.create(createCategoryDto);
+  create(@Param('projectId') projectId: string, @Body() createCategoryDto: CreateCategoryDto) {
+    return this.categoryService.create( projectId, createCategoryDto);
   }
 
+  // GET /categories/:projectId/
   @Public()
   @Get()
-  getAll() {
-    return this.categoryService.findAll();
+  findAll(@Param('projectId') projectId: string) {
+    return this.categoryService.findAll(projectId);
   }
 
+  // GET /categories/:projectId/:id
   @Get(':id')
-  getOne(@Param('id') id: string) {
-    
-    return this.categoryService.findOne(+id);
+  findOne(
+    @Param('projectId') projectId: string,
+    @Param('id') id: string,
+  ) {
+    return this.categoryService.findOne(id, projectId);
   }
 
+  // PATCH /categories/:projectId/:id
   @Patch(':id')
   update(
+    @Param('projectId') projectId: string,
     @Param('id') id: string,
     @Body() updateCategoryDto: UpdateCategoryDto,
   ) {
-    return this.categoryService.update(id, updateCategoryDto);
+    return this.categoryService.update(id, projectId, updateCategoryDto);
   }
 
+  // DELETE /categories/:projectId/:id
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.categoryService.remove(id);
+  remove(
+    @Param('projectId') projectId: string,
+    @Param('id') id: string,
+  ) {
+    return this.categoryService.remove(id, projectId);
   }
 }
