@@ -4,6 +4,10 @@ export interface CreateProjectInput {
   name: string;
   description?: string;
   organization_id: string;
+  sub: string;
+  email: string;
+  organizationId: string;
+  role: string;
 }
 
 export interface UpdateProjectInput {

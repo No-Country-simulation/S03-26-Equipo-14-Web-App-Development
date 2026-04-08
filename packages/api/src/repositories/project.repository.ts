@@ -10,14 +10,33 @@ import { Prisma, Project } from '@workspace/database';
 
 @Injectable()
 export class ProjectRepository {
-  constructor(private readonly prisma: PrismaService) {}
-  async create({ data }: { data: CreateProjectInput }) {
-    return this.prisma.client.project.create({
+  constructor(private readonly prisma: PrismaService) { }
+  async create(data: CreateProjectInput) {
+
+    const project = await this.prisma.client.project.create({
       data: {
-        ...data,
+        name: data.name,
+        organization_id: data.organization_id,
+        description: data.description
       },
     });
-  } 
+    const orgMember = await this.prisma.client.organization_Member.findFirst({
+      where: {
+        user_id: data.sub
+      }
+    })
+    if (orgMember != null) {
+       await this.prisma.client.project_Member.create({
+        data: {
+          organization_member_id: orgMember.id,
+          project_id: project.id,
+          user_id: data.sub
+        }
+      })
+      return project;
+    }
+
+  }
 
   async findAllAssigned(organizationId: string, orgMemberId: string): Promise<Project[]> {
     return this.prisma.client.project.findMany({
@@ -32,11 +51,11 @@ export class ProjectRepository {
     })
   }
 
-  async findOneById(id: string, include?: projectInclude): Promise<Project2 | null  > {
-    if(include){
-      const f= await this.prisma.client.project.findUnique({
-        where: {id},
-        include 
+  async findOneById(id: string, include?: projectInclude): Promise<Project2 | null> {
+    if (include) {
+      const f = await this.prisma.client.project.findUnique({
+        where: { id },
+        include
       })
       return f;
     };
@@ -53,9 +72,9 @@ export class ProjectRepository {
     });
   }
 
-  async allMembers(id: string): Promise<Project2|null>{
+  async allMembers(id: string): Promise<Project2 | null> {
     return await this.prisma.client.project.findUnique({
-      where:{id},
+      where: { id },
       include: {
         projectMembers: true
       }
@@ -70,21 +89,21 @@ export class ProjectRepository {
     });
   }
 
-  async disconnectFromProject(projectId: string){
+  async disconnectFromProject(projectId: string) {
     return await this.prisma.client.project.update({
-      where: {id: projectId},
-      data:{
-        categories:{
+      where: { id: projectId },
+      data: {
+        categories: {
           set: []
         },
-        tags:{
-          set:[]
+        tags: {
+          set: []
         },
-        projectMembers:{
+        projectMembers: {
           set: []
         }
       },
-      include:{
+      include: {
         tags: true,
         categories: true,
         projectMembers: true,
@@ -92,23 +111,23 @@ export class ProjectRepository {
     })
   }
 
-  async disconnectTestimonials (projectId: string){
+  async disconnectTestimonials(projectId: string) {
     return this.prisma.client.project.update({
-      where: {id: projectId},
-      data:{
-        testimonials:{
+      where: { id: projectId },
+      data: {
+        testimonials: {
           deleteMany: {},
         },
       },
-      include: {testimonials: true,}
+      include: { testimonials: true, }
     });
   };
 
-  async delete(id: string){
+  async delete(id: string) {
     return this.prisma.client.project.delete({
       where: {
         id
-      },include:
+      }, include:
       {
         tags: true,
         categories: true,
