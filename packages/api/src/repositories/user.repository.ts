@@ -19,7 +19,7 @@ type UserWithOrganization = Prisma.UserGetPayload<{
 
 @Injectable()
 export class UserRepository {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(private readonly prisma: PrismaService) { }
 
   async find() {
     return (await this.prisma.client.user.findMany()) as User[];
@@ -56,12 +56,12 @@ export class UserRepository {
   async findById(userId: string, includeOrganzatonMembers?: boolean) {
     const include = includeOrganzatonMembers
       ? {
-          organizationMembers: {
-            include: {
-              organization: true,
-            },
+        organizationMembers: {
+          include: {
+            organization: true,
           },
-        }
+        },
+      }
       : {};
 
     return await this.prisma.client.user.findUnique({
@@ -73,6 +73,7 @@ export class UserRepository {
   }
   async createMember(data: CreateMemberInput) {
     return await this.prisma.client.$transaction(async (tx) => {
+      console.log(data.email);
       const user = await tx.user.create({
         data: {
           email: data.email,
@@ -123,7 +124,7 @@ export class UserRepository {
         },
       });
 
-      const org = await tx.organization.create  ({
+      const org = await tx.organization.create({
         data: {
           name: data.organizationName,
           description: data.organizationDescription,

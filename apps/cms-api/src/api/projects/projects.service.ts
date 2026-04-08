@@ -28,7 +28,7 @@ export class ProjectsService {
     private readonly organizationMemberRepository: OrganizationMemberRepository,
     private readonly projectRepository: ProjectRepository,
     private readonly userRepository: UserRepository,
-  ) {}
+  ) { }
 
   private async VerifyOwnerCredentials(user: JwtPayload) {
     const organizationMember: OrganizationMember | null =
@@ -55,9 +55,11 @@ export class ProjectsService {
     const data: CreateProjectInput = {
       ...createProjectDto,
       organization_id: user.organizationId,
+      ...user
     };
 
-    const project = await this.projectRepository.create({ data });
+    const project = await this.projectRepository.create(data);
+    if (project == undefined) throw new ConflictException("Something must happen in the operation, probably the organization member was not found...");
     return { message: 'Project created successfully', project };
   }
 
@@ -95,6 +97,7 @@ export class ProjectsService {
 
       if (answer == null) throw new NotFoundException("It seems the Project you're searching doesn't exists on the DB.");
       const theList = answer.projectMembers;
+      console.log(theList)
       if (theList == undefined) throw new ConflictException("Something happened searching for the list, try again later.")
       else if (theList.length < 1) throw new ConflictException("Sorry, it looks like the List is empty.");
 
