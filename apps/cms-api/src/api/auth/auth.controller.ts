@@ -106,7 +106,7 @@ export class AuthController {
 
 
   @Public()
-  @Post('register')
+  @Post('registerOrganization')
   async registerOrg(@Body() registerOrgDto: createOrganizationDto){
     return this.authService.registerOrganization(registerOrgDto);
   }
