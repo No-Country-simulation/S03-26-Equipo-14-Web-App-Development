@@ -2,7 +2,10 @@ import { Injectable } from '@nestjs/common';
 import { Organization_Role, Prisma } from '@workspace/database';
 import { PrismaService } from '../prisma/prisma.service';
 import { User } from '@workspace/database';
-import { CreateMemberInput, CreateOwnerInput } from './interfaces/user.interface';
+import {
+  CreateMemberInput,
+  CreateOwnerInput,
+} from './interfaces/user.interface';
 
 type UserWithOrganization = Prisma.UserGetPayload<{
   include: {
@@ -39,25 +42,27 @@ export class UserRepository {
     });
   }
 
-  async changePassword(newPassword: string, userId: string){
+  async changePassword(newPassword: string, userId: string) {
     return await this.prisma.client.user.update({
       where: {
-        id: userId
+        id: userId,
       },
       data: {
-        password: newPassword
-      }
-    })
+        password: newPassword,
+      },
+    });
   }
 
   async findById(userId: string, includeOrganzatonMembers?: boolean) {
-    const include = includeOrganzatonMembers ? {
-      organizationMembers: {
-        include: {
-          organization: true,
-        },
-      },
-    } : {}
+    const include = includeOrganzatonMembers
+      ? {
+          organizationMembers: {
+            include: {
+              organization: true,
+            },
+          },
+        }
+      : {};
 
     return await this.prisma.client.user.findUnique({
       where: {
@@ -65,7 +70,7 @@ export class UserRepository {
       },
       include,
     });
-  }    
+  }
   async createMember(data: CreateMemberInput) {
     return await this.prisma.client.$transaction(async (tx) => {
       const user = await tx.user.create({
@@ -88,12 +93,27 @@ export class UserRepository {
         data: {
           organization_member_id: orgMember.id,
           project_id: data.projectId,
+          user_id: user.id,
         },
       });
     });
   }
 
   async createOwner(data: CreateOwnerInput): Promise<void> {
+    const defaultCategories = [
+      {
+        name: 'product',
+      },
+      {
+        name: 'event',
+      },
+      {
+        name: 'client',
+      },
+      {
+        name: 'industry',
+      },
+    ];
     return await this.prisma.client.$transaction(async (tx) => {
       const user = await tx.user.create({
         data: {
@@ -122,18 +142,32 @@ export class UserRepository {
       const project = await tx.project.create({
         data: {
           name: 'default',
-          description: 'defualt project',
+          description: 'default project',
           api_key: 'xa@swD',
           organization_id: org.id,
         },
       });
 
-      const projectMember = await tx.project_Member.create({
+      await tx.project_Member.create({
         data: {
           organization_member_id: orgMember.id,
           project_id: project.id,
+          user_id: user.id,
         },
       });
+
+      await Promise.all(
+        defaultCategories.map((catefory) =>
+          tx.category.create({
+            data: {
+              name: catefory.name,
+              project: {
+                connect: { id: project.id },
+              },
+            },
+          }),
+        ),
+      );
     });
   }
 
@@ -157,15 +191,15 @@ export class UserRepository {
     });
   }
 
-  async deleteResetToken({userId} : { userId: string}) : Promise<void>{
+  async deleteResetToken({ userId }: { userId: string }): Promise<void> {
     await this.prisma.client.user.update({
       where: {
-        id: userId
+        id: userId,
       },
       data: {
         resetToken: null,
-        resetTokenExpires: null
-      }
-    })
+        resetTokenExpires: null,
+      },
+    });
   }
 }

@@ -1,5 +1,6 @@
 
 export interface CreateCategoryInput {
+  projectId?: string;
   name: string;
 }
 
