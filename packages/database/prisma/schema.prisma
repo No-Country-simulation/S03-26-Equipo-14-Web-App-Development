@@ -88,11 +88,15 @@ model Project_Member {
   id                     String              @id @default(uuid())
   organization_member_id String
   project_id             String
-  testimonial_id         String?
+
+  user_id                String
+
   created_at             DateTime            @default(now())
   updated_at             DateTime            @updatedAt
+
   organization_member    Organization_Member @relation(fields: [organization_member_id], references: [id])
   project                Project             @relation(fields: [project_id], references: [id])
+  
   testimonials           Testimonial[]
 }
 

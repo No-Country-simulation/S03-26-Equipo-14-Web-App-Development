@@ -87,7 +87,7 @@ CREATE TABLE "Project_Member" (
     "id" TEXT NOT NULL,
     "organization_member_id" TEXT NOT NULL,
     "project_id" TEXT NOT NULL,
-    "testimonial_id" TEXT,
+    "user_id" TEXT NOT NULL,
     "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updated_at" TIMESTAMP(3) NOT NULL,
 
@@ -181,4 +181,3 @@ ALTER TABLE "_ProjectToTag" ADD CONSTRAINT "_ProjectToTag_A_fkey" FOREIGN KEY ("
 
 -- AddForeignKey
 ALTER TABLE "_ProjectToTag" ADD CONSTRAINT "_ProjectToTag_B_fkey" FOREIGN KEY ("B") REFERENCES "Tag"("id") ON DELETE CASCADE ON UPDATE CASCADE;
-
