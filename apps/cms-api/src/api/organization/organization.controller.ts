@@ -13,7 +13,7 @@ export class OrganizationController {
         return await this.organizationServices.create(data);
     }
     @Get("all")
-    async findAll(@Query('type') type?: string, @Body() vars?: createOrganizationDto){
+    async findAll(@Query('type') type?: string, @Query('vars') vars?: createOrganizationDto){
         return await this.organizationServices.findAll(type, vars);
     }
     @Get(':id')
@@ -24,5 +24,9 @@ export class OrganizationController {
     @Patch()
     async update(@Body() data: UpdateOrganizationDto, @GetUser() user: JwtPayload) {
         return await this.organizationServices.update(data, user);
+    }
+    @Get("membersList/:id")
+    async membersList(@Param('id') id: string){
+        return this.organizationServices.orgMemberList(id);
     }
 }

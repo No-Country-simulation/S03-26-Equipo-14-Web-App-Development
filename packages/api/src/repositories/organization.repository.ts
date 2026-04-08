@@ -48,7 +48,15 @@ export class OrganizationRepository {
     async update(id: string, data: updateOrganizationInput){
         return await this.prisma.client.organization.update({
             where: {id},
-            data
+            data})
+    }
+          
+    async memberList(id: string){
+        return await this.prisma.client.organization.findUnique({
+            where:{id},
+            include: {
+                organizationMembers: true,
+            }
         })
     }
 } 

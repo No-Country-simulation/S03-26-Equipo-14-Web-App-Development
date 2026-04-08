@@ -22,14 +22,14 @@ export class OrganizationService {
             throw new ConflictException(error);
         }
     }
-    async findAll(type?: string, vars?: createOrganizationDto){
+    async findAll(type?: string, vars?: createOrganizationDto) {
         try {
             const answer = await this.orgApi.findAll(type, vars);
-            if(answer.length<1) throw new NotFoundException("It looks like there aren't any Organization with your description... yet.");
+            if (answer.length < 1) throw new NotFoundException("It looks like there aren't any Organization with your description... yet.");
 
             return answer;
         } catch (error) {
-         throw new ConflictException(error);   
+            throw new ConflictException(error);
         }
     }
     async byId(orgId: string, ownerId: string) {
@@ -53,6 +53,18 @@ export class OrganizationService {
         if(!isOwner) throw new UnauthorizedException('You are not a member of this organization');
         if(isOwner.role != OrganizationRoleEnum.Owner) throw new UnauthorizedException('You are not the owner of this organization');
 
-        return this.orgApi.update(user.organizationId, data);        
+        return this.orgApi.update(user.organizationId, data);    
+    }
+    async orgMemberList(orgId: string) {
+        try {
+            const theList = await this.orgApi.memberList(orgId);
+
+            if (theList == null || theList.organizationMembers.length < 1) throw new NotFoundException("There aren't any Organization Members on this Organization.");
+
+            return theList;
+
+        } catch (error) {
+            throw new ConflictException(error);
+        }
     }
 }
