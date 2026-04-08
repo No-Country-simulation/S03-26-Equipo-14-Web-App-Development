@@ -1,10 +1,10 @@
 import { Module } from '@nestjs/common';
 import { OrganizationService } from './organization.service';
 import { OrganizationController } from './organization.controller';
-import { OrganizationRepository, UserRepository } from '@repo/api';
+import { OrganizationMemberRepository, OrganizationRepository, UserRepository } from '@repo/api';
 
 @Module({
-  providers: [OrganizationService, OrganizationRepository, UserRepository],
+  providers: [OrganizationService, OrganizationRepository, UserRepository, OrganizationMemberRepository],
   controllers: [OrganizationController],
 })
 export class OrganizationModule {}

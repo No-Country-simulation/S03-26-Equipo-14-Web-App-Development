@@ -4,6 +4,11 @@ export interface createOrganizationInput {
     user_id: string
 }
 
+export interface updateOrganizationInput {
+    name?:string,
+    description?:string
+}
+
 export interface searchOrganizationInput{
     name?: string
     description?: string

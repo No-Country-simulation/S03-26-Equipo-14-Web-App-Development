@@ -4,7 +4,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
-import { createOrganizationInput, searchOrganizationInput } from "./interfaces/organization.interface";
+import { createOrganizationInput, searchOrganizationInput, updateOrganizationInput } from "./interfaces/organization.interface";
 
 @Injectable()
 export class OrganizationRepository {
@@ -44,6 +44,13 @@ export class OrganizationRepository {
             throw new ConflictException(error);
         }
     }
+
+    async update(id: string, data: updateOrganizationInput){
+        return await this.prisma.client.organization.update({
+            where: {id},
+            data})
+    }
+          
     async memberList(id: string){
         return await this.prisma.client.organization.findUnique({
             where:{id},

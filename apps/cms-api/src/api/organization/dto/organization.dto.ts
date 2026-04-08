@@ -1,3 +1,4 @@
+import { PartialType, PickType } from "@nestjs/swagger"
 import { IsNotEmpty, IsOptional, IsString } from "class-validator"
 
 export class proofOwnership {
@@ -19,3 +20,5 @@ export class createOrganizationDto{
     @IsOptional()
     user_id!: string
 }
+
+export class UpdateOrganizationDto extends PartialType(PickType(createOrganizationDto, ['name', 'description'])) {}
