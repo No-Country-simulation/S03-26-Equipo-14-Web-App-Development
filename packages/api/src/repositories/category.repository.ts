@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { Category, Prisma } from '@workspace/database';
 import { PrismaService } from '../prisma/prisma.service';
 import {
@@ -18,11 +18,11 @@ export class CategoryRepository {
     })) as Category[];
   }
 
-  async findOne(projectId: string, categoryId: string) {
-    return await this.prisma.client.category.findUnique({
+  async findOne(categoryId: string, projectId: string) {
+    return await this.prisma.client.category.findFirst({
       where: {
-        project_id: projectId,
         id: categoryId,
+        project_id: projectId,
       },
     });
   }
@@ -45,11 +45,10 @@ export class CategoryRepository {
     });
   }
 
-  async deleteById(projectId: string, id: string) {
+  async deleteById(id: string) {
     return await this.prisma.client.category.delete({
       where: {
         id: id,
-        project_id: projectId,
       },
     });
   }
