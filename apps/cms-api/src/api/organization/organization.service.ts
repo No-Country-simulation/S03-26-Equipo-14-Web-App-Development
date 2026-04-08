@@ -88,6 +88,6 @@ export class OrganizationService {
         const membership = await this.orgMemberApi.verifyMembership({id: memberId, organization_id: user.organizationId});
         if(!membership) throw new NotFoundException('The member you are trying to delete doesn\'t exist or isn\'t in the organization');
         if(membership.user_id == user.sub) throw new UnauthorizedException('You can\'t delete yourself');
-        return this.orgMemberApi.delete(membership.id);
+        return this.userApi.delete(membership.user_id);
     }
 }

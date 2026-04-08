@@ -202,4 +202,12 @@ export class UserRepository {
       },
     });
   }
+
+  async delete (userId: string){
+    await this.prisma.client.user.delete({
+      where: {
+        id: userId
+      }
+    })
+  }
 }
