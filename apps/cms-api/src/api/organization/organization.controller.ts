@@ -33,4 +33,9 @@ export class OrganizationController {
     async delete(@Param('id') id: string, @Body() user: deleteDto) {
         return this.organizationServices.delete(id, user.userId);
     }
+
+    @Delete("member/:memberId")
+    async deleteMember(@Param("memberId") memberId: string, @GetUser () user: JwtPayload) {
+        return this.organizationServices.deleteMember(memberId, user)
+    }
 }
