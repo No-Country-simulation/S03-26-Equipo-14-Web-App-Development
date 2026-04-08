@@ -1,7 +1,7 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { Injectable, NotAcceptableException, UnauthorizedException } from '@nestjs/common';
 import { OrganizationMemberRepository, OrganizationRepository, OrganizationRoleEnum, UserRepository } from '@repo/api';
 import { ConflictException, NotFoundException } from '@nestjs/common';
-import { createOrganizationDto, UpdateOrganizationDto} from './dto/organization.dto';
+import { createOrganizationDto, UpdateOrganizationDto } from './dto/organization.dto';
 import { JwtPayload } from '../auth/types/jwt-payload.type';
 @Injectable()
 export class OrganizationService {
@@ -48,12 +48,12 @@ export class OrganizationService {
 
     }
 
-    async update(data : UpdateOrganizationDto, user: JwtPayload){
-        const isOwner = await this.orgMemberApi.findMembership({user_id: user.sub, organization_id: user.organizationId});
-        if(!isOwner) throw new UnauthorizedException('You are not a member of this organization');
-        if(isOwner.role != OrganizationRoleEnum.Owner) throw new UnauthorizedException('You are not the owner of this organization');
+    async update(data: UpdateOrganizationDto, user: JwtPayload) {
+        const isOwner = await this.orgMemberApi.findMembership({ user_id: user.sub, organization_id: user.organizationId });
+        if (!isOwner) throw new UnauthorizedException('You are not a member of this organization');
+        if (isOwner.role != OrganizationRoleEnum.Owner) throw new UnauthorizedException('You are not the owner of this organization');
 
-        return this.orgApi.update(user.organizationId, data);    
+        return this.orgApi.update(user.organizationId, data);
     }
     async orgMemberList(orgId: string) {
         try {
@@ -65,6 +65,22 @@ export class OrganizationService {
 
         } catch (error) {
             throw new ConflictException(error);
+        }
+    }
+
+    async delete(id: string, userId: string) {
+        try {
+            const proofOwnership = await this.userApi.findById(userId, true);
+            console.log(proofOwnership)
+            if (proofOwnership?.organizationMembers[0]?.role != "Owner") throw new NotAcceptableException("Sorry, only an Owner can use this.");
+            const existanceProof = await this.orgApi.findById(id);
+
+            if (!existanceProof) throw new NotFoundException("The Organization you're trying to delete doesn't exists in first place.");
+
+            const obliterate = await this.orgApi.delete(id);
+            return `The Organization ${obliterate.name} has been deleted successfully!`
+        } catch (error) {
+            throw new ConflictException(error)
         }
     }
 }

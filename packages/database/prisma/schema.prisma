@@ -54,7 +54,7 @@ model Project {
   organization_id String
   created_at      DateTime         @default(now())
   updated_at      DateTime         @updatedAt
-  organization    Organization     @relation(fields: [organization_id], references: [id])
+  organization    Organization     @relation(fields: [organization_id], references: [id], onDelete: Cascade)
   projectMembers  Project_Member[]
   testimonials    Testimonial[]
   categories      Category[]
@@ -79,7 +79,7 @@ model Organization_Member {
   role            Organization_Role @default(Editor)
   created_at      DateTime          @default(now())
   updated_at      DateTime          @updatedAt
-  organization    Organization      @relation(fields: [organization_id], references: [id])
+  organization    Organization      @relation(fields: [organization_id], references: [id], onDelete: Cascade)
   user            User              @relation(fields: [user_id], references: [id])
   projectMembers  Project_Member[]
 }
@@ -94,8 +94,8 @@ model Project_Member {
   created_at             DateTime            @default(now())
   updated_at             DateTime            @updatedAt
 
-  organization_member    Organization_Member @relation(fields: [organization_member_id], references: [id])
-  project                Project             @relation(fields: [project_id], references: [id])
+  organization_member    Organization_Member @relation(fields: [organization_member_id], references: [id], onDelete: Cascade)
+  project                Project             @relation(fields: [project_id], references: [id], onDelete: Cascade)
   
   testimonials           Testimonial[]
 }
