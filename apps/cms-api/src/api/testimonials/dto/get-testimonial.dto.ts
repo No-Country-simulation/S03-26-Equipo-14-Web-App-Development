@@ -22,6 +22,12 @@ export class FindAllQueryTestimonialDto {
   @IsOptional()
   @IsString()
   sorted?: string;
+
+  @IsOptional()
+  @Transform(({ value }) => value.trim())
+  @IsString()
+  @IsNotEmpty()
+  fragment?: string;
 }
 
 export class GetByFragmentDto {

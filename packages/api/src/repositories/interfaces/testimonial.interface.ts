@@ -39,6 +39,7 @@ export interface FindAllTestimonialsQuery {
   category_id?: string;
   type?: string;
   orderBy?: Prisma.TestimonialOrderByWithRelationInput;
+  fragment?: string
 }
 
 export interface FindByFragment {

@@ -102,11 +102,14 @@ export class TestimonialsService {
     if (project.organization_id !== user.organizationId)
       throw new NotFoundException('Project not found');
 
+    console.log(queryDto)
+
     return this.api.findAll(
       {
         type: queryDto.type,
         category_id: queryDto.category_id,
         orderBy,
+        fragment: queryDto.fragment,
       },
       projectId,
     );
