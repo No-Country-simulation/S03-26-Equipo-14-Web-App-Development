@@ -1,6 +1,6 @@
-import { Body, Controller, Get, Param, Patch, Post, Query } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Patch, Post, Query } from '@nestjs/common';
 import { OrganizationService } from './organization.service';
-import { createOrganizationDto, proofOwnership, UpdateOrganizationDto } from './dto/organization.dto';
+import { createOrganizationDto, deleteDto, proofOwnership, UpdateOrganizationDto } from './dto/organization.dto';
 import { GetUser } from '../auth/decorators/get-user.decorator';
 import { JwtPayload } from '../auth/types/jwt-payload.type';
 
@@ -13,11 +13,11 @@ export class OrganizationController {
         return await this.organizationServices.create(data);
     }
     @Get("all")
-    async findAll(@Query('type') type?: string, @Query('vars') vars?: createOrganizationDto){
+    async findAll(@Query('type') type?: string, @Query('vars') vars?: createOrganizationDto) {
         return await this.organizationServices.findAll(type, vars);
     }
     @Get(':id')
-    async getById(@Param('id') id: string, @Body() ownerDto: proofOwnership) {
+    async getById(@Param('id') id: string, @Query() ownerDto: proofOwnership) {
         return this.organizationServices.byId(id, ownerDto.ownerId);
     }
 
@@ -26,7 +26,11 @@ export class OrganizationController {
         return await this.organizationServices.update(data, user);
     }
     @Get("membersList/:id")
-    async membersList(@Param('id') id: string){
+    async membersList(@Param('id') id: string) {
         return this.organizationServices.orgMemberList(id);
+    }
+    @Delete("obliterate/:id")
+    async delete(@Param('id') id: string, @Body() user: deleteDto) {
+        return this.organizationServices.delete(id, user.userId);
     }
 }

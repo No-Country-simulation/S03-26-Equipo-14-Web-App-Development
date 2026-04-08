@@ -6,7 +6,11 @@ export class proofOwnership {
     @IsNotEmpty()
     ownerId!: string
 }
-
+export class deleteDto{
+    @IsString()
+    @IsNotEmpty()
+    userId!: string
+}
 export class createOrganizationDto{
     @IsString()
     @IsOptional()
@@ -20,5 +24,6 @@ export class createOrganizationDto{
     @IsOptional()
     user_id!: string
 }
+
 
 export class UpdateOrganizationDto extends PartialType(PickType(createOrganizationDto, ['name', 'description'])) {}
