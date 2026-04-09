@@ -38,4 +38,9 @@ export class OrganizationController {
     async changeRole(@Body() data: UpdateOrganizationMemberRoleDto, @Param("userId") userId: string, @GetUser() user: JwtPayload) {
         return this.organizationServices.changeRoleMember(data, userId, user)
     }
+  
+    @Delete("member/:memberId")
+    async deleteMember(@Param("memberId") memberId: string, @GetUser () user: JwtPayload) {
+        return this.organizationServices.deleteMember(memberId, user)
+    }
 }

@@ -19,4 +19,13 @@ export class OrganizationMemberRepository {
     async changeRole({memberId, role} : {memberId: string, role: OrganizationRoleEnum}): Promise<Organization_Member> {
         return this.prisma.client.organization_Member.update({where: {id: memberId}, data: {role}})
     }
+  
+    async verifyMembership({id, organization_id}: {id: string, organization_id: string}): Promise<Organization_Member | null> {               
+        return this.prisma.client.organization_Member.findFirst({
+            where: {
+                id,
+                organization_id
+            },
+        })
+    }
 }
