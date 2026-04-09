@@ -1,7 +1,7 @@
-import { Injectable, NotAcceptableException, UnauthorizedException } from '@nestjs/common';
+import { ForbiddenException, Injectable, NotAcceptableException, UnauthorizedException } from '@nestjs/common';
 import { OrganizationMemberRepository, OrganizationRepository, OrganizationRoleEnum, UserRepository } from '@repo/api';
 import { ConflictException, NotFoundException } from '@nestjs/common';
-import { createOrganizationDto, UpdateOrganizationDto } from './dto/organization.dto';
+import { createOrganizationDto, UpdateOrganizationDto, UpdateOrganizationMemberRoleDto } from './dto/organization.dto';
 import { JwtPayload } from '../auth/types/jwt-payload.type';
 @Injectable()
 export class OrganizationService {
@@ -82,5 +82,18 @@ export class OrganizationService {
         } catch (error) {
             throw new ConflictException(error)
         }
+    }
+
+    async changeRoleMember(data: UpdateOrganizationMemberRoleDto, userId: string, user: JwtPayload){
+        if(user.sub == userId) throw new ConflictException("You can't change your own role");
+        const requesterMembership = await this.orgMemberApi.findMembership({
+            user_id: user.sub,
+            organization_id: user.organizationId,
+        });
+        if (!requesterMembership || requesterMembership.role !== OrganizationRoleEnum.Owner) throw new ForbiddenException("Only owners can change roles");
+        const membership = await this.orgMemberApi.findMembership({user_id: userId, organization_id: user.organizationId});
+        if(!membership) throw new ForbiddenException("User is not part of this organization");;
+        if(data.role == membership.role) throw new ConflictException("The user already has this role");
+        return await this.orgMemberApi.changeRole({memberId: membership.id, role: data.role});
     }
 }

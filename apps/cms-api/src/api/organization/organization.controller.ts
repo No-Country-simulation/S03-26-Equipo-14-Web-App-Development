@@ -1,6 +1,6 @@
 import { Body, Controller, Delete, Get, Param, Patch, Post, Query } from '@nestjs/common';
 import { OrganizationService } from './organization.service';
-import { createOrganizationDto, deleteDto, proofOwnership, UpdateOrganizationDto } from './dto/organization.dto';
+import { createOrganizationDto, deleteDto, proofOwnership, UpdateOrganizationDto, UpdateOrganizationMemberRoleDto } from './dto/organization.dto';
 import { GetUser } from '../auth/decorators/get-user.decorator';
 import { JwtPayload } from '../auth/types/jwt-payload.type';
 
@@ -32,5 +32,10 @@ export class OrganizationController {
     @Delete("obliterate/:id")
     async delete(@Param('id') id: string, @Body() user: deleteDto) {
         return this.organizationServices.delete(id, user.userId);
+    }
+
+    @Patch("member/role/:userId")
+    async changeRole(@Body() data: UpdateOrganizationMemberRoleDto, @Param("userId") userId: string, @GetUser() user: JwtPayload) {
+        return this.organizationServices.changeRoleMember(data, userId, user)
     }
 }

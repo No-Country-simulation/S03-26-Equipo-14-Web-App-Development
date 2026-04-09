@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { Organization_Member } from '@workspace/database';
 import { PrismaService } from '../prisma/prisma.service';
+import { OrganizationRoleEnum } from 'src/types/organization.types';
 
 @Injectable()
 export class OrganizationMemberRepository {
@@ -13,5 +14,9 @@ export class OrganizationMemberRepository {
                 organization_id
             }
         })
+    }
+
+    async changeRole({memberId, role} : {memberId: string, role: OrganizationRoleEnum}): Promise<Organization_Member> {
+        return this.prisma.client.organization_Member.update({where: {id: memberId}, data: {role}})
     }
 }
