@@ -1,5 +1,5 @@
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? '';
-
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL ?? '';
 interface UploadToYouTubeParams {
   file: File;
   title: string;
@@ -21,7 +21,7 @@ export const handleUpload = async ({ file, title, description }: UploadToYouTube
 
   // 1. Subir a Supabase Storage
   const storageRes = await fetch(
-    `https://ocednvnbopromyirgqpn.supabase.co/storage/v1/object/youtube/${fileName}`,
+    `${supabaseUrl}/storage/v1/object/youtube/${fileName}`,
     {
       method: 'POST',
       headers: {
@@ -39,7 +39,7 @@ export const handleUpload = async ({ file, title, description }: UploadToYouTube
 
   // 2. Invocar la Edge Function
   const funcRes = await fetch(
-    'https://ocednvnbopromyirgqpn.supabase.co/functions/v1/upload-to-youtube',
+    `${supabaseUrl}/functions/v1/upload-to-youtube`,
     {
       method: 'POST',
       headers: {
@@ -59,6 +59,6 @@ export const handleUpload = async ({ file, title, description }: UploadToYouTube
     throw new Error(`Error enviando a YouTube: ${funcError}`);
   }
 
-  const funcData = (await funcRes.json()) as { videoId: string; url: string };
+  const funcData = (await funcRes.json()) as { videoId: string; url: string; };
   return funcData.url;
 };
