@@ -1,11 +1,12 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import {
   DropdownMenu,
   DropdownMenuCheckboxItem,
   DropdownMenuContent,
   DropdownMenuTrigger,
+  Input,
 } from '@repo/ui';
 import { ChevronDown } from '@repo/ui/lib';
 import type { Tag } from './types';
@@ -17,9 +18,15 @@ export interface TagsSelectProps {
 }
 
 export function TagsSelect({ tags, selected, onChange }: TagsSelectProps) {
+  const [search, setSearch] = useState('');
+
   const toggle = (id: string) => {
     onChange(selected.includes(id) ? selected.filter((s) => s !== id) : [...selected, id]);
   };
+
+  const filtered = tags.filter((t) =>
+    t.name.toLowerCase().includes(search.toLowerCase())
+  );
 
   const selectedNames = tags.filter((t) => selected.includes(t.id)).map((t) => t.name);
 
@@ -37,23 +44,34 @@ export function TagsSelect({ tags, selected, onChange }: TagsSelectProps) {
         </button>
       </DropdownMenuTrigger>
       <DropdownMenuContent
-        className="w-[var(--radix-dropdown-menu-trigger-width)] max-h-48 overflow-y-auto"
+        className="w-[var(--radix-dropdown-menu-trigger-width)]"
         align="start"
       >
-        {tags.length === 0 ? (
-          <p className="px-3 py-2 text-sm text-muted-foreground">Sin opciones</p>
-        ) : (
-          tags.map((tag) => (
-            <DropdownMenuCheckboxItem
-              key={tag.id}
-              checked={selected.includes(tag.id)}
-              onCheckedChange={() => toggle(tag.id)}
-              onSelect={(e) => e.preventDefault()}
-            >
-              {tag.name}
-            </DropdownMenuCheckboxItem>
-          ))
-        )}
+        <div className="p-2">
+          <Input
+            placeholder="Buscar tag..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            onKeyDown={(e) => e.stopPropagation()}
+            className="h-8 text-sm"
+          />
+        </div>
+        <div className="max-h-48 overflow-y-auto">
+          {filtered.length === 0 ? (
+            <p className="px-3 py-2 text-sm text-muted-foreground">Sin resultados</p>
+          ) : (
+            filtered.map((tag) => (
+              <DropdownMenuCheckboxItem
+                key={tag.id}
+                checked={selected.includes(tag.id)}
+                onCheckedChange={() => toggle(tag.id)}
+                onSelect={(e) => e.preventDefault()}
+              >
+                {tag.name}
+              </DropdownMenuCheckboxItem>
+            ))
+          )}
+        </div>
       </DropdownMenuContent>
     </DropdownMenu>
   );
