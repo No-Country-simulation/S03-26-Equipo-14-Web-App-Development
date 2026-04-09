@@ -44,8 +44,8 @@ import apiClient from '@/shared/lib/apiClient';
 import { useProjectStore } from '@/store/useProjectStore';
 import { DropZone } from './drop-zone';
 import { AvatarUpload } from './avatar-upload';
-// import { TagsSelect } from './tags-select';
-import type { Category, TabValue, TestimonialFormProps, TestimonialFormValues } from './types';
+import { TagsSelect } from './tags-select';
+import type { Category, TabValue, Tag, TestimonialFormProps, TestimonialFormValues } from './types';
 import { toSlug } from './types';
 
 /* ─── Main form ──────────────────────────────────────────── */
@@ -93,14 +93,14 @@ export function TestimonialForm({
     enabled: !!currentProject?.id,
   });
 
-  // const { data: tags = [] } = useQuery<Tag[]>({
-  //   queryKey: ['tags', currentProject?.id],
-  //   queryFn: async () => {
-  //     const r = await apiClient.get<{ data: Tag[] }>(`/tags`);
-  //     return r.data.data ?? [];
-  //   },
-  //   enabled: !!currentProject?.id,
-  // });
+  const { data: tags = [] } = useQuery<Tag[]>({
+    queryKey: ['tags', currentProject?.id],
+    queryFn: async () => {
+      const r = await apiClient.get<{ data: Tag[] }>(`/tag`);
+      return r.data.data ?? [];
+    },
+    enabled: !!currentProject?.id,
+  });
 
   // Submit mutation
   const mutation = useMutation({
@@ -435,7 +435,6 @@ export function TestimonialForm({
                   )}
                 />
 
-                {/* Tags — deshabilitado temporalmente (endpoint no disponible)
                 <FormField
                   control={control}
                   name="tagIds"
@@ -453,7 +452,6 @@ export function TestimonialForm({
                     </FormItem>
                   )}
                 />
-                */}
               </div>
             </div>
 
