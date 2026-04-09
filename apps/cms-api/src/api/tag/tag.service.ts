@@ -6,10 +6,11 @@ import {
 } from '@nestjs/common';
 import { CreateTagInput } from '@repo/api/src/repositories/interfaces/tag.interface';
 import { TagRepository } from '@repo/api';
+import { CreateTagDto } from './dto/tag.dto';
 
 @Injectable()
 export class TagService {
-  constructor(private readonly apiTag: TagRepository) {}
+  constructor(private readonly apiTag: TagRepository) { }
 
   async create(name: string) {
     try {
@@ -29,22 +30,25 @@ export class TagService {
     }
   }
 
-  async createMany(names: CreateTagInput[]) {
+  async createMany(names: string[]) {
     try {
       //Verify
       if (!names || names.length == 0)
         throw new NotAcceptableException(
           'You must send an array with at least two tag objects to create.',
         );
-      const arr = names.map((tag) => tag.name);
-      const verify = await this.find(arr);
+
+      const verify = await this.find(names, true);
 
       if (Array.isArray(verify) && verify.length > 0)
         throw new NotAcceptableException(
           `There are at least ${verify.length} tag object that matches your suggested names. There cannot be duplicates.`,
         );
-
-      const newTags = await this.apiTag.createMany(names);
+const f: CreateTagInput[] = [];
+names.forEach((str)=>{
+  f.push({name: str});
+})
+const newTags = await this.apiTag.createMany(f);
 
       if (!newTags || newTags.count < 1)
         throw new NotFoundException(
@@ -72,7 +76,7 @@ export class TagService {
     }
   }
 
-  async find(name: string | string[]) {
+  async find(name: string | string[], create?: boolean) {
     try {
       if (typeof name == 'string') {
         const searchByName = await this.apiTag.findUniqueTag(name, 'name');
@@ -85,8 +89,9 @@ export class TagService {
 
         return searchByName;
       } else {
-        const searchManyTags = await this.apiTag.findMany(name);
 
+        const searchManyTags = await this.apiTag.findMany(name);
+        if (create) return searchManyTags;
         if (searchManyTags.length < 1)
           throw new NotFoundException('Tags were not found.');
         return searchManyTags;

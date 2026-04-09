@@ -10,11 +10,12 @@ import {
 } from '@nestjs/common';
 
 import { TagService } from './tag.service';
-import { CreateTagDto } from './dto/tag.dto';
+import { CreateTagDto, searchTagDto } from './dto/tag.dto';
+import { CreateTagInput } from '@repo/api';
 
 @Controller('tag')
 export class TagController {
-  constructor(private readonly tagService: TagService) {}
+  constructor(private readonly tagService: TagService) { }
 
   @Post()
   async createTag(@Body() tagDto: CreateTagDto) {
@@ -34,14 +35,15 @@ export class TagController {
     return getByName;
   }
 
-  @Post('byNames')
-  async findMany(@Body() tagsDto: string[]) {
-    const manyTags = await this.tagService.find(tagsDto);
+  @Get('byNames')
+  async findMany(@Query('tags') tags: string[]) {
+    console.log(tags);
+    const manyTags = await this.tagService.find(tags);
 
     return manyTags;
   }
   @Post('tags')
-  async createTags(@Body() tagDto: CreateTagDto[]) {
+  async createTags(@Body() tagDto: string[]) {
     const theNewTags = await this.tagService.createMany(tagDto);
 
     return theNewTags;
