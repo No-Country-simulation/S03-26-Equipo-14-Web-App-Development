@@ -7,7 +7,7 @@ import { JwtPayload } from '../auth/types/jwt-payload.type';
 export class OrganizationService {
     constructor(private readonly orgApi: OrganizationRepository,
         private readonly userApi: UserRepository,
-        private readonly orgMemberApi: OrganizationMemberRepository
+        private readonly orgMemberApi: OrganizationMemberRepository,
     ) { }
 
     async create(orgData: createOrganizationDto) {
@@ -82,5 +82,12 @@ export class OrganizationService {
         } catch (error) {
             throw new ConflictException(error)
         }
+    }
+
+    async deleteMember(memberId: string, user: JwtPayload) {
+        const membership = await this.orgMemberApi.verifyMembership({id: memberId, organization_id: user.organizationId});
+        if(!membership) throw new NotFoundException('The member you are trying to delete doesn\'t exist or isn\'t in the organization');
+        if(membership.user_id == user.sub) throw new UnauthorizedException('You can\'t delete yourself');
+        return this.userApi.delete(membership.user_id);
     }
 }
