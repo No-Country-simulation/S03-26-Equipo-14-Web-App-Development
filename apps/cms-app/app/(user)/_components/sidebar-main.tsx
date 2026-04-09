@@ -17,13 +17,12 @@ const navItems = [
 ];
 
 export function SidebarMain() {
-  const { projects, selectedProjectId } = useProjectStore();
-  const currentProject = projects.find((p) => p.id === selectedProjectId);
+  const { currentProject } = useProjectStore();
 
   return (
     <SidebarContent>
       <SidebarGroup>
-        <SidebarGroupLabel>Menú de {currentProject?.title}</SidebarGroupLabel>
+        <SidebarGroupLabel>Menú de {currentProject?.name}</SidebarGroupLabel>
         <SidebarGroupContent>
           <SidebarMenu>
             {navItems.map((item) => (

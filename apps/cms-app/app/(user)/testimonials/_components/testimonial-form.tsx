@@ -1,8 +1,7 @@
 'use client';
 
-import React, { useRef, useState } from 'react';
+import React, { useState } from 'react';
 import Link from 'next/link';
-import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import {
@@ -30,14 +29,11 @@ import {
 } from '@repo/ui';
 import {
   ArrowLeft,
-  Camera,
   Check,
-  ChevronDown,
   FileText,
   ImageIcon,
   Save,
   Video,
-  X,
 } from '@repo/ui/lib';
 import { useFileUpload } from '@/shared/hooks/useFileUpload';
 import { uploadToCloudinary } from '@/shared/hooks/useCloudinary';
@@ -46,256 +42,11 @@ import { useMutation, useQuery } from '@tanstack/react-query';
 import { useSession } from 'next-auth/react';
 import apiClient from '@/shared/lib/apiClient';
 import { useProjectStore } from '@/store/useProjectStore';
-
-function toSlug(text: string): string {
-  return text
-    .normalize('NFD')
-    .replace(/[\u0300-\u036f]/g, '')
-    .toLowerCase()
-    .trim()
-    .replace(/[^a-z0-9\s-]/g, '')
-    .replace(/\s+/g, '-');
-}
-
-/* ─── types ─────────────────────────────────────────────── */
-
-type TabValue = 'caso' | 'video';
-
-interface TestimonialFormValues {
-  author: string;
-  authorRole: string;
-  title: string;
-  content: string;
-  videoSummary: string;
-  categoryId: string;
-  tagIds: string[];
-  isDraft: boolean;
-}
-
-interface Category {
-  id: string;
-  name: string;
-}
-
-interface Tag {
-  id: string;
-  name: string;
-}
-
-export interface TestimonialFormProps {
-  mode?: 'create' | 'edit';
-  defaultValues?: Partial<TestimonialFormValues>;
-  testimonialId?: string;
-}
-
-/* ─── DropZone sub-component ─────────────────────────────── */
-
-interface DropZoneProps {
-  accept: string;
-  maxSizeMB?: number;
-  icon: React.ReactNode;
-  title: string;
-  subtitle: string;
-  file: File | null;
-  preview: string | null;
-  isDragging: boolean;
-  inputRef: React.RefObject<HTMLInputElement | null>;
-  onFile: (f: File | null) => void;
-  onDrop: (e: React.DragEvent<HTMLDivElement>) => void;
-  onDragOver: (e: React.DragEvent<HTMLDivElement>) => void;
-  onDragLeave: () => void;
-  onClear: () => void;
-  isVideo?: boolean;
-}
-
-function DropZone({
-  accept,
-  icon,
-  title,
-  subtitle,
-  file,
-  preview,
-  isDragging,
-  inputRef,
-  onFile,
-  onDrop,
-  onDragOver,
-  onDragLeave,
-  onClear,
-  isVideo = false,
-}: DropZoneProps) {
-  return (
-    <div
-      className={`relative flex flex-col items-center justify-center gap-3 rounded-lg border-2 border-dashed p-10 text-center transition-colors cursor-pointer ${isDragging ? 'border-primary bg-primary/5' : 'border-border bg-muted/20 hover:border-primary/50 hover:bg-muted/40'}`}
-      onDrop={onDrop}
-      onDragOver={onDragOver}
-      onDragLeave={onDragLeave}
-      onClick={() => inputRef.current?.click()}
-    >
-      <input
-        ref={inputRef}
-        type="file"
-        accept={accept}
-        className="hidden"
-        onChange={(e) => onFile(e.target.files?.[0] ?? null)}
-      />
-
-      {preview && !isVideo ? (
-        <>
-          <div className="relative w-full aspect-video rounded-md overflow-hidden">
-            <Image src={preview} alt="Preview" fill className="object-cover" />
-          </div>
-          <button
-            type="button"
-            onClick={(e) => { e.stopPropagation(); onClear(); }}
-            className="absolute top-2 right-2 flex items-center justify-center w-7 h-7 rounded-full bg-background border border-border shadow-sm hover:bg-destructive hover:text-destructive-foreground transition-colors"
-          >
-            <X className="w-3.5 h-3.5" />
-          </button>
-        </>
-      ) : file && isVideo ? (
-        <>
-          <div className="flex flex-col items-center gap-2">
-            {icon}
-            <p className="text-sm font-medium text-foreground">{file.name}</p>
-            <p className="text-xs text-muted-foreground">{(file.size / (1024 * 1024)).toFixed(1)} MB</p>
-          </div>
-          <button
-            type="button"
-            onClick={(e) => { e.stopPropagation(); onClear(); }}
-            className="absolute top-2 right-2 flex items-center justify-center w-7 h-7 rounded-full bg-background border border-border shadow-sm hover:bg-destructive hover:text-destructive-foreground transition-colors"
-          >
-            <X className="w-3.5 h-3.5" />
-          </button>
-        </>
-      ) : (
-        <>
-          <div className="flex items-center justify-center w-12 h-12 rounded-full bg-muted text-muted-foreground">
-            {icon}
-          </div>
-          <div>
-            <p className="text-sm font-medium text-foreground">{title}</p>
-            <p className="text-xs text-muted-foreground mt-1">{subtitle}</p>
-          </div>
-        </>
-      )}
-    </div>
-  );
-}
-
-/* ─── AvatarUpload sub-component ─────────────────────────── */
-
-interface AvatarUploadProps {
-  preview: string | null;
-  inputRef: React.RefObject<HTMLInputElement | null>;
-  onFile: (f: File | null) => void;
-  onClear: () => void;
-}
-
-function AvatarUpload({ preview, inputRef, onFile, onClear }: AvatarUploadProps) {
-  return (
-    <div className="flex items-center gap-4 rounded-lg border border-dashed border-border p-4">
-      <div
-        className="relative w-16 h-16 flex-shrink-0 rounded-lg bg-muted flex items-center justify-center cursor-pointer overflow-hidden"
-        onClick={() => inputRef.current?.click()}
-      >
-        <input
-          ref={inputRef}
-          type="file"
-          accept="image/png,image/jpeg,image/jpg"
-          className="hidden"
-          onChange={(e) => onFile(e.target.files?.[0] ?? null)}
-        />
-        {preview ? (
-          <>
-            <Image src={preview} alt="Avatar" fill className="object-cover" />
-            <button
-              type="button"
-              onClick={(e) => { e.stopPropagation(); onClear(); }}
-              className="absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 hover:opacity-100 transition-opacity"
-            >
-              <X className="w-4 h-4 text-white" />
-            </button>
-          </>
-        ) : (
-          <Camera className="w-6 h-6 text-muted-foreground" />
-        )}
-      </div>
-      <div>
-        <p className="text-sm font-medium">Subir foto de perfil</p>
-        <p className="text-xs text-muted-foreground">PNG, JPG hasta 5MB</p>
-      </div>
-    </div>
-  );
-}
-
-/* ─── TagsSelect sub-component ───────────────────────────── */
-
-interface TagsSelectProps {
-  tags: Tag[];
-  selected: string[];
-  onChange: (ids: string[]) => void;
-}
-
-function TagsSelect({ tags, selected, onChange }: TagsSelectProps) {
-  const [open, setOpen] = useState(false);
-  const containerRef = useRef<HTMLDivElement>(null);
-
-  const toggle = (id: string) => {
-    onChange(selected.includes(id) ? selected.filter((s) => s !== id) : [...selected, id]);
-  };
-
-  const selectedNames = tags.filter((t) => selected.includes(t.id)).map((t) => t.name);
-
-  React.useEffect(() => {
-    const handleClickOutside = (e: MouseEvent) => {
-      if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
-        setOpen(false);
-      }
-    };
-    if (open) document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, [open]);
-
-  return (
-    <div ref={containerRef} className="relative">
-      <button
-        type="button"
-        onClick={() => setOpen((v) => !v)}
-        className="flex w-full items-center justify-between gap-2 rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-xs h-9 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-      >
-        <span className={selectedNames.length === 0 ? 'text-muted-foreground' : 'text-foreground'}>
-          {selectedNames.length === 0 ? 'Seleccionar tags...' : selectedNames.join(', ')}
-        </span>
-        <ChevronDown className="w-4 h-4 opacity-50 shrink-0" />
-      </button>
-
-      {open && (
-        <div className="absolute z-50 mt-1 w-full min-w-[8rem] overflow-hidden rounded-md border border-border bg-popover shadow-md">
-          {tags.length === 0 ? (
-            <p className="px-3 py-2 text-sm text-muted-foreground">Sin opciones</p>
-          ) : (
-            <div className="p-1 max-h-48 overflow-y-auto">
-              {tags.map((tag) => (
-                <button
-                  key={tag.id}
-                  type="button"
-                  onClick={() => toggle(tag.id)}
-                  className="flex w-full items-center gap-2 rounded-sm px-2 py-1.5 text-sm hover:bg-accent hover:text-accent-foreground"
-                >
-                  <div className={`flex h-4 w-4 items-center justify-center rounded-sm border ${selected.includes(tag.id) ? 'bg-primary border-primary text-primary-foreground' : 'border-border'}`}>
-                    {selected.includes(tag.id) && <Check className="w-3 h-3" />}
-                  </div>
-                  {tag.name}
-                </button>
-              ))}
-            </div>
-          )}
-        </div>
-      )}
-    </div>
-  );
-}
+import { DropZone } from './drop-zone';
+import { AvatarUpload } from './avatar-upload';
+// import { TagsSelect } from './tags-select';
+import type { Category, TabValue, TestimonialFormProps, TestimonialFormValues } from './types';
+import { toSlug } from './types';
 
 /* ─── Main form ──────────────────────────────────────────── */
 
@@ -330,48 +81,48 @@ export function TestimonialForm({
   const { control, handleSubmit, watch } = form;
   const isDraft = watch('isDraft');
 
-  const { status, data: session } = useSession();
-  const projectId = useProjectStore((s) => s.selectedProjectId);
+  const { currentMemberId, currentProject } = useProjectStore();
 
   // Fetch categories & tags
   const { data: categories = [] } = useQuery<Category[]>({
-    queryKey: ['categories'],
+    queryKey: ['categories', currentProject?.id],
     queryFn: async () => {
-      const r = await apiClient.get<{ data: Category[]; }>('/category');
+      const r = await apiClient.get<{ data: Category[]; }>(`/categories/${currentProject?.id}`);
       return r.data.data ?? [];
     },
-    enabled: status === 'authenticated',
+    enabled: !!currentProject?.id,
   });
 
-  const { data: tags = [] } = useQuery<Tag[]>({
-    queryKey: ['tags'],
-    queryFn: async () => {
-      const r = await apiClient.get<{ data: Tag[]; }>('/tag');
-      return r.data.data ?? [];
-    },
-    enabled: status === 'authenticated',
-  });
+  // const { data: tags = [] } = useQuery<Tag[]>({
+  //   queryKey: ['tags', currentProject?.id],
+  //   queryFn: async () => {
+  //     const r = await apiClient.get<{ data: Tag[] }>(`/tags`);
+  //     return r.data.data ?? [];
+  //   },
+  //   enabled: !!currentProject?.id,
+  // });
 
   // Submit mutation
   const mutation = useMutation({
     mutationFn: async (data: TestimonialFormValues) => {
       // Upload files
       let authorPhotoUrl: string | undefined;
+      const folder = `${testimonialId ?? Date.now()}`;
       if (avatar.file) {
-        const result = await uploadToCloudinary({ file: avatar.file, folder: 'testimonial_avatars' });
+        const result = await uploadToCloudinary({ file: avatar.file, folder: `${currentProject?.id}/${folder}/avatar` });
         if (result.success) authorPhotoUrl = result.url;
       }
 
       let mediaUrl: string | undefined;
       if (activeTab === 'caso' && coverImage.file) {
-        const result = await uploadToCloudinary({ file: coverImage.file, folder: `${testimonialId}_cover` });
+        const result = await uploadToCloudinary({ file: coverImage.file, folder: `${currentProject?.id}/${folder}/cover` });
         if (result.success) mediaUrl = result.url;
       }
       if (activeTab === 'video' && videoFile.file) {
         toast.loading('Subiendo video a la nube...', { id: 'video-upload' });
         const youtubeUrl = await handleUpload({
           file: videoFile.file,
-          title: data.videoSummary || 'Testimonio',
+          title: `${currentProject?.name} - ${data?.author} - Testimonio` || 'Testimonio',
           description: data.videoSummary,
         });
         toast.dismiss('video-upload');
@@ -394,8 +145,8 @@ export function TestimonialForm({
           mediaUrl: mediaUrl ?? '',
           mediaDescription: activeTab === 'video' ? data.videoSummary : '',
           categoryId: data.categoryId,
+          tags: data.tagIds,
           slug: toSlug(titleValue),
-          rating: 5,
           draft: data.isDraft,
         };
         const response = await apiClient.patch(endpoint, updateBody);
@@ -404,9 +155,10 @@ export function TestimonialForm({
 
       const createBody = {
         type: activeTab === 'video' ? 'video' : 'case',
-        memberId: session?.user?.id ?? '',
-        projectId: 'e37003ed-f740-417d-9d45-48fde41a9bd4',
+        memberId: currentMemberId ?? '',
+        projectId: currentProject?.id ?? '',
         categoryId: data.categoryId,
+        tags: data.tagIds,
         author: data.author,
         authorRole: data.authorRole,
         authorPhoto: authorPhotoUrl ?? '',
@@ -415,7 +167,6 @@ export function TestimonialForm({
         mediaUrl: mediaUrl ?? '',
         mediaDescription: activeTab === 'video' ? data.videoSummary : '',
         slug: toSlug(titleValue),
-        rating: 5,
         status: data.isDraft ? 'draft' : 'pending',
       };
       console.log(createBody);
@@ -466,13 +217,13 @@ export function TestimonialForm({
         <Form {...form}>
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-6" noValidate>
             {/* Tabs */}
-            <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as TabValue)}>
+            <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as TabValue)} className='flex flex-col'>
               <TabsList>
-                <TabsTrigger value="caso" className="flex items-center gap-1.5">
+                <TabsTrigger value="caso" className="flex items-center gap-1.5 aria-[selected=true]:bg-white aria-[selected=true]:text-foreground ">
                   <FileText className="w-4 h-4" />
                   Caso
                 </TabsTrigger>
-                <TabsTrigger value="video" className="flex items-center gap-1.5">
+                <TabsTrigger value="video" className="flex items-center gap-1.5 aria-[selected=true]:bg-white aria-[selected=true]:text-foreground ">
                   <Video className="w-4 h-4" />
                   Video
                 </TabsTrigger>
@@ -684,6 +435,7 @@ export function TestimonialForm({
                   )}
                 />
 
+                {/* Tags — deshabilitado temporalmente (endpoint no disponible)
                 <FormField
                   control={control}
                   name="tagIds"
@@ -701,6 +453,7 @@ export function TestimonialForm({
                     </FormItem>
                   )}
                 />
+                */}
               </div>
             </div>
 
