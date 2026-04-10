@@ -17,7 +17,7 @@ import {
 
 @Injectable()
 export class TestimonialRepository {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(private readonly prisma: PrismaService) { }
 
   //addd Methods, get, delete, update
 
@@ -62,20 +62,20 @@ export class TestimonialRepository {
   async findById(id: string) {
     return this.prisma.client.testimonial.findUnique({
       where: { id },
-      include:{
+      include: {
         category: true,
-        testimonialTags:{
-          include:{
+        testimonialTags: {
+          include: {
             tag: true,
           }
         },
-        member:{
-          include:{
+        member: {
+          include: {
             organization_member: {
               select: {
                 role: true,
                 user: {
-                  select:{
+                  select: {
                     name: true,
                   }
                 }
@@ -101,7 +101,7 @@ export class TestimonialRepository {
     query: FindAllTestimonialsQuery,
     projectId: string,
   ): Promise<any[]> {
-    const { orderBy, type, category_id, fragment } = query;    
+    const { orderBy, type, category_id, fragment } = query;
     const where: Prisma.TestimonialWhereInput = {};
 
     if (projectId) where.project_id = projectId;
@@ -127,6 +127,28 @@ export class TestimonialRepository {
     return this.prisma.client.testimonial.findMany({
       where,
       orderBy: orderBy ?? { created_at: 'desc' },
+      include: {
+        category: true,
+        testimonialTags: {
+          include: {
+            tag: true,
+          }
+        },
+        member: {
+          include: {
+            organization_member: {
+              select: {
+                role: true,
+                user: {
+                  select: {
+                    name: true,
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
     });
   }
 
