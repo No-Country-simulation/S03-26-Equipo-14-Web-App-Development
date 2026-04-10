@@ -7,10 +7,11 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from '@repo/ui/components';
-import { LayoutDashboard, Settings2, Component } from '@repo/ui/lib';
+import { LayoutDashboard, Settings2, Component, Users } from '@repo/ui/lib';
 import { useProjectStore } from '../../../store/useProjectStore';
+import { useSession } from 'next-auth/react';
 
-const navItems = [
+const baseNavItems = [
   { title: 'Dashboard', url: '/dashboard', icon: LayoutDashboard },
   { title: 'Widgets', url: '/widgets', icon: Component },
   { title: 'Configuraciones', url: '/settings', icon: Settings2 },
@@ -18,6 +19,15 @@ const navItems = [
 
 export function SidebarMain() {
   const { currentProject } = useProjectStore();
+  const { data: session } = useSession();
+  const isOwner = session?.user?.role === 'Owner';
+
+  const navItems = [
+    ...baseNavItems,
+    ...(isOwner
+      ? [{ title: 'Miembros', url: '/members', icon: Users }]
+      : []),
+  ];
 
   return (
     <SidebarContent>
