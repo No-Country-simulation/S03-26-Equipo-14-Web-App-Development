@@ -1,17 +1,12 @@
 'use client';
 
-import {
-  Button,
-  Tabs,
-  TabsContent,
-  TabsList,
-  TabsTrigger,
-} from '@repo/ui/components';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@repo/ui/components';
 import { AddUsersForm } from './_components/addUsersForm';
 import { OrganizationSection } from './_components/organizationSection';
 import { userColumns, projectColumns } from './_components/table';
 import { DataTable } from './_components/table';
 import type { User, Project } from './_components/table';
+import { AddProjectsForm } from './_components/addProjectsForm';
 
 const users: User[] = [
   {
@@ -105,7 +100,13 @@ export default function AccountPage() {
           </section>
         </TabsContent>
         <TabsContent value="projects">
-          <DataTable<Project> columns={projectColumns} data={projects} />
+          <section className="flex flex-col gap-4 h-full">
+            <h2 className="text-lg font-semibold truncate">
+              Configuracion de proyectos
+            </h2>
+            <AddProjectsForm />
+            <DataTable<Project> columns={projectColumns} data={projects} />
+          </section>
         </TabsContent>
         <TabsContent value="organization">
           <OrganizationSection />
