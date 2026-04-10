@@ -251,7 +251,6 @@ export class TestimonialRepository {
         slug: data.slug,
         status: data.status,
         testimonialTags: {
-          deleteMany: {},
           create: data.tags?.map(tagName=>({
             tag: {
               connectOrCreate: {
