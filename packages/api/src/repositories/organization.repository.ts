@@ -56,7 +56,16 @@ export class OrganizationRepository {
         return await this.prisma.client.organization.findUnique({
             where: { id },
             include: {
-                organizationMembers: true,
+                organizationMembers: {
+                    include: {
+                        user: {
+                            select: {
+                                email: true,
+                                name: true,                                
+                            }
+                        },
+                    }
+                }
             }
         })
     }

@@ -72,11 +72,22 @@ export class ProjectRepository {
     });
   }
 
-  async allMembers(id: string): Promise<Project2 | null> {
-    return await this.prisma.client.project.findUnique({
-      where: { id },
+  async allMembers(id: string): Promise<any[]>{
+    return await this.prisma.client.project_Member.findMany({
+      where: {
+        project_id: id
+      },
       include: {
-        projectMembers: true
+        organization_member: {
+          include: {
+            user: {
+              select: {
+                name: true,
+                email: true
+              }
+            }
+          }
+        }
       }
     })
   }
