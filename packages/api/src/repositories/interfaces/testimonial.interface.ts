@@ -50,4 +50,5 @@ export interface ChangeStatusInput {
   id: string;
   type: TestimonialType;
   status: TestimonialStatus;
+  rejectedReason?: string;
 }

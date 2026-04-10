@@ -21,7 +21,7 @@ export class TestimonialRepository {
 
   //addd Methods, get, delete, update
 
-  async changeStatus({ id, status, type }: ChangeStatusInput) {
+  async changeStatus({ id, status, type, rejectedReason }: ChangeStatusInput) {
     await this.prisma.client.testimonial.update({
       where: {
         id: id,
@@ -29,6 +29,7 @@ export class TestimonialRepository {
       },
       data: {
         status: status,
+        ...(status === TestimonialStatus.rejected && { rejectedReason }),
       },
     });
   }
