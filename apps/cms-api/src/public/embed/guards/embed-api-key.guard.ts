@@ -17,9 +17,19 @@ export class EmbedApiKeyGuard implements CanActivate {
 
     if (!apikey) throw new UnauthorizedException('Missing embed key');
 
+    if (typeof apikey !== 'string')
+      throw new UnauthorizedException('Invalid embed key');
+    const parts = apikey.split(':');
+    if (parts[0] === 'cms-api-key')
+      throw new UnauthorizedException('Invalid embed key Format');
+
     try {
       const { projectId, orgId } = await this.crypto.decodeApiKey(apikey);
+
+      if (!projectId || !orgId) throw new Error();
+
       req.embedCredentials = { projectId, orgId };
+
       return true;
     } catch (error) {
       throw new UnauthorizedException('Invalid embed key');
