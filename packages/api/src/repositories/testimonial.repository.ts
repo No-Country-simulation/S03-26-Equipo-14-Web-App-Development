@@ -62,6 +62,28 @@ export class TestimonialRepository {
   async findById(id: string) {
     return this.prisma.client.testimonial.findUnique({
       where: { id },
+      include:{
+        category: true,
+        testimonialTags:{
+          include:{
+            tag: true,
+          }
+        },
+        member:{
+          include:{
+            organization_member: {
+              select: {
+                role: true,
+                user: {
+                  select:{
+                    name: true,
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
     });
   }
 
