@@ -29,6 +29,7 @@ import {
 } from './dto/update-testimonial.dto';
 import { JwtPayload } from 'src/api/auth/types/jwt-payload.type';
 import { deleteTestimonialDTO } from './dto/delete-testimonial.dto';
+import { TagService } from '../tag/tag.service';
 
 @Injectable()
 export class TestimonialsService {
@@ -169,10 +170,10 @@ export class TestimonialsService {
   }
 
   async update(id: string, updateTestimonialDto: UpdateTestimonialDto) {
-    const { draft, ...updateData } = updateTestimonialDto;
+    const { draft, tags, ...updateData } = updateTestimonialDto;
 
     const mapped = this.mapDtoToPrisma(updateData, 'update');
-
+    
     const { status, type }: { status: string | null; type: string | null } =
       await this.api.findOneById(id, { status: true, type: true });
 
@@ -185,7 +186,7 @@ export class TestimonialsService {
 
     const result = await this.api.updateTestimonial(
       id,
-      mapped,
+      {...mapped, tags : tags || []},
       draft,
       status === TestimonialStatus.rejected,
     );
