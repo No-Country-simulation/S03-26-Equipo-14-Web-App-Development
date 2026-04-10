@@ -250,6 +250,21 @@ export class TestimonialRepository {
         media_description: data.media_description,
         slug: data.slug,
         status: data.status,
+        testimonialTags: {
+          deleteMany: {},
+          create: data.tags?.map(tagName=>({
+            tag: {
+              connectOrCreate: {
+                where: {
+                  name: tagName,
+                },
+                create: {
+                  name: tagName
+                }
+              }
+            }
+          }))
+        }
       },
     });
   }
