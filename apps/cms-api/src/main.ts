@@ -1,3 +1,4 @@
+import cors from 'cors';
 import { NestFactory } from '@nestjs/core';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { AppModule } from './app.module';
@@ -21,7 +22,34 @@ const corsOptions = {
 
 async function bootstrap() {
   console.log('NODE_ENV', globalEnv.NODE_ENV);
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create(AppModule, { cors: false });
+
+  app.use(
+    '/embed',
+    cors({
+      origin: true,
+      methods: 'GET,HEAD,POST',
+      credentials: false,
+      allowedHeaders: 'Content-type, X-Embed-Key',
+    }),
+  );
+
+  app.use(cors(corsOptions));
+
+  app.use(cookieParser());
+
+  //response interceptor
+  app.useGlobalInterceptors(new ResponseInterceptor());
+
+  //pipe for input data
+  app.useGlobalPipes(
+    new ValidationPipe({
+      whitelist: true,
+      forbidNonWhitelisted: true,
+      transform: true,
+    }),
+  );
+
   //Swagger documentation config
   const config = new DocumentBuilder()
     .setTitle('CMS API')
@@ -33,23 +61,7 @@ async function bootstrap() {
 
   const documentFactory = () => SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('docs', app, documentFactory);
-  //test repo/api
-  const userRepo = app.get(UserRepository);
-  const user = await userRepo.find();
-  console.log('test', user);
 
-  //response interceptor
-  app.useGlobalInterceptors(new ResponseInterceptor());
-  //pipe for input data
-  app.useGlobalPipes(
-    new ValidationPipe({
-      whitelist: true,
-      forbidNonWhitelisted: true,
-      transform: true,
-    }),
-  );
-  app.use(cookieParser());
-  app.enableCors(corsOptions);
   await app.listen(3000);
 }
 
