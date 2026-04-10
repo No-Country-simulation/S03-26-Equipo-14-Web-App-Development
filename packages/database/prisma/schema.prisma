@@ -34,15 +34,20 @@ model Testimonial {
   status            TestimonialStatus @default(pending)
   rating            Decimal?
   slug              String?
+  rejectedReason    String?
+
   created_at        DateTime          @default(now())
   updated_at        DateTime          @updatedAt
   published_at      DateTime?
+
   category_id       String?
   member_id         String?
   project_id        String
+
   category          Category?         @relation(fields: [category_id], references: [id])
   member            Project_Member?   @relation(fields: [member_id], references: [id])
   project           Project           @relation(fields: [project_id], references: [id])
+
   testimonialTags   Testimonial_Tag[]
 }
 
