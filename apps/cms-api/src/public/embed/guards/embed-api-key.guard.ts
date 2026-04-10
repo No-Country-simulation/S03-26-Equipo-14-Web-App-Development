@@ -20,7 +20,7 @@ export class EmbedApiKeyGuard implements CanActivate {
     if (typeof apikey !== 'string')
       throw new UnauthorizedException('Invalid embed key');
     const parts = apikey.split(':');
-    if (parts[0] === 'cms-api-key')
+    if (parts[0] !== 'cms-api-key')
       throw new UnauthorizedException('Invalid embed key Format');
 
     try {
