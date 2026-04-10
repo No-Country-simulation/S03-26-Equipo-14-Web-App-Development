@@ -43,6 +43,28 @@ export class TestimonialRepository {
           { content: { contains: fragment, mode: 'insensitive' } },
         ],
       },
+      include: {
+        category: true,
+        testimonialTags: {
+          include: {
+            tag: true,
+          }
+        },
+        member: {
+          include: {
+            organization_member: {
+              select: {
+                role: true,
+                user: {
+                  select: {
+                    name: true,
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
     });
   }
 
