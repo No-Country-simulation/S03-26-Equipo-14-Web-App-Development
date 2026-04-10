@@ -69,9 +69,14 @@ export function AddUsersForm() {
 
   return (
     <>
-      <Button onClick={() => setCardVisibility(!cardVisibility)}>
-        <Plus /> Agregar usuario
-      </Button>
+      <div className="flex justify-end">
+        <Button
+          className="w-fit"
+          onClick={() => setCardVisibility(!cardVisibility)}
+        >
+          <Plus /> Agregar usuario
+        </Button>
+      </div>
       <Card className={`${cardVisibility ? 'flex' : 'hidden'}`}>
         <CardContent>
           <Form {...form}>
