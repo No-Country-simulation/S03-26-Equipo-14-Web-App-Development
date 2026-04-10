@@ -12,7 +12,6 @@ export function Header() {
     '/account': 'Configuración de cuenta',
     '/testimonials/new': 'Crear testimonio',
     '/testimonials/edit': 'Editar testimonio',
-    '/members': 'Miembros',
   };
   const title = Object.keys(titles).find((key) => pathname.includes(key)) ? titles[Object.keys(titles).find((key) => pathname.includes(key))!] : 'Dashboard';
 

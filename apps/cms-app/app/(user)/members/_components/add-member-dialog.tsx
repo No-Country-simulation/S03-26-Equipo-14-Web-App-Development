@@ -46,8 +46,6 @@ export function AddMemberDialog({ onSuccess }: AddMemberDialogProps) {
     queryKey: ['projects'],
     queryFn: async () => {
       const res = await apiClient.get<{ data: Project[]; }>('/projects');
-      console.log(res, 'res');
-
       return res.data.data;
     },
     enabled: open,
