@@ -1,58 +1,126 @@
 'use client';
 
-// import { ErrorMessage } from './_components/error-message';
-import { EmptyDashboard } from './_components/empty-dashboard';
 import { NoProjects } from './_components/no-projects';
-import { Loading } from './_components/loading';
 import { DashboardView } from './_components/dashboard-view';
 import { useProjectStore } from '@/store/useProjectStore';
-import { testimonials } from '@/data/testimonials';
 import { TestimonialModal } from './_components/testimonial-modal';
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { Testimonial } from '@/types/testimonials';
 import { toast } from '@repo/ui/components';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import apiClient from '@/shared/lib/apiClient';
+import { type Filters } from './_components/filtersbar';
+
+const DEFAULT_FILTERS: Filters = {
+  search: '',
+  type: '',
+  status: '',
+  sorted: 'newest',
+  categoryId: '',
+  tagId: '',
+  layout: 'grid',
+};
 
 export default function DashboardPage() {
-  const { projects } = useProjectStore();
+  const { projects, currentProject } = useProjectStore();
+  const queryClient = useQueryClient();
 
   const [selected, setSelected] = useState<Testimonial | null>(null);
   const [open, setOpen] = useState(false);
+  const [filters, setFilters] = useState<Filters>(DEFAULT_FILTERS);
 
-  const handleOpen = (t: Testimonial) => {
-    setSelected(t);
-    setOpen(true);
-  };
+  const setFilter = <K extends keyof Filters>(key: K, value: Filters[K]) =>
+    setFilters((prev) => ({ ...prev, [key]: value }));
 
-  const handleDelete = async (id: string) => {
-    // await deleteTestimonial(id);
-    setOpen(false);
-    setSelected(null);
+  const { data: rawTestimonials = [], isLoading, isFetching } = useQuery<Testimonial[]>({
+    queryKey: ['testimonials', currentProject?.id, filters.search, filters.type, filters.sorted, filters.categoryId],
+    queryFn: async () => {
+      const params = new URLSearchParams();
+      if (filters.search) params.set('fragment', filters.search);
+      if (filters.type) params.set('type', filters.type);
+      if (filters.sorted) params.set('sorted', filters.sorted === 'newest' ? 'created_at:desc' : 'created_at:asc');
+      if (filters.categoryId) params.set('category_id', filters.categoryId);
+      const r = await apiClient.get(`/testimonials/${currentProject!.id}?${params}`);
+      return r.data.data ?? [];
+    },
+    enabled: !!currentProject?.id,
+  });
+
+  const { data: categories = [] } = useQuery<{ id: string; name: string; }[]>({
+    queryKey: ['categories', currentProject?.id],
+    queryFn: async () => {
+      const r = await apiClient.get(`/categories/${currentProject!.id}`);
+      return r.data.data ?? [];
+    },
+    enabled: !!currentProject?.id,
+  });
+
+  const { data: tags = [] } = useQuery<{ id: string; name: string; }[]>({
+    queryKey: ['tags'],
+    queryFn: async () => {
+      const r = await apiClient.get('/tag');
+      return r.data.data ?? [];
+    },
+    enabled: !!currentProject?.id,
+  });
+
+  // status y tagId son filtros client-side (sin param de API)
+  const testimonials = useMemo(() => {
+    let result = rawTestimonials;
+    if (filters.status) result = result.filter((t) => t.status === filters.status);
+    if (filters.tagId) result = result.filter((t) => t.tags?.some((tag: { id: string; }) => tag.id === filters.tagId));
+    return result;
+  }, [rawTestimonials, filters.status, filters.tagId]);
+
+  const handleOpen = (t: Testimonial) => { setSelected(t); setOpen(true); };
+  const handleClose = () => { setOpen(false); setSelected(null); };
+
+  const changeStatusMutation = useMutation({
+    mutationFn: ({ id, type, status, rejectedReason }: { id: string; type: string; status: string; rejectedReason?: string; }) =>
+      apiClient.patch(`/testimonials/changeStatus/${id}`, { type, status, ...(rejectedReason ? { rejectedReason } : {}) }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['testimonials', currentProject?.id] });
+    },
+  });
+
+  const handleDelete = async (_id: string) => {
+    handleClose();
     toast.success('Testimonio eliminado con éxito');
   };
 
-  const handlePublish = async (id: string) => {
-    // await publishTestimonial(id);
-    setOpen(false);
-    setSelected(null);
-    toast.success('Testimonio publicado con éxito');
+  const handlePublish = (id: string) => {
+    if (!selected) return;
+    const status = selected.type === 'quote' ? 'review' : 'published';
+    const label = selected.type === 'quote' ? 'Testimonio aprobado' : 'Testimonio publicado';
+    toast.promise(
+      changeStatusMutation.mutateAsync({ id, type: selected.type, status }).then(() => handleClose()),
+      { loading: 'Actualizando...', success: label, error: 'Error al actualizar el estado' },
+    );
   };
 
-  const handleReject = async (id: string) => {
-    // await rejectTestimonial(id);
-    setOpen(false);
-    setSelected(null);
-    toast.success('Testimonio rechazado con éxito');
+  const handleReject = (id: string, reason: string) => {
+    if (!selected) return;
+    toast.promise(
+      changeStatusMutation.mutateAsync({ id, type: selected.type, status: 'rejected', rejectedReason: reason || undefined }).then(() => handleClose()),
+      { loading: 'Actualizando...', success: 'Testimonio rechazado', error: 'Error al actualizar el estado' },
+    );
   };
 
-  let content = <Loading />;
+  let content;
 
   if (projects.length === 0) {
     content = <NoProjects />;
-  } else if (testimonials.length === 0) {
-    content = <EmptyDashboard />;
   } else {
     content = (
-      <DashboardView testimonials={testimonials} onSelect={handleOpen} />
+      <DashboardView
+        testimonials={testimonials}
+        categories={categories}
+        tags={tags}
+        filters={filters}
+        onFilterChange={setFilter}
+        onSelect={handleOpen}
+        isListLoading={isFetching}
+      />
     );
   }
 

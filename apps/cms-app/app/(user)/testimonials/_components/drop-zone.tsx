@@ -12,6 +12,7 @@ export interface DropZoneProps {
   subtitle: string;
   file: File | null;
   preview: string | null;
+  existingUrl?: string;
   isDragging: boolean;
   inputRef: React.RefObject<HTMLInputElement | null>;
   onFile: (f: File | null) => void;
@@ -29,6 +30,7 @@ export function DropZone({
   subtitle,
   file,
   preview,
+  existingUrl,
   isDragging,
   inputRef,
   onFile,
@@ -38,6 +40,10 @@ export function DropZone({
   onClear,
   isVideo = false,
 }: DropZoneProps) {
+  const getYouTubeId = (url: string) => {
+    const m = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([^&\n?#]+)/);
+    return m ? m[1] : null;
+  };
   return (
     <div
       className={`relative flex flex-col items-center justify-center gap-3 rounded-lg border-2 border-dashed p-10 text-center transition-colors cursor-pointer ${isDragging ? 'border-primary bg-primary/5' : 'border-border bg-muted/20 hover:border-primary/50 hover:bg-muted/40'}`}
@@ -67,6 +73,19 @@ export function DropZone({
             <X className="w-3.5 h-3.5" />
           </button>
         </>
+      ) : !file && existingUrl && !isVideo ? (
+        <>
+          <div className="relative w-full aspect-video rounded-md overflow-hidden">
+            <Image src={existingUrl} alt="Imagen existente" fill className="object-cover" />
+          </div>
+          <button
+            type="button"
+            onClick={(e) => { e.stopPropagation(); onClear(); }}
+            className="absolute top-2 right-2 flex items-center justify-center w-7 h-7 rounded-full bg-background border border-border shadow-sm hover:bg-destructive hover:text-destructive-foreground transition-colors"
+          >
+            <X className="w-3.5 h-3.5" />
+          </button>
+        </>
       ) : file && isVideo ? (
         <>
           <div className="flex flex-col items-center gap-2">
@@ -74,6 +93,32 @@ export function DropZone({
             <p className="text-sm font-medium text-foreground">{file.name}</p>
             <p className="text-xs text-muted-foreground">{(file.size / (1024 * 1024)).toFixed(1)} MB</p>
           </div>
+          <button
+            type="button"
+            onClick={(e) => { e.stopPropagation(); onClear(); }}
+            className="absolute top-2 right-2 flex items-center justify-center w-7 h-7 rounded-full bg-background border border-border shadow-sm hover:bg-destructive hover:text-destructive-foreground transition-colors"
+          >
+            <X className="w-3.5 h-3.5" />
+          </button>
+        </>
+      ) : !file && existingUrl && isVideo ? (
+        <>
+          <div
+            className="relative w-full aspect-video rounded-md overflow-hidden"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {getYouTubeId(existingUrl) ? (
+              <iframe
+                className="absolute top-0 left-0 w-full h-full"
+                src={`https://www.youtube.com/embed/${getYouTubeId(existingUrl)}`}
+                allowFullScreen
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+              />
+            ) : (
+              <p className="text-xs text-muted-foreground p-4">{existingUrl}</p>
+            )}
+          </div>
+          <p className="text-xs text-muted-foreground">Haz clic fuera del video para reemplazarlo</p>
           <button
             type="button"
             onClick={(e) => { e.stopPropagation(); onClear(); }}

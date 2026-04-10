@@ -25,6 +25,9 @@ export interface TestimonialFormProps {
   mode?: 'create' | 'edit';
   defaultValues?: Partial<TestimonialFormValues>;
   testimonialId?: string;
+  defaultTab?: TabValue;
+  existingAuthorPhoto?: string;
+  existingMediaUrl?: string;
 }
 
 export function toSlug(text: string): string {
