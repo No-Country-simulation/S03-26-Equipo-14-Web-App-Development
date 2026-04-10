@@ -6,6 +6,7 @@ import {
   NotAcceptableException,
 } from '@nestjs/common';
 import {
+  CreateTestimonialInput,
   ProjectRepository,
   Testimonial,
   TestimonialRepository,
@@ -37,6 +38,43 @@ export class TestimonialsService {
     private readonly userApi: UserRepository,
   ) {}
 
+  private mapDtoToPrisma(
+    dto: CreateTestimonialDto,
+    mode: 'create',
+  ): CreateTestimonialInput;
+  private mapDtoToPrisma(
+    dto: Partial<CreateTestimonialDto>,
+    mode: 'update',
+  ): Partial<CreateTestimonialInput>;
+  private mapDtoToPrisma(
+    dto: Partial<CreateTestimonialDto>,
+    mode: 'create' | 'update',
+  ) {
+    const {
+      categoryId,
+      memberId,
+      projectId,
+      authorPhoto,
+      authorRole,
+      mediaDescription,
+      mediaUrl,
+      ...rest
+    } = dto;
+
+    return {
+      ...rest,
+      ...(categoryId !== undefined && { category_id: categoryId }),
+      ...(memberId !== undefined && { member_id: memberId }),
+      ...(projectId !== undefined && { project_id: projectId }),
+      ...(authorPhoto !== undefined && { author_photo: authorPhoto }),
+      ...(authorRole !== undefined && { author_role: authorRole }),
+      ...(mediaUrl !== undefined && { media_url: mediaUrl }),
+      ...(mediaDescription !== undefined && {
+        media_description: mediaDescription,
+      }),
+    };
+  }
+
   async creatQuote(
     createTestimonialDto: CreateTestimonialQuoteDto,
   ): Promise<void> {
@@ -55,29 +93,9 @@ export class TestimonialsService {
 
   async createTestimonial(createTestimonialDto: CreateTestimonialDto) {
     console.log('service', createTestimonialDto);
-    const {
-      categoryId,
-      memberId,
-      projectId,
-      authorPhoto,
-      authorRole,
-      mediaDescription,
-      mediaUrl,
-      ...testimonial
-    } = createTestimonialDto;
+    const mapped = this.mapDtoToPrisma(createTestimonialDto, 'create');
 
-    const synthTestimonial = {
-      category_id: categoryId,
-      member_id: memberId,
-      project_id: projectId,
-      author_photo: authorPhoto,
-      author_role: authorRole,
-      media_url: mediaUrl,
-      media_description: mediaDescription,
-      ...testimonial,
-    };
-
-    await this.api.createTestimonial(synthTestimonial);
+    await this.api.createTestimonial(mapped);
   }
 
   async findAll(
@@ -102,7 +120,7 @@ export class TestimonialsService {
     if (project.organization_id !== user.organizationId)
       throw new NotFoundException('Project not found');
 
-    console.log(queryDto)
+    console.log(queryDto);
 
     return this.api.findAll(
       {
@@ -121,7 +139,10 @@ export class TestimonialsService {
     return await this.api.findByFragment({ fragment });
   }
 
-  async changeStatus(id: string, { status, type, rejectedReason }: ChangeStatusDto) {
+  async changeStatus(
+    id: string,
+    { status, type, rejectedReason }: ChangeStatusDto,
+  ) {
     if (status === TestimonialStatus.draft)
       throw new ConflictException(
         'You cannot set the status to “draft” from here',
@@ -150,6 +171,8 @@ export class TestimonialsService {
   async update(id: string, updateTestimonialDto: UpdateTestimonialDto) {
     const { draft, ...updateData } = updateTestimonialDto;
 
+    const mapped = this.mapDtoToPrisma(updateData, 'update');
+
     const { status, type }: { status: string | null; type: string | null } =
       await this.api.findOneById(id, { status: true, type: true });
 
@@ -162,15 +185,12 @@ export class TestimonialsService {
 
     const result = await this.api.updateTestimonial(
       id,
-      updateData,
+      mapped,
       draft,
       status === TestimonialStatus.rejected,
     );
 
-    return {
-      message: 'Testimonial updated successfully',
-      testimonialUpdated: result,
-    };
+    return result;
   }
 
   async removeT(

@@ -90,7 +90,7 @@ export class TestimonialRepository {
         testimonialTags: {
           include: {
             tag: true,
-          }
+          },
         },
         member: {
           include: {
@@ -100,13 +100,13 @@ export class TestimonialRepository {
                 user: {
                   select: {
                     name: true,
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
     });
   }
 
@@ -201,7 +201,6 @@ export class TestimonialRepository {
   }
 
   async createTestimonial(testimonial: CreateTestimonialInput) {
-    //fix asociate tags, and category, and project, and member project,
     const { tags, ...rest } = testimonial;
 
     await await this.prisma.client.testimonial.create({
@@ -228,14 +227,30 @@ export class TestimonialRepository {
       ...updateData,
     };
 
-    if (isRejected && !isDraft) data.status = TestimonialStatus.pending;
-    isDraft
-      ? (data.status = TestimonialStatus.draft)
-      : (data.status = TestimonialStatus.pending);
+    if (isDraft) {
+      data.status = TestimonialStatus.draft;
+    } else if (isRejected) {
+      data.status = TestimonialStatus.pending;
+    }
 
     return this.prisma.client.testimonial.update({
       where: { id },
-      data,
+
+      data: {
+        ...(data.category_id && {
+          category: { connect: { id: data.category_id } },
+        }),
+
+        title: data.title,
+        content: data.content,
+        author: data.author,
+        author_photo: data.author_photo,
+        author_role: data.author_role,
+        media_url: data.media_url,
+        media_description: data.media_description,
+        slug: data.slug,
+        status: data.status,
+      },
     });
   }
 
