@@ -5,6 +5,17 @@ const nextConfig = {
   experimental: {
     externalDir: true,
   },
+  // config solo para pruebas
+  images: {
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'i.pravatar.cc',
+        port: '',
+        pathname: '/**',
+      },
+    ],
+  },
 };
 
 export default nextConfig;
