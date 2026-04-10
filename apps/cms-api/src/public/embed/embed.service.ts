@@ -2,15 +2,15 @@ import { ConflictException, Injectable } from '@nestjs/common';
 import crypto from 'crypto';
 import env from '@repo/env';
 import { EmbedRepository, Testimonial } from '@repo/api';
+import { FindAllDto } from './dto/findAll.dto';
 
 @Injectable()
 export class EmbedService {
   constructor(private readonly api: EmbedRepository) {}
 
-  async getPublishedTestimonials(credentials: {
-    projectId: string;
-    orgId: string;
-  }): Promise<Testimonial[]> {
+  async getPublishedTestimonials(
+    credentials: FindAllDto,
+  ): Promise<Testimonial[]> {
     const isVerify = await this.api.verifyProject(credentials);
 
     if (!isVerify)
