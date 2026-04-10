@@ -15,7 +15,7 @@ interface TestimonialCardProps {
   status: TestimonialStatus;
   author: string;
   description: string;
-  updatedAt: string;
+  updated_at: string;
   onClick: () => void;
 }
 
@@ -24,7 +24,7 @@ export function TestimonialCard({
   status,
   author,
   description,
-  updatedAt,
+  updated_at,
   onClick,
 }: TestimonialCardProps) {
   return (
@@ -43,7 +43,7 @@ export function TestimonialCard({
         <Separator />
       </CardContent>
       <CardFooter className="h-full">
-        <p className="text-xs font-normal text-muted-foreground">{updatedAt}</p>
+        <p className="text-xs font-normal text-muted-foreground">{new Date(updated_at).toLocaleDateString()}</p>
       </CardFooter>
     </Card>
   );
