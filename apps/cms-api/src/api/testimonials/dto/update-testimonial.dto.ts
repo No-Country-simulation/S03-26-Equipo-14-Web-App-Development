@@ -25,7 +25,7 @@ export class UpdateTestimonialQuoteDto extends PartialType(
 ) {}
 
 export class ChangeStatusDto {
-/*   @IsRequiredString()
+  /*   @IsRequiredString()
   id!: string; */
   @IsRequiredString()
   @IsEnum(TestimonialType)
@@ -33,4 +33,6 @@ export class ChangeStatusDto {
   @IsRequiredString()
   @IsEnum(TestimonialStatus)
   status!: TestimonialStatus;
+  @IsString()
+  rejectedReason?: string;
 }

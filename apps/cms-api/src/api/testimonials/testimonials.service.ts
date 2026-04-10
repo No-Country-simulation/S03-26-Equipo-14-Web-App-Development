@@ -121,7 +121,7 @@ export class TestimonialsService {
     return await this.api.findByFragment({ fragment });
   }
 
-  async changeStatus(id: string, { status, type }: ChangeStatusDto) {
+  async changeStatus(id: string, { status, type, rejectedReason }: ChangeStatusDto) {
     if (status === TestimonialStatus.draft)
       throw new ConflictException(
         'You cannot set the status to “draft” from here',
@@ -135,7 +135,7 @@ export class TestimonialsService {
     }
 
     try {
-      await this.api.changeStatus({ id, status, type });
+      await this.api.changeStatus({ id, status, type, rejectedReason });
       return { message: 'Status successfully changed' };
     } catch (error) {
       throw new ConflictException('Error changing status');
