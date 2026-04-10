@@ -38,7 +38,7 @@ const projects = [
   { label: 'Proyecto C', value: 'c' },
 ];
 
-export function UsersSection() {
+export function AddUsersForm() {
   const [cardVisibility, setCardVisibility] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const form = useForm<NewUserFormValues>({
@@ -68,10 +68,7 @@ export function UsersSection() {
   }
 
   return (
-    <section className="flex flex-col gap-4 h-full">
-      <h2 className="text-lg font-semibold truncate">
-        Configuración de usuarios
-      </h2>
+    <>
       <Button onClick={() => setCardVisibility(!cardVisibility)}>
         <Plus /> Agregar usuario
       </Button>
@@ -190,7 +187,6 @@ export function UsersSection() {
                         onChange={field.onChange}
                         placeholder="Selecciona proyectos"
                       />
-
                       <FormMessage />
                     </FormItem>
                   )}
@@ -217,6 +213,6 @@ export function UsersSection() {
           </Form>
         </CardContent>
       </Card>
-    </section>
+    </>
   );
 }
