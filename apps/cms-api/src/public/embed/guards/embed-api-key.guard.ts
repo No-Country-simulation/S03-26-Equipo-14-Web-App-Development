@@ -13,16 +13,17 @@ export class EmbedApiKeyGuard implements CanActivate {
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const req = context.switchToHttp().getRequest();
-    const apikey = req.headers['x-embed.key'] ?? req.query.key;
+    const apikey = (await req.headers['x-embed-key']) ?? req.query.key;
 
     if (!apikey) throw new UnauthorizedException('Missing embed key');
 
     if (typeof apikey !== 'string')
       throw new UnauthorizedException('Invalid embed key');
+
     const parts = apikey.split(':');
     if (parts[0] !== 'cms-api-key')
       throw new UnauthorizedException('Invalid embed key Format');
-
+    
     try {
       const { projectId, orgId } = await this.crypto.decodeApiKey(apikey);
 
@@ -32,7 +33,7 @@ export class EmbedApiKeyGuard implements CanActivate {
 
       return true;
     } catch (error) {
-      throw new UnauthorizedException('Invalid embed key');
+      throw new UnauthorizedException((error as Error).message);
     }
   }
 }

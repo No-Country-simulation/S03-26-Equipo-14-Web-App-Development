@@ -14,6 +14,6 @@ export class EmbedController {
   getTestimonials(
     @EmbedCredentials() credentials: { projectId: string; orgId: string },
   ) {
-    return credentials;
+    return this.embedService.getPublishedTestimonials(credentials);
   }
 }
