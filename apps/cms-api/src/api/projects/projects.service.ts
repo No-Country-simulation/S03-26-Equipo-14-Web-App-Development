@@ -55,11 +55,14 @@ export class ProjectsService {
     const data: CreateProjectInput = {
       ...createProjectDto,
       organization_id: user.organizationId,
-      ...user
+      ...user,
     };
 
     const project = await this.projectRepository.create(data);
-    if (project == undefined) throw new ConflictException("Something must happen in the operation, probably the organization member was not found...");
+    if (project == undefined)
+      throw new ConflictException(
+        'Something must happen in the operation, probably the organization member was not found...',
+      );
     return { message: 'Project created successfully', project };
   }
 
@@ -95,11 +98,18 @@ export class ProjectsService {
     try {
       const answer = await this.projectRepository.allMembers(id);
 
-      if (answer == null) throw new NotFoundException("It seems the Project you're searching doesn't exists on the DB.");
+      if (answer == null)
+        throw new NotFoundException(
+          "It seems the Project you're searching doesn't exists on the DB.",
+        );
       const theList = answer.projectMembers;
-      console.log(theList)
-      if (theList == undefined) throw new ConflictException("Something happened searching for the list, try again later.")
-      else if (theList.length < 1) throw new ConflictException("Sorry, it looks like the List is empty.");
+      console.log(theList);
+      if (theList == undefined)
+        throw new ConflictException(
+          'Something happened searching for the list, try again later.',
+        );
+      else if (theList.length < 1)
+        throw new ConflictException('Sorry, it looks like the List is empty.');
 
       return theList;
     } catch (error) {
@@ -199,23 +209,6 @@ export class ProjectsService {
     return `${prefix}:${iv.toString('base64url')}:${encrypted.toString('base64url')}`;
   }
 
-  decrypt(text: string): string {
-    //used in embeding system
-    const [prefix, ivHex, encryptedHex] = text.split(':');
-
-    if (prefix || !ivHex || !encryptedHex) {
-      throw new Error('Invalid apiKey format');
-    }
-
-    const iv = Buffer.from(ivHex, 'base64url');
-    const encrypted = Buffer.from(encryptedHex, 'base64url');
-    const decipher = crypto.createDecipheriv('aes-256-cbc', env.AES_SECRET, iv);
-    return Buffer.concat([
-      decipher.update(encrypted),
-      decipher.final(),
-    ]).toString();
-  }
-
   private async generateApiKey(
     projectId: string,
     orgId: string,
@@ -223,13 +216,5 @@ export class ProjectsService {
     const payload = JSON.stringify({ projectId, orgId });
 
     return this.encript(payload);
-  }
-
-  async decodeApiKey(
-    apiKey: string,
-  ): Promise<{ projectId: string; orgId: string }> {
-    //used in embeding system
-    const payload = this.decrypt(apiKey);
-    return JSON.parse(payload);
   }
 }

@@ -1,28 +1,19 @@
-import {
-  Controller,
-  Get,
-  Post,
-  Body,
-  Patch,
-  Param,
-  Delete,
-} from '@nestjs/common';
+import { Controller, Get, UseGuards } from '@nestjs/common';
 import { EmbedService } from './embed.service';
-import { CreateEmbedDto } from './dto/create-embed.dto';
-import { UpdateEmbedDto } from './dto/update-embed.dto';
 import { Public } from 'src/api/auth/decorators/public.decorator';
+import { EmbedApiKeyGuard } from './guards/embed-api-key.guard';
+import { EmbedCredentials } from './decorators/embed-credentials.decorator';
 
 @Controller('embed')
 export class EmbedController {
   constructor(private readonly embedService: EmbedService) {}
 
-
-
-  @Get()
   @Public()
-  findAll() {
-    return this.embedService.findAll();
+  @UseGuards(EmbedApiKeyGuard)
+  @Get()
+  getTestimonials(
+    @EmbedCredentials() credentials: { projectId: string; orgId: string },
+  ) {
+    return credentials;
   }
-
-  
 }
