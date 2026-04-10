@@ -3,6 +3,7 @@ import crypto from 'crypto';
 import env from '@repo/env';
 import { EmbedRepository, Testimonial } from '@repo/api';
 import { FindAllDto } from './dto/findAll.dto';
+import { test } from '@jest/globals';
 
 @Injectable()
 export class EmbedService {
@@ -28,16 +29,16 @@ export class EmbedService {
   async decodeApiKey(
     apiKey: string,
   ): Promise<{ projectId: string; orgId: string }> {
-    //used in embeding system
+    
     const payload = this.decrypt(apiKey);
     return JSON.parse(payload);
   }
 
   decrypt(text: string): string {
-    //used in embeding system
+    
     const [prefix, ivHex, encryptedHex] = text.split(':');
 
-    if (prefix || !ivHex || !encryptedHex) {
+    if (!prefix || !ivHex || !encryptedHex) {
       throw new Error('Invalid apiKey format');
     }
 
