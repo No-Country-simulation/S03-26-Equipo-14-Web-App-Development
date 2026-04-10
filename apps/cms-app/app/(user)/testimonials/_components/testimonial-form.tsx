@@ -47,6 +47,7 @@ import { AvatarUpload } from './avatar-upload';
 import { TagsSelect } from './tags-select';
 import type { Category, TabValue, Tag, TestimonialFormProps, TestimonialFormValues } from './types';
 import { toSlug } from './types';
+import { updateTag } from 'next/cache';
 
 /* ─── Main form ──────────────────────────────────────────── */
 
@@ -54,9 +55,14 @@ export function TestimonialForm({
   mode = 'create',
   defaultValues,
   testimonialId,
+  defaultTab,
+  existingAuthorPhoto,
+  existingMediaUrl,
 }: TestimonialFormProps) {
   const router = useRouter();
-  const [activeTab, setActiveTab] = useState<TabValue>('caso');
+  const [activeTab, setActiveTab] = useState<TabValue>(defaultTab ?? 'caso');
+  const [currentMediaUrl, setCurrentMediaUrl] = useState<string | undefined>(existingMediaUrl);
+  const [currentAuthorPhoto, setCurrentAuthorPhoto] = useState<string | undefined>(existingAuthorPhoto);
 
   // File upload hooks
   const avatar = useFileUpload({ maxSizeMB: 5 });
@@ -96,7 +102,7 @@ export function TestimonialForm({
   const { data: tags = [] } = useQuery<Tag[]>({
     queryKey: ['tags', currentProject?.id],
     queryFn: async () => {
-      const r = await apiClient.get<{ data: Tag[] }>(`/tag`);
+      const r = await apiClient.get<{ data: Tag[]; }>(`/tag`);
       return r.data.data ?? [];
     },
     enabled: !!currentProject?.id,
@@ -136,20 +142,38 @@ export function TestimonialForm({
       const titleValue = activeTab === 'caso' ? data.title : (data.videoSummary || 'Video Testimonio');
 
       if (mode === 'edit') {
-        const updateBody = {
-          author: data.author,
-          authorRole: data.authorRole,
-          authorPhoto: authorPhotoUrl ?? '',
-          title: titleValue,
-          content: activeTab === 'caso' ? data.content : data.videoSummary,
-          mediaUrl: mediaUrl ?? '',
-          mediaDescription: activeTab === 'video' ? data.videoSummary : '',
-          categoryId: data.categoryId,
-          tags: data.tagIds,
-          slug: toSlug(titleValue),
-          draft: data.isDraft,
-        };
-        const response = await apiClient.patch(endpoint, updateBody);
+        const prev = defaultValues ?? {};
+        const prevTitle = activeTab === 'caso' ? (prev.title ?? '') : (prev.videoSummary ?? 'Video Testimonio');
+        const prevContent = activeTab === 'caso' ? (prev.content ?? '') : (prev.videoSummary ?? '');
+        const newContent = activeTab === 'caso' ? data.content : data.videoSummary;
+        const newMediaDescription = activeTab === 'video' ? data.videoSummary : '';
+        const prevMediaDescription = activeTab === 'video' ? (prev.videoSummary ?? '') : '';
+
+        const fullBody: Record<string, unknown> = { draft: data.isDraft };
+
+        if (data.author !== (prev.author ?? '')) fullBody.author = data.author;
+        if (data.authorRole !== (prev.authorRole ?? '')) fullBody.authorRole = data.authorRole;
+        if (newContent !== prevContent) fullBody.content = newContent;
+        if (data.categoryId !== (prev.categoryId ?? '')) fullBody.categoryId = data.categoryId;
+        if (newMediaDescription !== prevMediaDescription) fullBody.mediaDescription = newMediaDescription;
+
+        if (titleValue !== prevTitle) {
+          fullBody.title = titleValue;
+          fullBody.slug = toSlug(titleValue);
+        }
+
+        if (authorPhotoUrl) fullBody.authorPhoto = authorPhotoUrl;
+        else if (currentAuthorPhoto === undefined && existingAuthorPhoto) fullBody.authorPhoto = '';
+
+        if (mediaUrl) fullBody.mediaUrl = mediaUrl;
+        else if (currentMediaUrl === undefined && existingMediaUrl) fullBody.mediaUrl = '';
+
+        const prevTagIds = (prev.tagIds ?? []).slice().sort().join(',');
+        const newTagIds = data.tagIds.slice().sort().join(',');
+        if (newTagIds !== prevTagIds) fullBody.tags = data.tagIds;
+        console.log(fullBody);
+
+        const response = await apiClient.patch(endpoint, fullBody);
         return response.data;
       }
 
@@ -219,11 +243,19 @@ export function TestimonialForm({
             {/* Tabs */}
             <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as TabValue)} className='flex flex-col'>
               <TabsList>
-                <TabsTrigger value="caso" className="flex items-center gap-1.5 aria-[selected=true]:bg-white aria-[selected=true]:text-foreground ">
+                <TabsTrigger
+                  value="caso"
+                  disabled={activeTab === 'video' && !!(videoFile.file || currentMediaUrl)}
+                  className="flex items-center gap-1.5 aria-[selected=true]:bg-white aria-[selected=true]:text-foreground "
+                >
                   <FileText className="w-4 h-4" />
                   Caso
                 </TabsTrigger>
-                <TabsTrigger value="video" className="flex items-center gap-1.5 aria-[selected=true]:bg-white aria-[selected=true]:text-foreground ">
+                <TabsTrigger
+                  value="video"
+                  disabled={activeTab === 'caso' && !!(coverImage.file || currentMediaUrl)}
+                  className="flex items-center gap-1.5 aria-[selected=true]:bg-white aria-[selected=true]:text-foreground "
+                >
                   <Video className="w-4 h-4" />
                   Video
                 </TabsTrigger>
@@ -274,9 +306,10 @@ export function TestimonialForm({
                   <Label className="mb-2 block text-sm">Avatar del Autor (Opcional)</Label>
                   <AvatarUpload
                     preview={avatar.preview}
+                    existingUrl={currentAuthorPhoto}
                     inputRef={avatar.inputRef}
                     onFile={avatar.handleFile}
-                    onClear={avatar.clear}
+                    onClear={() => { avatar.clear(); setCurrentAuthorPhoto(undefined); }}
                   />
                 </div>
               </div>
@@ -336,13 +369,14 @@ export function TestimonialForm({
                     subtitle="Recomendado: 1200×630px"
                     file={coverImage.file}
                     preview={coverImage.preview}
+                    existingUrl={activeTab === 'caso' ? currentMediaUrl : undefined}
                     isDragging={coverImage.isDragging}
                     inputRef={coverImage.inputRef}
                     onFile={coverImage.handleFile}
                     onDrop={coverImage.handleDrop}
                     onDragOver={coverImage.handleDragOver}
                     onDragLeave={coverImage.handleDragLeave}
-                    onClear={coverImage.clear}
+                    onClear={() => { coverImage.clear(); setCurrentMediaUrl(undefined); }}
                   />
                 </div>
               </TabsContent>
@@ -367,13 +401,14 @@ export function TestimonialForm({
                     subtitle="MP4, MOV o AVI. Máx. 500 MB. Se subirá a YouTube automáticamente."
                     file={videoFile.file}
                     preview={videoFile.preview}
+                    existingUrl={activeTab === 'video' ? currentMediaUrl : undefined}
                     isDragging={videoFile.isDragging}
                     inputRef={videoFile.inputRef}
                     onFile={videoFile.handleFile}
                     onDrop={videoFile.handleDrop}
                     onDragOver={videoFile.handleDragOver}
                     onDragLeave={videoFile.handleDragLeave}
-                    onClear={videoFile.clear}
+                    onClear={() => { videoFile.clear(); setCurrentMediaUrl(undefined); }}
                     isVideo
                   />
                 </div>
