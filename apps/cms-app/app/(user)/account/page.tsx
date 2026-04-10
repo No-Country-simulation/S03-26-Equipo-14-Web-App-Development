@@ -1,10 +1,17 @@
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@repo/ui/components';
+'use client';
+
+import {
+  Button,
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+} from '@repo/ui/components';
 import { AddUsersForm } from './_components/addUsersForm';
-import { ProjectsSection } from './_components/projectsSection';
 import { OrganizationSection } from './_components/organizationSection';
-import { columns } from './_components/table';
+import { userColumns, projectColumns } from './_components/table';
 import { DataTable } from './_components/table';
-import type { User } from './_components/table';
+import type { User, Project } from './_components/table';
 
 const users: User[] = [
   {
@@ -65,6 +72,12 @@ const users: User[] = [
   },
 ];
 
+const projects: Project[] = [
+  { id: '1', name: 'Proyecto A', value: 'projectA' },
+  { id: '2', name: 'Proyecto B', value: 'projectB' },
+  { id: '3', name: 'Proyecto C', value: 'projectC' },
+];
+
 export default function AccountPage() {
   return (
     <section>
@@ -80,12 +93,19 @@ export default function AccountPage() {
         </TabsContent>
         <TabsContent value="users">
           <section className="flex flex-col gap-4 h-full">
+            <h2 className="text-lg font-semibold truncate">
+              Configuracion de usuarios
+            </h2>
             <AddUsersForm />
-            <DataTable<User> columns={columns} data={users} />
+            <DataTable<User>
+              columns={userColumns}
+              data={users}
+              enableRoleFilter
+            />
           </section>
         </TabsContent>
         <TabsContent value="projects">
-          <ProjectsSection />
+          <DataTable<Project> columns={projectColumns} data={projects} />
         </TabsContent>
         <TabsContent value="organization">
           <OrganizationSection />
