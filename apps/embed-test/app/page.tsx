@@ -1,3 +1,6 @@
+"use client";
+
+import { useEffect, useState } from "react";
 import {
   Avatar,
   AvatarFallback,
@@ -19,23 +22,6 @@ interface Testimonial {
   media_description?: string;
   rating?: number | null;
   published_at?: string;
-}
-
-async function getTestimonials(): Promise<Testimonial[]> {
-  const apiBaseUrl = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3000";
-  const embedApiKey = process.env.EMBED_API_KEY ?? "";
-  if (!embedApiKey) return [];
-  try {
-    const res = await fetch(`${apiBaseUrl}/embed`, {
-      headers: { "x-embed-key": embedApiKey },
-      next: { revalidate: 60 },
-    });
-    if (!res.ok) return [];
-    const data = await res.json();
-    return Array.isArray(data) ? data : (data?.data ?? []);
-  } catch {
-    return [];
-  }
 }
 
 function StarRating({ rating }: { rating: number; }) {
@@ -136,8 +122,15 @@ function TestimonialCard({ t }: { t: Testimonial; }) {
   );
 }
 
-export default async function LandingPage() {
-  const testimonials = await getTestimonials();
+export default function LandingPage() {
+  const [testimonials, setTestimonials] = useState<Testimonial[]>([]);
+
+  useEffect(() => {
+    fetch("/api/get-testimonials")
+      .then((r) => r.json())
+      .then((data) => setTestimonials(Array.isArray(data) ? data : []))
+      .catch(() => setTestimonials([]));
+  }, []);
 
   return (
     <div className="min-h-screen bg-background text-foreground">
