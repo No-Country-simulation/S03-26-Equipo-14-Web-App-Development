@@ -21,15 +21,13 @@ interface Testimonial {
   published_at?: string;
 }
 
-const API_BASE_URL =
-  process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3000";
-const EMBED_API_KEY = process.env.EMBED_API_KEY ?? "";
-
 async function getTestimonials(): Promise<Testimonial[]> {
-  if (!EMBED_API_KEY) return [];
+  const apiBaseUrl = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3000";
+  const embedApiKey = process.env.EMBED_API_KEY ?? "";
+  if (!embedApiKey) return [];
   try {
-    const res = await fetch(`${API_BASE_URL}/embed`, {
-      headers: { "x-embed-key": EMBED_API_KEY },
+    const res = await fetch(`${apiBaseUrl}/embed`, {
+      headers: { "x-embed-key": embedApiKey },
       next: { revalidate: 60 },
     });
     if (!res.ok) return [];
