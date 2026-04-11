@@ -31,14 +31,15 @@ export function OrganizationSection() {
   const [error, setError] = useState<string | null>(null);
   const form = useForm<NewOrganizationName>({
     defaultValues: {
-      organizationName: '',
+      organizationName: 'EdTechCorp',
     },
     mode: 'onTouched',
   });
   const {
     control,
     handleSubmit,
-    formState: { isSubmitting },
+    reset,
+    formState: { isSubmitting, isValid, isDirty },
   } = form;
 
   async function onSubmit(data: NewOrganizationName) {
@@ -51,6 +52,8 @@ export function OrganizationSection() {
       console.error(err);
     }
   }
+
+  const isDisabled = !isDirty || !isValid || isSubmitting;
 
   return (
     <section className="flex flex-col gap-4 h-full">
@@ -104,10 +107,18 @@ export function OrganizationSection() {
 
               {/* Submit */}
               <div className="flex gap-2 justify-end">
-                <Button className="w-fit" type="submit" disabled={isSubmitting}>
+                <Button className="w-fit" type="submit" disabled={isDisabled}>
                   Guardar nuevo nombre
                 </Button>
-                <Button variant="secondary" className="w-fit" type="submit">
+                <Button
+                  variant="secondary"
+                  className="w-fit"
+                  type="button"
+                  onClick={() => {
+                    reset();
+                    setError(null);
+                  }}
+                >
                   Cancelar
                 </Button>
               </div>

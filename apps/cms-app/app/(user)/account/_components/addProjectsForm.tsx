@@ -38,26 +38,35 @@ export function AddProjectsForm() {
   const {
     control,
     handleSubmit,
-    formState: { isSubmitting },
+    reset,
+    formState: { isSubmitting, isValid, isDirty },
   } = form;
 
   async function onSubmit(data: NewProjectFormValues) {
     setError(null);
 
     try {
-      console.log('ok');
+      reset();
+      setCardVisibility(false);
       toast.success('Proyecto creado correctamente');
     } catch (err) {
       console.error(err);
     }
   }
 
+  const isDisabled = !isDirty || !isValid || isSubmitting;
+
   return (
     <>
-      <Button onClick={() => setCardVisibility(!cardVisibility)}>
-        <Plus /> Agregar proyecto
-      </Button>
-      <Card className={`${cardVisibility ? 'flex' : 'hidden'}`}>
+      <div className="flex justify-end">
+        <Button
+          className="w-fit"
+          onClick={() => setCardVisibility((prev) => !prev)}
+        >
+          <Plus /> Agregar proyecto
+        </Button>
+      </div>
+      <Card className={`${cardVisibility ? '' : 'hidden'}`}>
         <CardContent>
           <Form {...form}>
             <form
@@ -125,9 +134,21 @@ export function AddProjectsForm() {
               )}
 
               {/* Submit */}
-              <div className="flex justify-end">
-                <Button className="w-fit" type="submit" disabled={isSubmitting}>
+              <div className="flex gap-2 justify-end">
+                <Button className="w-fit" type="submit" disabled={isDisabled}>
                   {isSubmitting ? 'Guardando...' : 'Guardar proyecto'}
+                </Button>
+                <Button
+                  variant="secondary"
+                  className="w-fit"
+                  type="button"
+                  onClick={() => {
+                    setCardVisibility(false);
+                    reset();
+                    setError(null);
+                  }}
+                >
+                  Cancelar
                 </Button>
               </div>
             </form>

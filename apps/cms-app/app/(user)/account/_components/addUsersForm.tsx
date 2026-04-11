@@ -53,31 +53,35 @@ export function AddUsersForm() {
   const {
     control,
     handleSubmit,
-    formState: { isSubmitting },
+    reset,
+    formState: { isSubmitting, isValid, isDirty },
   } = form;
 
   async function onSubmit(data: NewUserFormValues) {
     setError(null);
 
     try {
-      console.log('ok');
+      reset();
+      setCardVisibility(false);
       toast.success('Usuario creado correctamente');
     } catch (err) {
       console.error(err);
     }
   }
 
+  const isDisabled = !isDirty || !isValid || isSubmitting;
+
   return (
     <>
       <div className="flex justify-end">
         <Button
           className="w-fit"
-          onClick={() => setCardVisibility(!cardVisibility)}
+          onClick={() => setCardVisibility((prev) => !prev)}
         >
           <Plus /> Agregar usuario
         </Button>
       </div>
-      <Card className={`${cardVisibility ? 'flex' : 'hidden'}`}>
+      <Card className={`${cardVisibility ? '' : 'hidden'}`}>
         <CardContent>
           <Form {...form}>
             <form
@@ -209,9 +213,21 @@ export function AddUsersForm() {
               )}
 
               {/* Submit */}
-              <div className="flex justify-end">
-                <Button className="w-fit" type="submit" disabled={isSubmitting}>
+              <div className="flex gap-2 justify-end">
+                <Button className="w-fit" type="submit" disabled={isDisabled}>
                   {isSubmitting ? 'Guardando...' : 'Guardar usuario'}
+                </Button>
+                <Button
+                  variant="secondary"
+                  className="w-fit"
+                  type="button"
+                  onClick={() => {
+                    setCardVisibility(false);
+                    reset();
+                    setError(null);
+                  }}
+                >
+                  Cancelar
                 </Button>
               </div>
             </form>
