@@ -67,8 +67,9 @@ export function TestimonialForm({ projectId }: TestimonialFormProps) {
   const remaining = MAX_CHARS - (content?.length ?? 0);
   const createdTestimonial = useMutation({
     mutationFn: async (data: TestimonialFormValues): Promise<void> => {
-      const authorPhoto = data.authorPhoto ? await uploadToCloudinary({ file: data.authorPhoto, folder: `${projectId}_visitors` }) : null;
-      const response = await apiClient.post('/testimonials/quote', { ...data, authorPhoto: authorPhoto?.url, projectId });
+      const authorPhoto = data.authorPhoto ? await uploadToCloudinary({ file: data.authorPhoto, folder: `${projectId}/visitors` }) : null;
+      const sendData = { ...data, ...(authorPhoto?.url ? { authorPhoto: authorPhoto.url } : {}), projectId };
+      const response = await apiClient.post('/testimonials/quote', sendData);
       return response.data;
     },
     onSuccess: () => {
