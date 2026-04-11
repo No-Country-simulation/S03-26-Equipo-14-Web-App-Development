@@ -90,8 +90,8 @@ export default function DashboardPage() {
 
   const handlePublish = (id: string) => {
     if (!selected) return;
-    const status = selected.type === 'quote' ? 'review' : 'published';
-    const label = selected.type === 'quote' ? 'Testimonio aprobado' : 'Testimonio publicado';
+    const status = selected.type === 'quote' && selected.status === 'pending' ? 'review' : 'published';
+    const label = selected.type === 'quote' && selected.status === 'pending' ? 'Testimonio aprobado' : 'Testimonio publicado';
     toast.promise(
       changeStatusMutation.mutateAsync({ id, type: selected.type, status }).then(() => handleClose()),
       { loading: 'Actualizando...', success: label, error: 'Error al actualizar el estado' },

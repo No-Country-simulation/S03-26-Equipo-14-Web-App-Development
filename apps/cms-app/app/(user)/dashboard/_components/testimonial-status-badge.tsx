@@ -4,7 +4,7 @@ import { TestimonialStatus } from '@/model/model';
 const STATUS_BADGE_CONFIG = {
   draft: { statusType: 'Borrador' },
   pending: { statusType: 'Pendiente' },
-  reviewed: { statusType: 'Revisado' },
+  review: { statusType: 'Revisado' },
   published: { statusType: 'Publicado' },
   rejected: { statusType: 'Rechazado' },
 } as const;

@@ -20,7 +20,7 @@ const badgeVariants = cva(
         custom: 'text-foreground [a&]:hover:text-accent-foreground border-none',
         draft: 'border-transparent bg-secondary text-secondary-foreground',
         pending: 'border-transparent bg-yellow-200 text-secondary-foreground',
-        reviewed: 'border-transparent bg-sky-200 text-secondary-foreground',
+        review: 'border-transparent bg-sky-200 text-secondary-foreground',
         published: 'border-transparent bg-blue-500 text-primary-foreground',
         rejected: 'border-transparent bg-red-500 text-primary-foreground',
       },

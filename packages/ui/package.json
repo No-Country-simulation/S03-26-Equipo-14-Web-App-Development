@@ -64,10 +64,7 @@
     "./globals.css": "./src/styles/globals.css",
     "./postcss.config": "./postcss.config.mjs",
     "./lib/*": "./src/lib/*.ts",
-    "./components/*": {
-      "import": "./dist/components/*.js",
-      "types": "./dist/components/*.d.ts"
-    },
+    "./components/*": "./src/components/*.tsx",
     "./hooks/*": "./src/hooks/*.ts"
   }
 }

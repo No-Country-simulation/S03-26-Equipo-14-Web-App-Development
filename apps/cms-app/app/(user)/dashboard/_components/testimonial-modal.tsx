@@ -95,8 +95,8 @@ export function TestimonialModal({
     ? ['editor', 'admin', 'owner'].includes(userRole?.toLowerCase() ?? '')
     : ['admin', 'owner'].includes(userRole?.toLowerCase() ?? '');
   const canShowActions = canAct && ['pending', 'review'].includes(testimonial.status);
-  const actionLabel = isFromVisitor ? 'Aprobar' : 'Publicar';
-  const ActionIcon = isFromVisitor ? CircleCheck : CloudUpload;
+  const actionLabel = isFromVisitor && testimonial.status === 'pending' ? 'Aprobar' : 'Publicar';
+  const ActionIcon = isFromVisitor && testimonial.status === 'pending' ? CircleCheck : CloudUpload;
   const videoId = getVideoId(testimonial.media_url);
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>

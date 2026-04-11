@@ -41,7 +41,7 @@ const TYPE_OPTIONS = [
 const STATUS_OPTIONS = [
   { label: 'Borrador', value: 'draft' },
   { label: 'Pendiente', value: 'pending' },
-  { label: 'Revisado', value: 'reviewed' },
+  { label: 'Revisado', value: 'review' },
   { label: 'Publicado', value: 'published' },
   { label: 'Rechazado', value: 'rejected' },
 ];
