@@ -3,7 +3,7 @@ import {
   CreateTestimonialDto,
   CreateTestimonialQuoteDto,
 } from './create-testimonial.dto';
-import { IsBoolean } from 'class-validator';
+import { IsBoolean, IsOptional } from 'class-validator';
 import { IsEnum, IsString } from 'class-validator';
 import { TestimonialStatus, TestimonialType } from '@repo/api';
 import { IsRequiredString } from 'src/api/common/decorator/common';
@@ -33,6 +33,7 @@ export class ChangeStatusDto {
   @IsRequiredString()
   @IsEnum(TestimonialStatus)
   status!: TestimonialStatus;
+  @IsOptional()
   @IsString()
   rejectedReason?: string;
 }

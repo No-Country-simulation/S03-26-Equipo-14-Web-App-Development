@@ -11,7 +11,7 @@ export default function EditTestimonialPage() {
   const { data, isLoading, isError } = useQuery({
     queryKey: ['testimonial', id],
     queryFn: () =>
-      apiClient.get(`/testimonials/${id}`).then((r) => r.data),
+      apiClient.get(`/testimonials/getById/${id}`).then((r) => r.data.data),
     enabled: !!id,
   });
 
@@ -30,15 +30,14 @@ export default function EditTestimonialPage() {
       </div>
     );
   }
-
   const defaultValues = {
     author: data.author ?? '',
-    authorRole: data.authorRole ?? '',
+    authorRole: data.author_role ?? data.authorRole ?? '',
     title: data.title ?? '',
     content: data.type === 'case' ? (data.content ?? '') : '',
-    videoSummary: data.type === 'video' ? (data.content ?? data.mediaDescription ?? '') : '',
-    categoryId: data.categoryId ?? '',
-    tagIds: (data.tags ?? []).map((t: { id: string; }) => t.id),
+    videoSummary: data.type === 'video' ? (data.content ?? data.media_description ?? '') : '',
+    categoryId: data.category_id ?? data.categoryId ?? '',
+    tagIds: (data.testimonialTags ?? data.tags ?? []).map((t: { tag?: { id: string; }; id?: string; }) => t.tag?.id ?? t.id ?? ''),
     isDraft: data.status === 'draft',
   };
 
@@ -47,6 +46,9 @@ export default function EditTestimonialPage() {
       mode="edit"
       testimonialId={id}
       defaultValues={defaultValues}
+      defaultTab={data.type === 'video' ? 'video' : 'caso'}
+      existingAuthorPhoto={data.author_photo ?? data.authorPhoto ?? ''}
+      existingMediaUrl={data.media_url ?? data.mediaUrl ?? ''}
     />
   );
 }

@@ -6,12 +6,14 @@ import { Camera, X } from '@repo/ui/lib';
 
 export interface AvatarUploadProps {
   preview: string | null;
+  existingUrl?: string;
   inputRef: React.RefObject<HTMLInputElement | null>;
   onFile: (f: File | null) => void;
   onClear: () => void;
 }
 
-export function AvatarUpload({ preview, inputRef, onFile, onClear }: AvatarUploadProps) {
+export function AvatarUpload({ preview, existingUrl, inputRef, onFile, onClear }: AvatarUploadProps) {
+  const displaySrc = preview ?? existingUrl ?? undefined;
   return (
     <div className="flex items-center gap-4 rounded-lg border border-dashed border-border p-4">
       <div
@@ -26,12 +28,12 @@ export function AvatarUpload({ preview, inputRef, onFile, onClear }: AvatarUploa
           onChange={(e) => onFile(e.target.files?.[0] ?? null)}
         />
         <Avatar className="size-16 rounded-lg">
-          <AvatarImage src={preview ?? undefined} alt="Avatar" className="object-cover" />
+          <AvatarImage src={displaySrc} alt="Avatar" className="object-cover" />
           <AvatarFallback className="rounded-lg bg-muted">
             <Camera className="w-6 h-6 text-muted-foreground" />
           </AvatarFallback>
         </Avatar>
-        {preview && (
+        {displaySrc && (
           <button
             type="button"
             onClick={(e) => { e.stopPropagation(); onClear(); }}

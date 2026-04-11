@@ -6,7 +6,6 @@ import {
   NotAcceptableException,
 } from '@nestjs/common';
 import {
-  CreateTestimonialInput,
   ProjectRepository,
   Testimonial,
   TestimonialRepository,
@@ -29,7 +28,6 @@ import {
 } from './dto/update-testimonial.dto';
 import { JwtPayload } from 'src/api/auth/types/jwt-payload.type';
 import { deleteTestimonialDTO } from './dto/delete-testimonial.dto';
-import { TagService } from '../tag/tag.service';
 
 @Injectable()
 export class TestimonialsService {
@@ -38,43 +36,6 @@ export class TestimonialsService {
     private readonly projectRepository: ProjectRepository,
     private readonly userApi: UserRepository,
   ) {}
-
-  private mapDtoToPrisma(
-    dto: CreateTestimonialDto,
-    mode: 'create',
-  ): CreateTestimonialInput;
-  private mapDtoToPrisma(
-    dto: Partial<CreateTestimonialDto>,
-    mode: 'update',
-  ): Partial<CreateTestimonialInput>;
-  private mapDtoToPrisma(
-    dto: Partial<CreateTestimonialDto>,
-    mode: 'create' | 'update',
-  ) {
-    const {
-      categoryId,
-      memberId,
-      projectId,
-      authorPhoto,
-      authorRole,
-      mediaDescription,
-      mediaUrl,
-      ...rest
-    } = dto;
-
-    return {
-      ...rest,
-      ...(categoryId !== undefined && { category_id: categoryId }),
-      ...(memberId !== undefined && { member_id: memberId }),
-      ...(projectId !== undefined && { project_id: projectId }),
-      ...(authorPhoto !== undefined && { author_photo: authorPhoto }),
-      ...(authorRole !== undefined && { author_role: authorRole }),
-      ...(mediaUrl !== undefined && { media_url: mediaUrl }),
-      ...(mediaDescription !== undefined && {
-        media_description: mediaDescription,
-      }),
-    };
-  }
 
   async creatQuote(
     createTestimonialDto: CreateTestimonialQuoteDto,
@@ -94,9 +55,29 @@ export class TestimonialsService {
 
   async createTestimonial(createTestimonialDto: CreateTestimonialDto) {
     console.log('service', createTestimonialDto);
-    const mapped = this.mapDtoToPrisma(createTestimonialDto, 'create');
+    const {
+      categoryId,
+      memberId,
+      projectId,
+      authorPhoto,
+      authorRole,
+      mediaDescription,
+      mediaUrl,
+      ...testimonial
+    } = createTestimonialDto;
 
-    await this.api.createTestimonial(mapped);
+    const synthTestimonial = {
+      category_id: categoryId,
+      member_id: memberId,
+      project_id: projectId,
+      author_photo: authorPhoto,
+      author_role: authorRole,
+      media_url: mediaUrl,
+      media_description: mediaDescription,
+      ...testimonial,
+    };
+
+    await this.api.createTestimonial(synthTestimonial);
   }
 
   async findAll(
@@ -121,7 +102,7 @@ export class TestimonialsService {
     if (project.organization_id !== user.organizationId)
       throw new NotFoundException('Project not found');
 
-    console.log(queryDto);
+    console.log(queryDto)
 
     return this.api.findAll(
       {
@@ -140,10 +121,7 @@ export class TestimonialsService {
     return await this.api.findByFragment({ fragment });
   }
 
-  async changeStatus(
-    id: string,
-    { status, type, rejectedReason }: ChangeStatusDto,
-  ) {
+  async changeStatus(id: string, { status, type }: ChangeStatusDto) {
     if (status === TestimonialStatus.draft)
       throw new ConflictException(
         'You cannot set the status to “draft” from here',
@@ -157,7 +135,7 @@ export class TestimonialsService {
     }
 
     try {
-      await this.api.changeStatus({ id, status, type, rejectedReason });
+      await this.api.changeStatus({ id, status, type });
       return { message: 'Status successfully changed' };
     } catch (error) {
       throw new ConflictException('Error changing status');
@@ -170,10 +148,8 @@ export class TestimonialsService {
   }
 
   async update(id: string, updateTestimonialDto: UpdateTestimonialDto) {
-    const { draft, tags, ...updateData } = updateTestimonialDto;
+    const { draft, ...updateData } = updateTestimonialDto;
 
-    const mapped = this.mapDtoToPrisma(updateData, 'update');
-    
     const { status, type }: { status: string | null; type: string | null } =
       await this.api.findOneById(id, { status: true, type: true });
 
@@ -186,12 +162,15 @@ export class TestimonialsService {
 
     const result = await this.api.updateTestimonial(
       id,
-      {...mapped, tags : tags || []},
+      updateData,
       draft,
       status === TestimonialStatus.rejected,
     );
 
-    return result;
+    return {
+      message: 'Testimonial updated successfully',
+      testimonialUpdated: result,
+    };
   }
 
   async removeT(

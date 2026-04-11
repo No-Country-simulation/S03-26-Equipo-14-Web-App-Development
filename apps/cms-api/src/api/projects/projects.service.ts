@@ -102,16 +102,15 @@ export class ProjectsService {
         throw new NotFoundException(
           "It seems the Project you're searching doesn't exists on the DB.",
         );
-      const theList = answer.projectMembers;
-      console.log(theList);
-      if (theList == undefined)
+      
+      if (answer == undefined)
         throw new ConflictException(
           'Something happened searching for the list, try again later.',
         );
-      else if (theList.length < 1)
+      else if (answer.length < 1)
         throw new ConflictException('Sorry, it looks like the List is empty.');
 
-      return theList;
+      return answer;
     } catch (error) {
       throw new ConflictException(error);
     }

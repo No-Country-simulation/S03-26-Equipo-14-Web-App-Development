@@ -17,11 +17,11 @@ import {
 
 @Injectable()
 export class TestimonialRepository {
-  constructor(private readonly prisma: PrismaService) { }
+  constructor(private readonly prisma: PrismaService) {}
 
   //addd Methods, get, delete, update
 
-  async changeStatus({ id, status, type, rejectedReason }: ChangeStatusInput) {
+  async changeStatus({ id, status, type }: ChangeStatusInput) {
     await this.prisma.client.testimonial.update({
       where: {
         id: id,
@@ -29,7 +29,6 @@ export class TestimonialRepository {
       },
       data: {
         status: status,
-        ...(status === TestimonialStatus.rejected && { rejectedReason }),
       },
     });
   }
@@ -44,28 +43,6 @@ export class TestimonialRepository {
           { content: { contains: fragment, mode: 'insensitive' } },
         ],
       },
-      include: {
-        category: true,
-        testimonialTags: {
-          include: {
-            tag: true,
-          }
-        },
-        member: {
-          include: {
-            organization_member: {
-              select: {
-                role: true,
-                user: {
-                  select: {
-                    name: true,
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
     });
   }
 
@@ -85,28 +62,6 @@ export class TestimonialRepository {
   async findById(id: string) {
     return this.prisma.client.testimonial.findUnique({
       where: { id },
-      include: {
-        category: true,
-        testimonialTags: {
-          include: {
-            tag: true,
-          },
-        },
-        member: {
-          include: {
-            organization_member: {
-              select: {
-                role: true,
-                user: {
-                  select: {
-                    name: true,
-                  },
-                },
-              },
-            },
-          },
-        },
-      },
     });
   }
 
@@ -124,7 +79,7 @@ export class TestimonialRepository {
     query: FindAllTestimonialsQuery,
     projectId: string,
   ): Promise<any[]> {
-    const { orderBy, type, category_id, fragment } = query;
+    const { orderBy, type, category_id, fragment } = query;    
     const where: Prisma.TestimonialWhereInput = {};
 
     if (projectId) where.project_id = projectId;
@@ -150,28 +105,6 @@ export class TestimonialRepository {
     return this.prisma.client.testimonial.findMany({
       where,
       orderBy: orderBy ?? { created_at: 'desc' },
-      include: {
-        category: true,
-        testimonialTags: {
-          include: {
-            tag: true,
-          }
-        },
-        member: {
-          include: {
-            organization_member: {
-              select: {
-                role: true,
-                user: {
-                  select: {
-                    name: true,
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
     });
   }
 
@@ -201,6 +134,7 @@ export class TestimonialRepository {
   }
 
   async createTestimonial(testimonial: CreateTestimonialInput) {
+    //fix asociate tags, and category, and project, and member project,
     const { tags, ...rest } = testimonial;
 
     await await this.prisma.client.testimonial.create({
@@ -227,44 +161,14 @@ export class TestimonialRepository {
       ...updateData,
     };
 
-    if (isDraft) {
-      data.status = TestimonialStatus.draft;
-    } else if (isRejected) {
-      data.status = TestimonialStatus.pending;
-    }
+    if (isRejected && !isDraft) data.status = TestimonialStatus.pending;
+    isDraft
+      ? (data.status = TestimonialStatus.draft)
+      : (data.status = TestimonialStatus.pending);
 
     return this.prisma.client.testimonial.update({
       where: { id },
-
-      data: {
-        ...(data.category_id && {
-          category: { connect: { id: data.category_id } },
-        }),
-
-        title: data.title,
-        content: data.content,
-        author: data.author,
-        author_photo: data.author_photo,
-        author_role: data.author_role,
-        media_url: data.media_url,
-        media_description: data.media_description,
-        slug: data.slug,
-        status: data.status,
-        testimonialTags: {
-          create: data.tags?.map(tagName=>({
-            tag: {
-              connectOrCreate: {
-                where: {
-                  name: tagName,
-                },
-                create: {
-                  name: tagName
-                }
-              }
-            }
-          }))
-        }
-      },
+      data,
     });
   }
 
