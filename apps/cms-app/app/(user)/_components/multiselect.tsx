@@ -13,7 +13,7 @@ import {
 import { Check } from '@repo/ui/lib';
 import { cn } from '@repo/ui/lib/utils';
 
-type Option = {
+export type Option = {
   label: string;
   value: string;
 };
