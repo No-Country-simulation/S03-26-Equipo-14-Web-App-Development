@@ -9,6 +9,10 @@ import {
 } from '@tanstack/react-table';
 import Image from 'next/image';
 import {
+  Avatar,
+  AvatarImage,
+  AvatarFallback,
+  Badge,
   Button,
   Input,
   Select,
@@ -19,12 +23,13 @@ import {
 } from '@repo/ui/components';
 import { useState, useMemo, useEffect } from 'react';
 
-export type User = {
+export type Member = {
   id: string;
-  name: string;
-  email: string;
-  role: 'admin' | 'editor' | 'owner';
+  userId: string;
   avatar: string;
+  name: string;
+  role: 'Admin' | 'Editor' | 'Owner';
+  createdAt: string;
 };
 
 export type Project = {
@@ -33,7 +38,22 @@ export type Project = {
   value: string;
 };
 
-export const userColumns: ColumnDef<User>[] = [
+function getInitials(fullName: string): string {
+  const parts = fullName.trim().split(/\s+/).filter(Boolean);
+
+  if (parts.length === 0) return '';
+
+  if (parts.length === 1) {
+    return parts[0]!.charAt(0).toUpperCase();
+  }
+
+  const first = parts[0]!;
+  const last = parts[parts.length - 1]!;
+
+  return (first.charAt(0) + last.charAt(0)).toUpperCase();
+}
+
+export const userColumns: ColumnDef<Member>[] = [
   {
     accessorKey: 'name',
     header: 'Usuario',
@@ -42,13 +62,10 @@ export const userColumns: ColumnDef<User>[] = [
 
       return (
         <div className="flex items-center gap-2">
-          <Image
-            src={user.avatar}
-            className="w-8 h-8 rounded-full"
-            alt={user.name}
-            width={20}
-            height={20}
-          />
+          <Avatar>
+            <AvatarImage src={user.avatar} alt={user.name} />
+            <AvatarFallback>{getInitials(user.name)}</AvatarFallback>
+          </Avatar>
           <span>{user.name}</span>
         </div>
       );
@@ -58,6 +75,21 @@ export const userColumns: ColumnDef<User>[] = [
     accessorKey: 'role',
     header: 'Rol',
     filterFn: 'equalsString',
+    cell: ({ row }) => {
+      const user = row.original;
+      const variants: Record<string, 'default' | 'secondary' | 'outline'> = {
+        Owner: 'default',
+        Admin: 'secondary',
+        Editor: 'outline',
+      };
+      return (
+        <Badge variant={variants[user.role] ?? 'outline'}>{user.role}</Badge>
+      );
+    },
+  },
+  {
+    accessorKey: 'createdAt',
+    header: 'Fecha de registro',
   },
   {
     id: 'actions',
@@ -65,17 +97,19 @@ export const userColumns: ColumnDef<User>[] = [
     cell: ({ row }) => {
       const user = row.original;
 
-      return (
-        <div className="flex justify-center">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => console.log('ABRE MODAL')}
-          >
-            Gestionar
-          </Button>
-        </div>
-      );
+      if (user.role !== 'Owner') {
+        return (
+          <div className="flex justify-center">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => console.log('ABRE MODAL')}
+            >
+              Gestionar
+            </Button>
+          </div>
+        );
+      }
     },
   },
 ];
