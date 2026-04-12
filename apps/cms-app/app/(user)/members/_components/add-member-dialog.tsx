@@ -1,6 +1,7 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useForm } from 'react-hook-form';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { useSession } from 'next-auth/react';
 import apiClient from '@/shared/lib/apiClient';
@@ -12,8 +13,13 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
+  Form,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormControl,
+  FormMessage,
   Input,
-  Label,
   Select,
   SelectContent,
   SelectItem,
@@ -22,10 +28,20 @@ import {
   toast,
 } from '@repo/ui/components';
 import { UserPlus } from '@repo/ui/lib';
+import { MultiSelect } from '../../_components/multiselect';
+import type { Option } from '../../_components/multiselect';
 
 interface Project {
   id: string;
   name: string;
+}
+
+interface FormValues {
+  name: string;
+  email: string;
+  role: 'Admin' | 'Editor';
+  projectId: string;
+  // projects: string[];
 }
 
 interface AddMemberDialogProps {
@@ -35,50 +51,63 @@ interface AddMemberDialogProps {
 export function AddMemberDialog({ onSuccess }: AddMemberDialogProps) {
   const { data: session } = useSession();
   const [open, setOpen] = useState(false);
-  const [form, setForm] = useState({
-    email: '',
-    name: '',
-    role: 'Editor',
-    projectId: '',
+
+  const form = useForm<FormValues>({
+    defaultValues: {
+      name: '',
+      email: '',
+      role: 'Editor',
+      projectId: '',
+      // projects: [],
+    },
+    mode: 'onTouched',
   });
+
+  const { control, handleSubmit, reset, formState } = form;
 
   const { data: projects = [] } = useQuery({
     queryKey: ['projects'],
     queryFn: async () => {
-      const res = await apiClient.get<{ data: Project[]; }>('/projects');
+      const res = await apiClient.get<{ data: Project[] }>('/projects');
       return res.data.data;
     },
     enabled: open,
   });
 
+  const projectsCleanData: Option[] = projects.map((p) => {
+    return {
+      label: p.name,
+      value: p.id,
+    };
+  });
+
   const mutation = useMutation({
-    mutationFn: () =>
+    mutationFn: (data: FormValues) =>
       apiClient.post('/auth/member', {
-        email: form.email,
-        name: form.name,
-        role: form.role,
+        ...data,
         organizationId: session?.user?.organizationId,
-        projectId: form.projectId,
       }),
     onSuccess: () => {
-      toast.success('Miembro agregado. Se le envió su contraseña por email.');
+      toast.success('Usuario agregado correctamente');
       setOpen(false);
-      setForm({ email: '', name: '', role: 'Editor', projectId: '' });
+      reset();
       onSuccess();
     },
     onError: () => {
-      toast.error('Error al agregar el miembro. Verifica que el email no esté ya registrado en la organización.');
+      toast.error('Error al agregar usuario');
     },
   });
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!form.email || !form.name || !form.projectId) {
-      toast.error('Completa todos los campos');
-      return;
-    }
-    mutation.mutate();
+  const onSubmit = (data: FormValues) => {
+    console.log(data);
+    mutation.mutate(data);
   };
+
+  useEffect(() => {
+    if (!open) {
+      reset();
+    }
+  }, [open, reset]);
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -92,74 +121,123 @@ export function AddMemberDialog({ onSuccess }: AddMemberDialogProps) {
         <DialogHeader>
           <DialogTitle>Agregar nuevo miembro</DialogTitle>
         </DialogHeader>
-        <form onSubmit={handleSubmit} className="flex flex-col gap-4 py-2">
-          <div className="flex flex-col gap-1.5">
-            <Label htmlFor="name">Nombre</Label>
-            <Input
-              id="name"
-              placeholder="Nombre completo"
-              value={form.name}
-              onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))}
+        <Form {...form}>
+          <form
+            onSubmit={handleSubmit(onSubmit)}
+            className="flex flex-col gap-4 py-2"
+          >
+            {/* Nombre */}
+            <FormField
+              control={control}
+              name="name"
+              rules={{ required: 'El nombre es obligatorio' }}
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Nombre</FormLabel>
+                  <FormControl>
+                    <Input placeholder="Nombre completo" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
             />
-          </div>
-          <div className="flex flex-col gap-1.5">
-            <Label htmlFor="email">Email</Label>
-            <Input
-              id="email"
-              type="email"
-              placeholder="email@ejemplo.com"
-              value={form.email}
-              onChange={(e) =>
-                setForm((f) => ({ ...f, email: e.target.value }))
-              }
+
+            {/* Email */}
+            <FormField
+              control={control}
+              name="email"
+              rules={{
+                required: 'El email es obligatorio',
+                pattern: {
+                  value: /^\S+@\S+$/i,
+                  message: 'Email inválido',
+                },
+              }}
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Email</FormLabel>
+                  <FormControl>
+                    <Input
+                      type="email"
+                      placeholder="email@ejemplo.com"
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
             />
-          </div>
-          <div className="flex flex-col gap-1.5">
-            <Label>Rol</Label>
-            <Select
-              value={form.role}
-              onValueChange={(v) => setForm((f) => ({ ...f, role: v }))}
-            >
-              <SelectTrigger>
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="Admin">Admin</SelectItem>
-                <SelectItem value="Editor">Editor</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-          <div className="flex flex-col gap-1.5">
-            <Label>Proyecto inicial</Label>
-            <Select
-              value={form.projectId}
-              onValueChange={(v) => setForm((f) => ({ ...f, projectId: v }))}
-            >
-              <SelectTrigger>
-                <SelectValue placeholder="Selecciona un proyecto" />
-              </SelectTrigger>
-              <SelectContent>
-                {projects.map((p) => (
-                  <SelectItem key={p.id} value={p.id}>
-                    {p.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-          <DialogFooter className="mt-2">
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => setOpen(false)}
-            >
-              Cancelar
-            </Button>
-            <Button type="submit" disabled={mutation.isPending}>
-              {mutation.isPending ? 'Agregando...' : 'Agregar'}
-            </Button>
-          </DialogFooter>
-        </form>
+
+            {/* Rol */}
+            <FormField
+              control={control}
+              name="role"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Rol</FormLabel>
+                  <Select onValueChange={field.onChange} value={field.value}>
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="Admin">Admin</SelectItem>
+                      <SelectItem value="Editor">Editor</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </FormItem>
+              )}
+            />
+
+            {/* Proyecto */}
+            <FormField
+              control={control}
+              name="projectId"
+              // name="projects"
+              rules={{ required: 'Seleccione un proyecto' }}
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Proyecto</FormLabel>
+                  {/* <MultiSelect
+                    options={projectsCleanData}
+                    value={field.value ?? []}
+                    onChange={field.onChange}
+                    placeholder="Selecciona proyectos"
+                  /> */}
+                  <Select onValueChange={field.onChange} value={field.value}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Selecciona un proyecto" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {projects.map((p) => (
+                        <SelectItem key={p.id} value={p.id}>
+                          {p.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <DialogFooter>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => setOpen(false)}
+              >
+                Cancelar
+              </Button>
+
+              <Button
+                type="submit"
+                disabled={!formState.isValid || mutation.isPending}
+              >
+                {mutation.isPending ? 'Agregando...' : 'Agregar'}
+              </Button>
+            </DialogFooter>
+          </form>
+        </Form>
       </DialogContent>
     </Dialog>
   );
