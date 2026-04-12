@@ -14,7 +14,7 @@ import {
   TableRow,
 } from '@repo/ui/components';
 import { ChangeRoleDialog } from './change-role-dialog';
-import { AddMemberDialog } from './add-member-dialog';
+import { AddMemberDialog } from '../../account/_components/add-member-dialog';
 import { RemoveMemberDialog } from './remove-member-dialog';
 
 type OrgMember = {
@@ -31,7 +31,7 @@ type OrgWithMembers = {
   organizationMembers: OrgMember[];
 };
 
-function RoleBadge({ role }: { role: string; }) {
+function RoleBadge({ role }: { role: string }) {
   const variants: Record<string, 'default' | 'secondary' | 'outline'> = {
     Owner: 'default',
     Admin: 'secondary',
@@ -51,7 +51,7 @@ export function MembersView() {
   const { data, isLoading } = useQuery({
     queryKey: ['org-members', orgId],
     queryFn: async () => {
-      const res = await apiClient.get<{ data: OrgWithMembers; }>(
+      const res = await apiClient.get<{ data: OrgWithMembers }>(
         `/organization/membersList/${orgId}`,
       );
       return res.data.data;

@@ -1,12 +1,12 @@
 'use client';
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@repo/ui/components';
-import { OrganizationSection } from './_components/organizationSection';
+import { OrganizationSection } from './_components/organization-section';
 import { projectColumns } from './_components/table';
 import { DataTable } from './_components/table';
 import type { Project } from './_components/table';
-import { AddProjectsForm } from './_components/addProjectsForm';
-import { MembersSection } from './_components/membersSection';
+import { AddProjectsForm } from './_components/add-projects-form';
+import { MembersSection } from './_components/members-section';
 
 const projects: Project[] = [
   { id: '1', name: 'Proyecto A', value: 'projectA' },

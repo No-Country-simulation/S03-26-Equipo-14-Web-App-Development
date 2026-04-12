@@ -3,7 +3,7 @@
 import { Skeleton } from '@repo/ui/components';
 import { userColumns, DataTable } from './table';
 import type { Member } from './table';
-import { AddMemberDialog } from '../../members/_components/add-member-dialog';
+import { AddMemberDialog } from './add-member-dialog';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useSession } from 'next-auth/react';
 import apiClient from '@/shared/lib/apiClient';
