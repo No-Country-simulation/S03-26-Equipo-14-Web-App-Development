@@ -20,8 +20,11 @@ import {
   Field,
   FieldLabel,
   Textarea,
+  Tabs,
+  TabsList,
+  TabsTrigger,
 } from '@repo/ui/components';
-import { CircleAlert, CircleCheck, CloudUpload, CircleX } from '@repo/ui/lib';
+import { CircleAlert, CircleCheck, CloudUpload, CircleX, Check, Copy } from '@repo/ui/lib';
 import { Testimonial } from '@/types/testimonials';
 import { TestimonialTypeBadge } from './testimonial-type-badge';
 import { TestimonialStatusBadge } from './testimonial-status-badge';
@@ -67,10 +70,20 @@ export function TestimonialModal({
 }: TestimonialModalProps) {
   const [isEditing, setIsEditing] = useState(false);
   const [rejectReason, setRejectReason] = useState('');
+  const [widgetWidth, setWidgetWidth] = useState(0);
+  const [widgetHeight, setWidgetHeight] = useState(0);
   const router = useRouter();
   const { data: session } = useSession();
   const userRole = session?.user?.role ?? null;
-
+  const [copied, setCopied] = useState(false);
+  const [widgetTheme, setWidgetTheme] = useState<'light' | 'dark'>('light');
+  useEffect(() => {
+    if (copied) {
+      setTimeout(() => {
+        setCopied(false);
+      }, 2000);
+    }
+  }, [copied]);
   const { data: detail } = useQuery<TestimonialDetail>({
     queryKey: ['testimonial-detail', testimonial?.id],
     queryFn: async () => {
@@ -98,6 +111,12 @@ export function TestimonialModal({
   const actionLabel = isFromVisitor && testimonial.status === 'pending' ? 'Aprobar' : 'Publicar';
   const ActionIcon = isFromVisitor && testimonial.status === 'pending' ? CircleCheck : CloudUpload;
   const videoId = getVideoId(testimonial.media_url);
+
+  const _src = `${window.location.origin}/embed/testimonials/${testimonial.id}?theme=${widgetTheme}`;
+  const _htmlWidth = widgetWidth ? `width: ${widgetWidth}px;` : 'width: 100%;';
+  const _htmlHeight = widgetHeight ? `height: ${widgetHeight}px;` : (testimonial.media_url ? 'aspect-ratio: 1 / 1;' : 'aspect-ratio: 21 / 9;');
+  const widgetCode = `<div style="position: relative; ${_htmlWidth} ${_htmlHeight}">\n  <iframe src="${_src}" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: none;"></iframe>\n</div>`;
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="overflow-y-auto sm:max-w-none max-w-none w-[90vw] md:w-[60vw] max-h-[90dvh]">
@@ -124,49 +143,132 @@ export function TestimonialModal({
             </div>
           </div>
           <div className="flex gap-1">
-            <Button
-              size="xs"
-              variant="outline"
-              className="p-1"
-              onClick={() =>
-                router.push(`/testimonials/edit/${testimonial.id}`)
-              }
-            >
-              Editar
-            </Button>
-            <AlertDialog>
-              <AlertDialogTrigger asChild>
+            {testimonial.status !== 'published' && canAct ? (
+              <>
                 <Button
                   size="xs"
-                  className="p-1 bg-background border border-destructive hover:bg-red-100"
+                  variant="outline"
+                  className="p-1"
+                  onClick={() =>
+                    router.push(`/testimonials/edit/${testimonial.id}`)
+                  }
                 >
-                  <span className="text-destructive">Eliminar</span>
+                  Editar
                 </Button>
-              </AlertDialogTrigger>
-              <AlertDialogContent size="sm">
-                <AlertDialogHeader>
-                  <AlertDialogTitle>¿Eliminar testimonio?</AlertDialogTitle>
-                  <AlertDialogDescription>
-                    Esta acción no se puede deshacer, se borrará permanentemente
-                    de tu dashboard
-                  </AlertDialogDescription>
-                </AlertDialogHeader>
-                <AlertDialogFooter>
-                  <AlertDialogCancel variant="outline">
-                    Cancelar
-                  </AlertDialogCancel>
-                  <AlertDialogAction
-                    variant="destructive"
-                    onClick={() => {
-                      if (!testimonial) return;
-                      onDelete(testimonial.id);
-                    }}
-                  >
-                    Eliminar
-                  </AlertDialogAction>
-                </AlertDialogFooter>
-              </AlertDialogContent>
-            </AlertDialog>
+                <AlertDialog>
+                  <AlertDialogTrigger asChild>
+                    <Button
+                      size="xs"
+                      className="p-1 bg-background border border-destructive hover:bg-red-100"
+                    >
+                      <span className="text-destructive">Eliminar</span>
+                    </Button>
+                  </AlertDialogTrigger>
+                  <AlertDialogContent size="sm">
+                    <AlertDialogHeader>
+                      <AlertDialogTitle>¿Eliminar testimonio?</AlertDialogTitle>
+                      <AlertDialogDescription>
+                        Esta acción no se puede deshacer, se borrará permanentemente
+                        de tu dashboard
+                      </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                      <AlertDialogCancel variant="outline">
+                        Cancelar
+                      </AlertDialogCancel>
+                      <AlertDialogAction
+                        variant="destructive"
+                        onClick={() => {
+                          if (!testimonial) return;
+                          onDelete(testimonial.id);
+                        }}
+                      >
+                        Eliminar
+                      </AlertDialogAction>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
+              </>) : (
+              <>
+                <AlertDialog>
+                  <AlertDialogTrigger asChild>
+                    <Button
+                      size="xs"
+                    >
+                      <span>Generar widget</span>
+                    </Button>
+                  </AlertDialogTrigger>
+                  <AlertDialogContent className="min-w-2xl">
+                    <AlertDialogHeader>
+                      <AlertDialogTitle>Generar widget</AlertDialogTitle>
+                      <AlertDialogDescription>
+                        Copia el widget de tu testimonio que podrás compartir o insertar en tu sitio web.
+                      </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <div className="grid md:grid-cols-2 gap-4 mb-4">
+                      <Field>
+                        <FieldLabel htmlFor="width">Ancho (px)</FieldLabel>
+                        <input
+                          id="width"
+                          type="number"
+                          className="w-full rounded-md border border-input bg-transparent px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                          value={widgetWidth}
+                          onChange={(e) => setWidgetWidth(Number(e.target.value))}
+                          placeholder="Ancho del widget en píxeles"
+                        />
+                      </Field>
+                      <Field>
+                        <FieldLabel htmlFor="height">Alto (px)</FieldLabel>
+                        <input
+                          id="height"
+                          type="number"
+                          className="w-full rounded-md border border-input bg-transparent px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                          value={widgetHeight}
+                          onChange={(e) => setWidgetHeight(Number(e.target.value))}
+                          placeholder="Alto del widget en píxeles"
+                        />
+                      </Field>
+                    </div>
+                    <Tabs value={widgetTheme} onValueChange={(value) => setWidgetTheme(value as 'light' | 'dark')}>
+                      <TabsList className="bg-muted rounded-tl-md rounded-tr-md border-b border-border" defaultValue={widgetTheme}>
+                        <TabsTrigger value="light" className="data-[state=active]:bg-primary data-[state=active]:text-white px-3 py-1">Tema claro</TabsTrigger>
+                        <TabsTrigger value="dark" className="data-[state=active]:bg-primary data-[state=active]:text-white px-3 py-1">Tema oscuro</TabsTrigger>
+                      </TabsList>
+
+                    </Tabs>
+                    <pre className="bg-muted p-3 rounded-md text-xs overflow-x-auto whitespace-pre-wrap">
+                      {widgetCode}
+                    </pre>
+                    <Button
+                      variant="secondary"
+                      // size="sm"
+                      className={`mt-2 ${copied ? 'border-2 border-green-500' : ''}`}
+                      onClick={() => {
+                        navigator.clipboard.writeText(widgetCode);
+                        setCopied(true);
+                      }}
+                    >
+                      {
+                        copied ? <>
+                          <Check className="size-4 mr-1" />
+                          ¡Copiado!
+                        </> :
+                          <>
+                            <Copy className="size-4 mr-1" />
+                            Copiar código
+                          </>
+                      }
+                    </Button>
+
+                    <AlertDialogFooter>
+                      <AlertDialogCancel variant="outline">
+                        Cerrar
+                      </AlertDialogCancel>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
+              </>
+            )}
           </div>
         </section>
         {/* Contenido */}
