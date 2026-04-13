@@ -72,6 +72,12 @@ export class TestimonialsController {
     return this.testimonialsService.findOne(id);
   }
 
+  @Public()
+  @Get("/public/getById/:id")
+  findOnePublic(@Param('id') id: string) {
+    return this.testimonialsService.findPublicById(id);
+  }
+
   @OrgRoles(OrganizationRoleEnum.Admin, OrganizationRoleEnum.Owner)
   @Patch('changeStatus/:id')
   changeStatus(

@@ -80,6 +80,11 @@ export class TestimonialsService {
     await this.api.createTestimonial(synthTestimonial);
   }
 
+  async findPublicById(id: string) {
+    return await this.api.findOneById(id, {rejectedReason: false}, TestimonialStatus.published)
+    ;
+  }
+
   async findAll(
     queryDto: FindAllQueryTestimonialDto,
     projectId: string,
