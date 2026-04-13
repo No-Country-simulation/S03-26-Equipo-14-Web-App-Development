@@ -81,7 +81,7 @@ export class TestimonialsService {
   }
 
   async findPublicById(id: string) {
-    return await this.api.findOneById(id, {rejectedReason: false}, TestimonialStatus.published)
+    return await this.api.findOneById(id, undefined, TestimonialStatus.published)
     ;
   }
 
