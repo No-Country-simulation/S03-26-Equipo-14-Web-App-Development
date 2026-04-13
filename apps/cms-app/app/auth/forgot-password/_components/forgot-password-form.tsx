@@ -1,0 +1,141 @@
+'use client';
+
+import { useState } from 'react';
+import { useRouter } from 'next/navigation';
+import Link from 'next/link';
+import { useForm } from 'react-hook-form';
+import {
+  Button,
+  Card,
+  CardContent,
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+  Input,
+} from '@repo/ui';
+import { BookOpen, Mail } from '@repo/ui/lib';
+import apiClient from '@/shared/lib/apiClient';
+
+type ForgotPasswordFormValues = {
+  email: string;
+};
+
+export function ForgotPasswordForm() {
+  const router = useRouter();
+  const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState(false);
+  const form = useForm<ForgotPasswordFormValues>({
+    defaultValues: { email: '' },
+    mode: 'onTouched',
+  });
+  const {
+    handleSubmit,
+    control,
+    getValues,
+    formState: { isSubmitting },
+  } = form;
+
+  async function onSubmit(data: ForgotPasswordFormValues) {
+    setError(null);
+    try {
+      await apiClient.post('/auth/forgot-password', { email: data.email });
+      setSuccess(true);
+      setTimeout(() => {
+        router.push(`/auth/validate-token?email=${encodeURIComponent(data.email)}`);
+      }, 2000);
+    } catch (err: any) {
+      const msg = err?.response?.data?.message ?? 'Error al enviar el correo. Inténtalo de nuevo.';
+      setError(Array.isArray(msg) ? msg.join(', ') : msg);
+    }
+  }
+
+  return (
+    <div className="min-h-screen flex flex-col bg-gradient-to-br from-slate-50 via-purple-50 to-indigo-100">
+      <div className="flex-1 flex flex-col items-center justify-center px-4 py-12">
+        {/* Logo + Brand */}
+        <div className="flex flex-col items-center mb-8">
+          <div className="w-14 h-14 rounded-2xl bg-indigo-600 flex items-center justify-center mb-4 shadow-lg">
+            <BookOpen className="w-7 h-7 text-white" />
+          </div>
+          <h1 className="text-2xl font-bold text-gray-900 tracking-tight">Geist EdTech</h1>
+          <p className="text-sm text-gray-500 mt-1">Recupera tu contraseña</p>
+        </div>
+
+        <Card className="w-full max-w-sm bg-white rounded-2xl shadow-md p-0 gap-0 border-0">
+          <CardContent className="p-8">
+            <div className="mb-6">
+              <h2 className="text-lg font-semibold text-gray-900">¿Olvidaste tu contraseña?</h2>
+              <p className="text-sm text-gray-500 mt-1">
+                Ingresa tu correo y te enviaremos un código de verificación.
+              </p>
+            </div>
+
+            {success ? (
+              <div className="bg-green-50 border border-green-200 text-green-700 text-sm px-4 py-3 rounded-lg">
+                ¡Correo enviado! Redirigiendo para ingresar el código...
+              </div>
+            ) : (
+              <Form {...form}>
+                <form onSubmit={handleSubmit(onSubmit)} className="space-y-5" noValidate>
+                  <FormField
+                    control={control}
+                    name="email"
+                    rules={{
+                      required: 'El correo es obligatorio',
+                      pattern: {
+                        value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+                        message: 'Ingresa un correo válido',
+                      },
+                    }}
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="block text-[10px] font-semibold uppercase tracking-widest text-gray-500 mb-1.5">
+                          Correo electrónico
+                        </FormLabel>
+                        <div className="relative">
+                          <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                          <FormControl>
+                            <Input
+                              type="email"
+                              {...field}
+                              className="w-full h-auto pl-10 pr-4 py-2.5 bg-gray-100 border-0 text-sm text-gray-700 placeholder:text-gray-400 focus-visible:ring-2 focus-visible:ring-indigo-500"
+                              placeholder="name@institution.edu"
+                            />
+                          </FormControl>
+                        </div>
+                        <FormMessage className="mt-1.5 text-xs text-red-600" />
+                      </FormItem>
+                    )}
+                  />
+
+                  {error && (
+                    <div className="bg-red-50 border border-red-200 text-red-600 text-sm px-4 py-2.5">
+                      {error}
+                    </div>
+                  )}
+
+                  <Button
+                    type="submit"
+                    disabled={isSubmitting}
+                    className="w-full h-auto bg-indigo-600 hover:bg-indigo-700 disabled:bg-indigo-400 text-white font-semibold py-3 px-4 transition-colors duration-200 flex items-center justify-center gap-2 text-sm"
+                  >
+                    {isSubmitting ? 'Enviando...' : 'Enviar código de verificación →'}
+                  </Button>
+                </form>
+              </Form>
+            )}
+
+            <p className="text-center text-sm text-gray-500 mt-6">
+              <Link href="/auth/login" className="text-indigo-600 font-semibold hover:text-indigo-700">
+                ← Volver al inicio de sesión
+              </Link>
+            </p>
+          </CardContent>
+        </Card>
+      </div>
+    </div>
+  );
+}
