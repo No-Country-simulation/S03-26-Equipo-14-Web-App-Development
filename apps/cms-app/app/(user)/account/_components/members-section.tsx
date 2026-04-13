@@ -63,8 +63,6 @@ export function MembersSection() {
   const handleManageUser = (user: Member) => {
     setSelected(user);
     setOpen(true);
-    console.log(selected);
-    console.log(user);
   };
 
   const columns = useMemo(() => getUserColumns(handleManageUser), []);
