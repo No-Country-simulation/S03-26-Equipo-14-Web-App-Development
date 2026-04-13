@@ -99,7 +99,6 @@ export function AddMemberDialog({ onSuccess }: AddMemberDialogProps) {
   });
 
   const onSubmit = (data: FormValues) => {
-    console.log(data);
     mutation.mutate(data);
   };
 

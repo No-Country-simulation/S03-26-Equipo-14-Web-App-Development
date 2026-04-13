@@ -46,7 +46,6 @@ export function OrganizationSection() {
     setError(null);
 
     try {
-      console.log('ok');
       toast.success('Nombre cambiado correctamente');
     } catch (err) {
       console.error(err);
