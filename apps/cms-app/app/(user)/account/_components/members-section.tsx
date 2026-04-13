@@ -1,12 +1,14 @@
 'use client';
 
 import { Skeleton } from '@repo/ui/components';
-import { userColumns, DataTable } from './table';
+import { getUserColumns, DataTable } from './table';
 import type { Member } from './table';
 import { AddMemberDialog } from './add-member-dialog';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useSession } from 'next-auth/react';
 import apiClient from '@/shared/lib/apiClient';
+import { ManageUserModal } from './manage-user-modal';
+import { useState, useMemo } from 'react';
 
 type OrgMember = {
   id: string;
@@ -24,6 +26,8 @@ type OrgWithMembers = {
 };
 
 export function MembersSection() {
+  const [open, setOpen] = useState(false);
+  const [selected, setSelected] = useState<Member | null>(null);
   const { data: session } = useSession();
   const queryClient = useQueryClient();
   const orgId = session?.user?.organizationId;
@@ -46,6 +50,7 @@ export function MembersSection() {
       userId: m.user_id,
       avatar: m.user.name,
       name: m.user.name,
+      email: m.user.email,
       role: m.role,
       createdAt: new Date(m.created_at).toLocaleDateString('es-ES'),
     };
@@ -55,29 +60,48 @@ export function MembersSection() {
     queryClient.invalidateQueries({ queryKey: ['org-members', orgId] });
   };
 
+  const handleManageUser = (user: Member) => {
+    setSelected(user);
+    setOpen(true);
+    console.log(selected);
+    console.log(user);
+  };
+
+  const columns = useMemo(() => getUserColumns(handleManageUser), []);
+
   return (
-    <section className="flex flex-col gap-4 h-full">
-      {isLoading ? (
-        <div className="flex flex-col gap-2">
-          <Skeleton className="h-10 w-full" />
-          <Skeleton className="h-10 w-full" />
-          <Skeleton className="h-10 w-full" />
-        </div>
-      ) : (
-        <>
-          <h2 className="text-lg font-semibold truncate">
-            Configuración de usuarios
-          </h2>
-          <div className="flex justify-end">
-            <AddMemberDialog onSuccess={handleRefresh} />
+    <>
+      <ManageUserModal
+        open={open}
+        onOpenChange={setOpen}
+        member={selected}
+        onSuccess={handleRefresh}
+        // onDelete={handleDelete}
+        // onPublish={handlePublish}
+      />
+      <section className="flex flex-col gap-4 h-full">
+        {isLoading ? (
+          <div className="flex flex-col gap-2">
+            <Skeleton className="h-10 w-full" />
+            <Skeleton className="h-10 w-full" />
+            <Skeleton className="h-10 w-full" />
           </div>
-          <DataTable<Member>
-            columns={userColumns}
-            data={membersCleanData}
-            enableRoleFilter
-          />
-        </>
-      )}
-    </section>
+        ) : (
+          <>
+            <h2 className="text-lg font-semibold truncate">
+              Configuración de usuarios
+            </h2>
+            <div className="flex justify-end">
+              <AddMemberDialog onSuccess={handleRefresh} />
+            </div>
+            <DataTable<Member>
+              columns={columns}
+              data={membersCleanData}
+              enableRoleFilter
+            />
+          </>
+        )}
+      </section>
+    </>
   );
 }

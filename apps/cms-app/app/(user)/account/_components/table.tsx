@@ -7,7 +7,6 @@ import {
   getFilteredRowModel,
   flexRender,
 } from '@tanstack/react-table';
-import Image from 'next/image';
 import {
   Avatar,
   AvatarImage,
@@ -28,6 +27,7 @@ export type Member = {
   userId: string;
   avatar: string;
   name: string;
+  email: string;
   role: 'Admin' | 'Editor' | 'Owner';
   createdAt: string;
 };
@@ -53,7 +53,9 @@ function getInitials(fullName: string): string {
   return (first.charAt(0) + last.charAt(0)).toUpperCase();
 }
 
-export const userColumns: ColumnDef<Member>[] = [
+export const getUserColumns = (
+  onManage: (user: Member) => void,
+): ColumnDef<Member>[] => [
   {
     accessorKey: 'name',
     header: 'Usuario',
@@ -100,11 +102,7 @@ export const userColumns: ColumnDef<Member>[] = [
       if (user.role !== 'Owner') {
         return (
           <div className="flex justify-center">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => console.log('ABRE MODAL')}
-            >
+            <Button variant="outline" size="sm" onClick={() => onManage(user)}>
               Gestionar
             </Button>
           </div>
