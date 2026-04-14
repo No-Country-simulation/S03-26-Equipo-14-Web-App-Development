@@ -17,4 +17,7 @@ export interface CreateMemberInput {
   projectId: string;
 }
 
-
+export interface UpdateProfileInput {
+  name?: string;
+  email?: string;
+}

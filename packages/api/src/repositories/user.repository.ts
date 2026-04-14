@@ -5,6 +5,7 @@ import { User } from '@workspace/database';
 import {
   CreateMemberInput,
   CreateOwnerInput,
+  UpdateProfileInput,
 } from './interfaces/user.interface';
 
 type UserWithOrganization = Prisma.UserGetPayload<{
@@ -19,7 +20,7 @@ type UserWithOrganization = Prisma.UserGetPayload<{
 
 @Injectable()
 export class UserRepository {
-  constructor(private readonly prisma: PrismaService) { }
+  constructor(private readonly prisma: PrismaService) {}
 
   async find() {
     return (await this.prisma.client.user.findMany()) as User[];
@@ -53,15 +54,29 @@ export class UserRepository {
     });
   }
 
+  async updateProfile(userId: string, data: UpdateProfileInput) {
+    return await this.prisma.client.user.update({
+      where: { id: userId },
+      data,
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        created_at: true,
+        updated_at: true,
+      },
+    });
+  }
+
   async findById(userId: string, includeOrganzatonMembers?: boolean) {
     const include = includeOrganzatonMembers
       ? {
-        organizationMembers: {
-          include: {
-            organization: true,
+          organizationMembers: {
+            include: {
+              organization: true,
+            },
           },
-        },
-      }
+        }
       : {};
 
     return await this.prisma.client.user.findUnique({
@@ -115,61 +130,58 @@ export class UserRepository {
         name: 'industry',
       },
     ];
-    return await this.prisma.client.$transaction(async (tx) => {
-      const user = await tx.user.create({
-        data: {
-          email: data.email,
-          password: data.hashPassword,
-          name: data.name,
-        },
-      });
+    return await this.prisma.client.$transaction(
+      async (tx) => {
+        const user = await tx.user.create({
+          data: {
+            email: data.email,
+            password: data.hashPassword,
+            name: data.name,
+          },
+        });
 
-      const org = await tx.organization.create({
-        data: {
-          name: data.organizationName,
-          description: data.organizationDescription,
-          user_id: user.id,
-        },
-      });
+        const org = await tx.organization.create({
+          data: {
+            name: data.organizationName,
+            description: data.organizationDescription,
+            user_id: user.id,
+          },
+        });
 
-      const orgMember = await tx.organization_Member.create({
-        data: {
-          user_id: user.id,
-          organization_id: org.id,
-          role: 'Owner',
-        },
-      });
+        const orgMember = await tx.organization_Member.create({
+          data: {
+            user_id: user.id,
+            organization_id: org.id,
+            role: 'Owner',
+          },
+        });
 
-      const project = await tx.project.create({
-        data: {
-          name: 'default',
-          description: 'default project',
-          api_key: 'xa@swD',
-          organization_id: org.id,
-        },
-      });
+        const project = await tx.project.create({
+          data: {
+            name: 'default',
+            description: 'default project',
+            api_key: 'xa@swD',
+            organization_id: org.id,
+          },
+        });
 
-      await tx.project_Member.create({
-        data: {
-          organization_member_id: orgMember.id,
-          project_id: project.id,
-          user_id: user.id,
-        },
-      });
+        await tx.project_Member.create({
+          data: {
+            organization_member_id: orgMember.id,
+            project_id: project.id,
+            user_id: user.id,
+          },
+        });
 
-      await Promise.all(
-        defaultCategories.map((catefory) =>
-          tx.category.create({
-            data: {
-              name: catefory.name,
-              project: {
-                connect: { id: project.id },
-              },
-            },
-          }),
-        ),
-      );
-    });
+        await tx.category.createMany({
+          data: defaultCategories.map((category) => ({
+            name: category.name,
+            project_id: project.id,
+          })),
+        });
+      },
+      { timeout: 15000 },
+    );
   }
 
   async setResetToken({
@@ -204,11 +216,11 @@ export class UserRepository {
     });
   }
 
-  async delete (userId: string){
+  async delete(userId: string) {
     await this.prisma.client.user.delete({
       where: {
-        id: userId
-      }
-    })
+        id: userId,
+      },
+    });
   }
 }
