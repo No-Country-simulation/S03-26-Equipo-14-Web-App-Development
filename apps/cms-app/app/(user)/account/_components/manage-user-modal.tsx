@@ -227,6 +227,7 @@ export function ManageUserModal({
               <RemoveMemberDialog
                 memberId={member.id}
                 userId={member.userId}
+                memberName={member.name}
                 onSuccess={() => {
                   onSuccess();
                   onOpenChange(false);

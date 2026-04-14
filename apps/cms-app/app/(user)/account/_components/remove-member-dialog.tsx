@@ -20,12 +20,14 @@ import { Trash2 } from '@repo/ui/lib';
 interface RemoveMemberDialogProps {
   memberId: string;
   userId: string;
+  memberName: string;
   onSuccess: () => void;
 }
 
 export function RemoveMemberDialog({
   memberId,
   userId,
+  memberName,
   onSuccess,
 }: RemoveMemberDialogProps) {
   const mutation = useMutation({
@@ -52,13 +54,14 @@ export function RemoveMemberDialog({
           <AlertDialogTitle>¿Eliminar miembro?</AlertDialogTitle>
           <AlertDialogDescription>
             Esta acción eliminará permanentemente la cuenta del usuario{' '}
-            <span className="font-mono text-xs">{userId}</span> de la
+            <span className="text-sm font-bold">{memberName}</span> de la
             plataforma. No se puede deshacer.
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
           <AlertDialogCancel>Cancelar</AlertDialogCancel>
           <AlertDialogAction
+            variant="destructive"
             onClick={() => mutation.mutate()}
             disabled={mutation.isPending}
           >
