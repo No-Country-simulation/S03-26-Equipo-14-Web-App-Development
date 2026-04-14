@@ -19,19 +19,17 @@ import {
 import { signOut } from 'next-auth/react';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
-import { BookOpen, ChevronsUpDown, Info, LogOut, Settings, UserRound } from '@repo/ui/lib';
+import {
+  BookOpen,
+  ChevronsUpDown,
+  Info,
+  LogOut,
+  Settings,
+  UserRound,
+} from '@repo/ui/lib';
 import { SidebarProjectSelector } from './sidebar-proyect-selector';
 import { SidebarMain } from './sidebar-main';
-
-function getInitials(name?: string | null) {
-  if (!name) return 'U';
-  return name
-    .split(' ')
-    .map((n) => n[0])
-    .slice(0, 2)
-    .join('')
-    .toUpperCase();
-}
+import { getInitials } from '../settings/_components/table';
 
 export function AppSidebar() {
   const router = useRouter();
@@ -98,7 +96,9 @@ export function AppSidebar() {
                   </Avatar>
                   <div className="grid flex-1 text-left text-sm leading-tight">
                     <span className="truncate font-semibold">{userName}</span>
-                    <span className="truncate text-xs text-muted-foreground">{userRole}</span>
+                    <span className="truncate text-xs text-muted-foreground">
+                      {userRole}
+                    </span>
                   </div>
                   <ChevronsUpDown className="ml-auto size-4 shrink-0 opacity-50" />
                 </SidebarMenuButton>
@@ -119,7 +119,9 @@ export function AppSidebar() {
                     </Avatar>
                     <div className="grid flex-1 text-left text-sm leading-tight">
                       <span className="truncate font-semibold">{userName}</span>
-                      <span className="truncate text-xs text-muted-foreground">{userEmail}</span>
+                      <span className="truncate text-xs text-muted-foreground">
+                        {userEmail}
+                      </span>
                     </div>
                   </div>
                 </DropdownMenuLabel>
@@ -130,14 +132,21 @@ export function AppSidebar() {
                   <UserRound className="size-4" />
                   Mi perfil
                 </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => router.push('/settings')}>
-                  <Settings className="size-4" />
-                  Configuraciones
-                </DropdownMenuItem>
+                {userRole === 'Owner' ? (
+                  <DropdownMenuItem onClick={() => router.push('/settings')}>
+                    <Settings className="size-4" />
+                    Configuraciones
+                  </DropdownMenuItem>
+                ) : (
+                  ''
+                )}
 
                 <DropdownMenuSeparator />
 
-                <DropdownMenuItem onClick={handleLogout} className="text-destructive focus:text-destructive">
+                <DropdownMenuItem
+                  onClick={handleLogout}
+                  className="text-destructive focus:text-destructive"
+                >
                   <LogOut className="size-4" />
                   Cerrar sesión
                 </DropdownMenuItem>

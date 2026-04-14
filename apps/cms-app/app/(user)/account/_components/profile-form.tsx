@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useMutation } from '@tanstack/react-query';
+import { useMutation, useQuery } from '@tanstack/react-query';
 import { useSession } from 'next-auth/react';
 import apiClient from '@/shared/lib/apiClient';
 import {
@@ -19,21 +19,20 @@ import {
   Skeleton,
   toast,
 } from '@repo/ui/components';
+import { getInitials } from '../../settings/_components/table';
 
 interface UpdateProfilePayload {
   name?: string;
   email?: string;
 }
 
-function getInitials(name?: string | null) {
-  if (!name) return 'U';
-  return name
-    .split(' ')
-    .map((n) => n[0])
-    .slice(0, 2)
-    .join('')
-    .toUpperCase();
-}
+type CurrentUser = {
+  id: string;
+  name: string;
+  email: string;
+  organizationId?: string;
+  role: string;
+};
 
 export function ProfileForm() {
   const { data: session, status, update } = useSession();
@@ -41,12 +40,21 @@ export function ProfileForm() {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
 
+  const { data: userData } = useQuery<CurrentUser>({
+    queryKey: ['me'],
+    queryFn: async () => {
+      const response = await apiClient.get('/auth/me');
+      return response.data.data;
+    },
+    enabled: !!session?.user?.id,
+  });
+
   useEffect(() => {
-    if (session?.user) {
-      setName(session.user.name ?? '');
-      setEmail(session.user.email ?? '');
+    if (userData) {
+      setName(userData.name ?? '');
+      setEmail(userData.email ?? '');
     }
-  }, [session]);
+  }, [userData]);
 
   const mutation = useMutation({
     mutationFn: (payload: UpdateProfilePayload) =>
@@ -67,7 +75,8 @@ export function ProfileForm() {
     e.preventDefault();
     const payload: UpdateProfilePayload = {};
     if (name.trim() && name !== session?.user?.name) payload.name = name.trim();
-    if (email.trim() && email !== session?.user?.email) payload.email = email.trim();
+    if (email.trim() && email !== session?.user?.email)
+      payload.email = email.trim();
     if (Object.keys(payload).length === 0) {
       toast.info('No hay cambios que guardar.');
       return;
@@ -93,63 +102,65 @@ export function ProfileForm() {
   }
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Información personal</CardTitle>
-        <CardDescription>
-          Actualiza tu nombre y correo electrónico.
-        </CardDescription>
-      </CardHeader>
-      <CardContent>
-        <div className="flex items-center gap-4 mb-6">
-          <Avatar className="h-16 w-16">
-            <AvatarFallback className="text-lg bg-primary text-primary-foreground">
-              {getInitials(session?.user?.name)}
-            </AvatarFallback>
-          </Avatar>
-          <div>
-            <p className="font-semibold text-base leading-tight">
-              {session?.user?.name}
-            </p>
-            <p className="text-sm text-muted-foreground">
-              {session?.user?.role ?? 'Miembro'}
-            </p>
-          </div>
-        </div>
-
-        <Separator className="mb-6" />
-
-        <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-          <div className="flex flex-col gap-1.5">
-            <Label htmlFor="profile-name">Nombre</Label>
-            <Input
-              id="profile-name"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              placeholder="Tu nombre completo"
-              disabled={mutation.isPending}
-            />
+    <section className="flex flex-col gap-4 h-full">
+      <Card>
+        <CardHeader>
+          <CardTitle>Información personal</CardTitle>
+          <CardDescription>
+            Actualiza tu nombre y correo electrónico.
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="flex items-center gap-4 mb-6">
+            <Avatar className="h-16 w-16">
+              <AvatarFallback className="text-lg bg-primary text-primary-foreground">
+                {getInitials(userData?.name ?? '')}
+              </AvatarFallback>
+            </Avatar>
+            <div>
+              <p className="font-semibold text-base leading-tight">
+                {userData?.name ?? ''}
+              </p>
+              <p className="text-sm text-muted-foreground">
+                {userData?.role ?? 'Miembro'}
+              </p>
+            </div>
           </div>
 
-          <div className="flex flex-col gap-1.5">
-            <Label htmlFor="profile-email">Correo electrónico</Label>
-            <Input
-              id="profile-email"
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="tu@email.com"
-              disabled={mutation.isPending}
-            />
-          </div>
+          <Separator className="mb-6" />
 
-          <div className="flex justify-end mt-2">
-            <Button type="submit" disabled={mutation.isPending}>
-              {mutation.isPending ? 'Guardando...' : 'Guardar cambios'}
-            </Button>
-          </div>
-        </form>
-      </CardContent>
-    </Card>
+          <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+            <div className="flex flex-col gap-1.5">
+              <Label htmlFor="profile-name">Nombre</Label>
+              <Input
+                id="profile-name"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                placeholder="Tu nombre completo"
+                disabled={mutation.isPending}
+              />
+            </div>
+
+            <div className="flex flex-col gap-1.5">
+              <Label htmlFor="profile-email">Correo electrónico</Label>
+              <Input
+                id="profile-email"
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="tu@email.com"
+                disabled={mutation.isPending}
+              />
+            </div>
+
+            <div className="flex justify-end mt-2">
+              <Button type="submit" disabled={mutation.isPending}>
+                {mutation.isPending ? 'Guardando...' : 'Guardar cambios'}
+              </Button>
+            </div>
+          </form>
+        </CardContent>
+      </Card>
+    </section>
   );
 }
