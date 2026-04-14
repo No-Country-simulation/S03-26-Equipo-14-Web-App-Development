@@ -26,7 +26,7 @@ export function SidebarMain() {
         <SidebarGroupContent>
           <SidebarMenu>
             {navItems.map((item) => (
-              <SidebarMenuItem key={item.title}>
+              <SidebarMenuItem key={item.title} className='my-1'>
                 <SidebarMenuButton asChild tooltip={item.title}>
                   <a href={item.url}>
                     <item.icon />

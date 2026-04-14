@@ -1,4 +1,14 @@
-import { Body, Controller, Get, Post, Query, Req, Res, UnauthorizedException } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Patch,
+  Post,
+  Query,
+  Req,
+  Res,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { raw, Request, response, Response } from 'express';
 import { AuthService } from './auth.service';
 import { GetUser } from './decorators/get-user.decorator';
@@ -13,13 +23,17 @@ import { ResetPasswordDto } from 'src/api/auth/dto/reset-password.dto';
 import { ValidateTokenDto } from './dto/validate-token.dto';
 import { ValidateTokenQueryDto } from './dto/validate-token-query.dto';
 import { ForgotPasswordDto } from './dto/forgot-password.dto';
+import { UpdateProfileDto } from './dto/update-profile.dto';
 import { JwtService } from '@nestjs/jwt';
 import globalEnv from '@repo/env';
 import { createOrganizationDto } from 'src/api/organization/dto/organization.dto';
 
 @Controller('auth')
 export class AuthController {
-  constructor(private readonly authService: AuthService, private jwtService: JwtService) {}
+  constructor(
+    private readonly authService: AuthService,
+    private jwtService: JwtService,
+  ) {}
 
   @Public()
   @Post('login')
@@ -45,15 +59,21 @@ export class AuthController {
   @Public()
   @Post('forgot-password')
   async forgotPassword(@Body() forgotPasswordDto: ForgotPasswordDto) {
-
     return this.authService.forgotPassword(forgotPasswordDto);
   }
 
   @Get('me')
   async me(@GetUser() user: JwtPayload) {
-    return user;
+    return this.authService.getMe(user.sub);
   }
-  @Public()
+
+  @Patch('profile')
+  async updateProfile(
+    @GetUser() user: JwtPayload,
+    @Body() updateProfileDto: UpdateProfileDto,
+  ) {
+    return this.authService.updateProfile(user.sub, updateProfileDto);
+  }
   @Post('owner')
   async owner(@Body() registerOwnerDto: CreateRegisterOwnerDto) {
     //use service registerOwner
@@ -61,9 +81,16 @@ export class AuthController {
   }
 
   @Public()
-  @Post("validate-token")
-  async ValidateToken(@Body() validateTokenDto : ValidateTokenDto, @Query() validateTokenQueryDto: ValidateTokenQueryDto, @Res({ passthrough: true }) res: Response) {
-    const resetToken: string = await this.authService.validateToken({token: validateTokenDto.token, email: validateTokenQueryDto.email});
+  @Post('validate-token')
+  async ValidateToken(
+    @Body() validateTokenDto: ValidateTokenDto,
+    @Query() validateTokenQueryDto: ValidateTokenQueryDto,
+    @Res({ passthrough: true }) res: Response,
+  ) {
+    const resetToken: string = await this.authService.validateToken({
+      token: validateTokenDto.token,
+      email: validateTokenQueryDto.email,
+    });
 
     // Dev config
     res.cookie('RESET_PASSWORD_TOKEN', resetToken, {
@@ -76,25 +103,31 @@ export class AuthController {
 
     return {
       message: 'Token valid',
-    }
+    };
   }
 
   @Public()
-  @Post("reset-password")
-  async resetPassword(@Req() req : Request, @Res({passthrough: true}) res: Response, @Body() resetPasswordDto: ResetPasswordDto) {
-
+  @Post('reset-password')
+  async resetPassword(
+    @Req() req: Request,
+    @Res({ passthrough: true }) res: Response,
+    @Body() resetPasswordDto: ResetPasswordDto,
+  ) {
     const token = req.cookies['RESET_PASSWORD_TOKEN'];
-    if(!token) throw new UnauthorizedException('Invalid token');
+    if (!token) throw new UnauthorizedException('Invalid token');
 
-    const payload : {userId: string}= this.jwtService.verify(token, {
-      secret: globalEnv.JWT_RESET_TOKEN_SECRET
-    })
+    const payload: { userId: string } = this.jwtService.verify(token, {
+      secret: globalEnv.JWT_RESET_TOKEN_SECRET,
+    });
 
-    const result = this.authService.resetPassword({userId: payload.userId, newPassword: resetPasswordDto.newPassword});
-    res.clearCookie("RESET_PASSWORD_TOKEN");
-    res.clearCookie("CMS_ACCESS_TOKEN");
+    const result = this.authService.resetPassword({
+      userId: payload.userId,
+      newPassword: resetPasswordDto.newPassword,
+    });
+    res.clearCookie('RESET_PASSWORD_TOKEN');
+    res.clearCookie('CMS_ACCESS_TOKEN');
 
-    return result
+    return result;
   }
 
   @Public()
@@ -104,11 +137,9 @@ export class AuthController {
     return this.authService.registerMember(registerMemberDto);
   }
 
-
   @Public()
   @Post('registerOrganization')
-  async registerOrg(@Body() registerOrgDto: createOrganizationDto){
+  async registerOrg(@Body() registerOrgDto: createOrganizationDto) {
     return this.authService.registerOrganization(registerOrgDto);
   }
-
 }
