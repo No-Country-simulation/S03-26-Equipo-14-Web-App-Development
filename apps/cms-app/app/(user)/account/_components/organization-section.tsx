@@ -10,7 +10,6 @@ import {
   AlertDialogContent,
   AlertDialogHeader,
   AlertDialogTitle,
-  AlertDialogDescription,
   AlertDialogFooter,
   AlertDialogCancel,
   AlertDialogAction,
@@ -217,7 +216,10 @@ export function OrganizationSection() {
                   <AlertDialogCancel>Cancelar</AlertDialogCancel>
                   <AlertDialogAction
                     variant="destructive"
-                    onClick={() => deleteOrganization.mutate(orgId)}
+                    onClick={() => {
+                      if (!orgId) return;
+                      deleteOrganization.mutate(orgId);
+                    }}
                     disabled={deleteOrganization.isPending}
                   >
                     {deleteOrganization.isPending
