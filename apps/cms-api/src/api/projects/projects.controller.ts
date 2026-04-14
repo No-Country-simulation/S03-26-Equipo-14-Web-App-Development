@@ -59,4 +59,9 @@ export class ProjectsController {
   ) {
     return this.projectsService.createApiKey(user, projectId);
   }
+
+  @Get("/member/:memberId")
+  async getMember(@Param("memberId") memberId: string) {
+    return this.projectsService.getProjectsbyMember(memberId);
+  }
 }
