@@ -136,7 +136,7 @@ export function ManageUserModal({
         <Form {...form}>
           <form
             onSubmit={handleSubmit(onSubmit)}
-            className="flex flex-col gap-4 py-2"
+            className="flex flex-col gap-4"
           >
             {/* Nombre */}
             <FormField
@@ -223,34 +223,31 @@ export function ManageUserModal({
               )}
             /> */}
 
-            <DialogFooter className="flex !justify-between">
-              {member && (
-                <RemoveMemberDialog
-                  memberId={member.id}
-                  userId={member.userId}
-                  onSuccess={() => {
-                    onSuccess();
-                    onOpenChange(false);
-                  }}
-                />
-              )}
+            {member && (
+              <RemoveMemberDialog
+                memberId={member.id}
+                userId={member.userId}
+                onSuccess={() => {
+                  onSuccess();
+                  onOpenChange(false);
+                }}
+              />
+            )}
+            <DialogFooter className="flex gap-2">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => onOpenChange(false)}
+              >
+                Cancelar
+              </Button>
 
-              <div className="flex gap-2">
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={() => onOpenChange(false)}
-                >
-                  Cancelar
-                </Button>
-
-                <Button
-                  type="submit"
-                  disabled={!formState.isValid || roleMutation.isPending}
-                >
-                  {roleMutation.isPending ? 'Actualizando...' : 'Actualizar'}
-                </Button>
-              </div>
+              <Button
+                type="submit"
+                disabled={!formState.isValid || roleMutation.isPending}
+              >
+                {roleMutation.isPending ? 'Actualizando...' : 'Actualizar'}
+              </Button>
             </DialogFooter>
           </form>
         </Form>

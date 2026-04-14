@@ -74,12 +74,12 @@ export function AddMemberDialog({ onSuccess }: AddMemberDialogProps) {
     enabled: open,
   });
 
-  const projectsCleanData: Option[] = projects.map((p) => {
-    return {
-      label: p.name,
-      value: p.id,
-    };
-  });
+  // const projectsCleanData: Option[] = projects.map((p) => {
+  //   return {
+  //     label: p.name,
+  //     value: p.id,
+  //   };
+  // });
 
   const mutation = useMutation({
     mutationFn: (data: FormValues) =>

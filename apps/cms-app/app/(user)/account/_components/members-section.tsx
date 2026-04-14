@@ -74,8 +74,6 @@ export function MembersSection() {
         onOpenChange={setOpen}
         member={selected}
         onSuccess={handleRefresh}
-        // onDelete={handleDelete}
-        // onPublish={handlePublish}
       />
       <section className="flex flex-col gap-4 h-full">
         {isLoading ? (
