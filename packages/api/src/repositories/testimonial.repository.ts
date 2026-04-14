@@ -73,23 +73,21 @@ export class TestimonialRepository {
     id: string;
     select?: Prisma.TestimonialSelect;
     status?: TestimonialStatus;
-  }
-  ): Promise<any> {
-
-    const where : Prisma.TestimonialWhereUniqueInput = {id}    
-    if (status) where.status = status
+  }): Promise<any> {
+    const where: Prisma.TestimonialWhereUniqueInput = { id };
+    if (status) where.status = status;
 
     return this.prisma.client.testimonial.findUnique({
       where,
-      select
-    })
+      select,
+    });
   }
 
   async findAll(
     query: FindAllTestimonialsQuery,
     projectId: string,
   ): Promise<any[]> {
-    const { orderBy, type, category_id, fragment } = query;    
+    const { orderBy, type, category_id, fragment } = query;
     const where: Prisma.TestimonialWhereInput = {};
 
     if (projectId) where.project_id = projectId;
@@ -112,17 +110,22 @@ export class TestimonialRepository {
       ];
     }
 
-    return this.prisma.client.testimonial.findMany({
+    const results = await this.prisma.client.testimonial.findMany({
       where,
       orderBy: orderBy ?? { created_at: 'desc' },
-      include:{
-        testimonialTags:{
-          include:{
+      include: {
+        testimonialTags: {
+          include: {
             tag: true,
-          }
-        }
-      }
+          },
+        },
+      },
     });
+
+    return results.map(({ testimonialTags, ...rest }) => ({
+      ...rest,
+      tags: testimonialTags.map(({ tag }) => tag),
+    }));
   }
 
   async createQuote(quote: CreateQuoteInput): Promise<any> {
