@@ -81,7 +81,7 @@ export class TestimonialsService {
   }
 
   async findPublicById(id: string) {
-    return await this.api.findOneById(id, undefined, TestimonialStatus.published)
+    return await this.api.findOneById({id, status: TestimonialStatus.published})
     ;
   }
 
@@ -156,7 +156,7 @@ export class TestimonialsService {
     const { draft, ...updateData } = updateTestimonialDto;
 
     const { status, type }: { status: string | null; type: string | null } =
-      await this.api.findOneById(id, { status: true, type: true });
+      await this.api.findOneById({id, select: { status: true, type: true }});
 
     if (type === 'quote')
       throw new BadRequestException(`Cannot edit quote testimonials`);
@@ -192,11 +192,11 @@ export class TestimonialsService {
         );
 
       //Second things Second: Verify Testimonial
-      const testimonialExists = await this.api.findOneById(testimonialId, {
+      const testimonialExists = await this.api.findOneById({id: testimonialId, select: {
         id: true,
         title: true,
         status: true,
-      });
+      }});
       console.log(testimonialExists);
       if (!testimonialExists)
         throw new NotFoundException(

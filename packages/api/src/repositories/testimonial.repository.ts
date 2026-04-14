@@ -65,10 +65,15 @@ export class TestimonialRepository {
     });
   }
 
-  async findOneById(
-    id: string,
-    select?: Prisma.TestimonialSelect,
-    status? : TestimonialStatus
+  async findOneById({
+    id,
+    select,
+    status,
+  }: {
+    id: string;
+    select?: Prisma.TestimonialSelect;
+    status?: TestimonialStatus;
+  }
   ): Promise<any> {
 
     const where : Prisma.TestimonialWhereUniqueInput = {id}    
