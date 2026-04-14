@@ -13,7 +13,7 @@ import { useProjectStore } from '../../../store/useProjectStore';
 const navItems = [
   { title: 'Dashboard', url: '/dashboard', icon: LayoutDashboard },
   { title: 'Widgets', url: '/widgets', icon: Component },
-  { title: 'Configuraciones', url: '/settings', icon: Settings2 },
+  // { title: 'Configuraciones', url: '/settings', icon: Settings2 },
 ];
 
 export function SidebarMain() {
@@ -26,7 +26,7 @@ export function SidebarMain() {
         <SidebarGroupContent>
           <SidebarMenu>
             {navItems.map((item) => (
-              <SidebarMenuItem key={item.title} className='my-1'>
+              <SidebarMenuItem key={item.title} className="my-1">
                 <SidebarMenuButton asChild tooltip={item.title}>
                   <a href={item.url}>
                     <item.icon />

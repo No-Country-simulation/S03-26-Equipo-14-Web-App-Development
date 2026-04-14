@@ -14,7 +14,7 @@ import {
   TableRow,
 } from '@repo/ui/components';
 import { ChangeRoleDialog } from './change-role-dialog';
-import { AddMemberDialog } from '../../account/_components/add-member-dialog';
+import { AddMemberDialog } from '../../settings/_components/add-member-dialog';
 import { RemoveMemberDialog } from './remove-member-dialog';
 
 type OrgMember = {
