@@ -188,6 +188,10 @@ export class ProjectsService {
     }
   }
 
+  async getProjectsbyMember(memberId: string){
+    return this.projectRepository.getProjectsbyMember(memberId);
+  }
+
   async createApiKey(user: JwtPayload, projectId: string) {
     await this.VerifyOwnerCredentials(user);
     const orgId = user.organizationId;
@@ -218,4 +222,6 @@ export class ProjectsService {
 
     return this.encript(payload);
   }
+
+  
 }

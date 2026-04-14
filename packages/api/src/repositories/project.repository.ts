@@ -141,4 +141,21 @@ export class ProjectRepository {
       },
     });
   }
+
+  async getProjectsbyMember(memberId: string){
+    return this.prisma.client.project.findMany({
+      where: {
+        projectMembers: {
+          some: {
+            organization_member_id: memberId
+          }
+        }
+      },
+      select: {
+        id: true,
+        name: true,
+        description: true
+      }
+    })
+  }
 }
