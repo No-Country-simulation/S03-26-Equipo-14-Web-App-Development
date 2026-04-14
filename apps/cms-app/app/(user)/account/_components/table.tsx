@@ -35,10 +35,12 @@ export type Member = {
 export type Project = {
   id: string;
   name: string;
-  value: string;
+  description: string;
+  createdAt: string;
+  updateArt: string;
 };
 
-function getInitials(fullName: string): string {
+export function getInitials(fullName: string): string {
   const parts = fullName.trim().split(/\s+/).filter(Boolean);
 
   if (parts.length === 0) return '';
@@ -102,7 +104,7 @@ export const getUserColumns = (
       if (user.role !== 'Owner') {
         return (
           <div className="flex justify-center">
-            <Button variant="outline" size="sm" onClick={() => onManage(user)}>
+            <Button size="sm" onClick={() => onManage(user)}>
               Gestionar
             </Button>
           </div>
@@ -112,18 +114,33 @@ export const getUserColumns = (
   },
 ];
 
-export const projectColumns: ColumnDef<Project>[] = [
+export const getProjectColumns = (
+  onManage: (project: Project) => void,
+  onViewMembers: (project: Project) => void,
+): ColumnDef<Project>[] => [
   {
     accessorKey: 'name',
     header: 'Proyecto',
   },
   {
     id: 'actions',
-    cell: ({ row }) => (
-      <div className="flex justify-center">
-        <Button size="sm">Gestionar</Button>
-      </div>
-    ),
+    cell: ({ row }) => {
+      const project = row.original;
+      return (
+        <div className="flex justify-end gap-4">
+          <Button
+            size="sm"
+            variant="secondary"
+            onClick={() => onViewMembers(project)}
+          >
+            Ver miembros
+          </Button>
+          <Button size="sm" onClick={() => onManage(project)}>
+            Gestionar
+          </Button>
+        </div>
+      );
+    },
   },
 ];
 
@@ -172,7 +189,7 @@ export function DataTable<TData>({
       {/* 🔍 BUSCADOR + FILTRO */}
       <div className="flex gap-4">
         <Input
-          placeholder="Buscar usuario..."
+          placeholder="Buscar..."
           value={globalFilter}
           onChange={(e) => setSearch(e.target.value)}
         />
