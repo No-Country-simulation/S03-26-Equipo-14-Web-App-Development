@@ -2,6 +2,7 @@
 
 import { NoProjects } from './_components/no-projects';
 import { DashboardView } from './_components/dashboard-view';
+import { ProjectsOverview } from './_components/projects-overview';
 import { useProjectStore } from '@/store/useProjectStore';
 import { TestimonialModal } from './_components/testimonial-modal';
 import { useMemo, useState } from 'react';
@@ -110,6 +111,8 @@ export default function DashboardPage() {
 
   if (projects.length === 0) {
     content = <NoProjects />;
+  } else if (!currentProject) {
+    content = <ProjectsOverview />;
   } else {
     content = (
       <DashboardView

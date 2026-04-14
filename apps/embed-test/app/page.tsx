@@ -1,10 +1,16 @@
+"use client";
+
+import { useEffect, useState } from "react";
 import {
   Avatar,
   AvatarFallback,
   AvatarImage,
   Badge,
+  Button,
   Card,
   CardContent,
+  Input,
+  Textarea,
 } from "@repo/ui/components";
 
 interface Testimonial {
@@ -19,23 +25,6 @@ interface Testimonial {
   media_description?: string;
   rating?: number | null;
   published_at?: string;
-}
-
-async function getTestimonials(): Promise<Testimonial[]> {
-  const apiBaseUrl = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3000";
-  const embedApiKey = process.env.EMBED_API_KEY ?? "";
-  if (!embedApiKey) return [];
-  try {
-    const res = await fetch(`${apiBaseUrl}/embed`, {
-      headers: { "x-embed-key": embedApiKey },
-      next: { revalidate: 60 },
-    });
-    if (!res.ok) return [];
-    const data = await res.json();
-    return Array.isArray(data) ? data : (data?.data ?? []);
-  } catch {
-    return [];
-  }
 }
 
 function StarRating({ rating }: { rating: number; }) {
@@ -136,8 +125,15 @@ function TestimonialCard({ t }: { t: Testimonial; }) {
   );
 }
 
-export default async function LandingPage() {
-  const testimonials = await getTestimonials();
+export default function LandingPage() {
+  const [testimonials, setTestimonials] = useState<Testimonial[]>([]);
+  const [testimonialsWidgets, setTestimonialsWidgets] = useState<string[]>([]);
+  useEffect(() => {
+    fetch("/api/get-testimonials")
+      .then((r) => r.json())
+      .then((data) => setTestimonials(Array.isArray(data) ? data : []))
+      .catch(() => setTestimonials([]));
+  }, []);
 
   return (
     <div className="min-h-screen bg-background text-foreground">
@@ -210,20 +206,50 @@ export default async function LandingPage() {
               Historias reales de personas que ya transformaron su forma de trabajar.
             </p>
           </div>
-
-          {testimonials.length > 0 ? (
-            <div className="columns-1 sm:columns-2 lg:columns-3 gap-5 space-y-5">
-              {testimonials.map((t) => (
-                <div key={t.id} className="break-inside-avoid">
-                  <TestimonialCard t={t} />
-                </div>
-              ))}
+          <div className='flex flex-col border gap-4 p-4 rounded-lg'>
+            <b className='text-center text-xl'>widgets</b>
+            <div>
+              <form action="" onSubmit={(e) => {
+                e.preventDefault();
+                const formData = new FormData(e.currentTarget);
+                const iframe = formData.get('iframe') as string;
+                if (!iframe) return;
+                setTestimonialsWidgets((prev) => [...prev, iframe]);
+              }} className="flex gap-2 border p-2 ">
+                <Textarea name="iframe" placeholder='Pega el código del widget generado' className='bg-gray-100' />
+                <Button type='submit'>Cargar widget</Button>
+              </form>
             </div>
-          ) : (
-            <p className="text-center text-muted-foreground py-16">
-              No hay testimonios publicados aún.
-            </p>
-          )}
+            {
+              testimonialsWidgets.length > 0 ? (
+                <div className="grid grid-cols-2 gap-5">
+                  {testimonialsWidgets.map((W, i) => (
+                    <div key={i} dangerouslySetInnerHTML={{ __html: W }} />
+                  ))}
+                </div>
+              ) : (
+                <p className="text-center text-muted-foreground py-16">
+                  No hay widgets cargados aún.
+                </p>
+              )
+            }
+          </div>
+          <div className="flex flex-col gap-5">
+            <b className="text-center text-xl">api-key</b>
+            {testimonials.length > 0 ? (
+              <div className="columns-1 sm:columns-2 lg:columns-3 gap-5 space-y-5">
+                {testimonials.map((t) => (
+                  <div key={t.id} className="break-inside-avoid">
+                    <TestimonialCard t={t} />
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <p className="text-center text-muted-foreground py-16">
+                No hay testimonios publicados aún.
+              </p>
+            )}
+          </div>
         </div>
       </section>
 
