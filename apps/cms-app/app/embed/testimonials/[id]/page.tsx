@@ -48,9 +48,6 @@ function TestimonialWidget({ t }: { t: Testimonial; }) {
     t.type === 'video' && t.media_url
       ? (t.media_url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([^&\n?#]+)/)?.[1] ?? null)
       : null;
-  console.log(t);
-  console.log(youtubeId);
-
   return (
     <div className="flex flex-col gap-4 bg-card text-card-foreground border border-border/60 rounded-xl shadow-sm w-full h-full p-4">
       {/* Quote icon */}
@@ -115,8 +112,6 @@ export default function Page() {
   const searchParams = useSearchParams();
   const theme = searchParams.get('theme');
   const isDark = theme === 'dark';
-  console.log(isDark);
-
 
   const { data: testimonial, isLoading, isError } = useQuery({
     queryKey: ['testimonialEmbed', id],

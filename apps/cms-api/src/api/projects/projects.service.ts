@@ -1,5 +1,6 @@
 import {
   ConflictException,
+  HttpException,
   Injectable,
   NotAcceptableException,
   NotFoundException,
@@ -28,7 +29,7 @@ export class ProjectsService {
     private readonly organizationMemberRepository: OrganizationMemberRepository,
     private readonly projectRepository: ProjectRepository,
     private readonly userRepository: UserRepository,
-  ) { }
+  ) {}
 
   private async VerifyOwnerCredentials(user: JwtPayload) {
     const organizationMember: OrganizationMember | null =
@@ -102,7 +103,7 @@ export class ProjectsService {
         throw new NotFoundException(
           "It seems the Project you're searching doesn't exists on the DB.",
         );
-      
+
       if (answer == undefined)
         throw new ConflictException(
           'Something happened searching for the list, try again later.',
@@ -131,8 +132,8 @@ export class ProjectsService {
 
   async remove(id: string, userId: string) {
     try {
-      const theRole = await this.userRepository.findById(userId);
-      if (theRole?.organizationMembers[0]?.role != 'Owner')
+      const theRole = await this.userRepository.findById(userId, true);
+      if (theRole?.organizationMembers?.[0]?.role != 'Owner')
         throw new ConflictException(
           'Only the Owner can delete Projects. Have a nice Day!',
         );
@@ -182,8 +183,13 @@ export class ProjectsService {
       console.log(answer);
       return `The project with id ${answer.id} and titled ${answer.name} was successfully deleted!`;
     } catch (error: Error | any) {
-      throw new ConflictException(error);
+      if (error instanceof HttpException) throw error;
+      throw new ConflictException(error?.message || 'An error occurred');
     }
+  }
+
+  async getProjectsbyMember(memberId: string){
+    return this.projectRepository.getProjectsbyMember(memberId);
   }
 
   async createApiKey(user: JwtPayload, projectId: string) {
@@ -216,4 +222,6 @@ export class ProjectsService {
 
     return this.encript(payload);
   }
+
+  
 }

@@ -6,59 +6,63 @@ import {
   UpdateProjectInput,
 } from './interfaces/project.interface';
 import { PrismaService } from '../prisma/prisma.service';
-import { Prisma, Project } from '@workspace/database';
+import { Prisma as _Prisma, Project } from '@workspace/database';
 
 @Injectable()
 export class ProjectRepository {
-  constructor(private readonly prisma: PrismaService) { }
+  constructor(private readonly prisma: PrismaService) {}
   async create(data: CreateProjectInput) {
-
     const project = await this.prisma.client.project.create({
       data: {
         name: data.name,
         organization_id: data.organization_id,
-        description: data.description
+        description: data.description,
       },
     });
     const orgMember = await this.prisma.client.organization_Member.findFirst({
       where: {
-        user_id: data.sub
-      }
-    })
+        user_id: data.sub,
+      },
+    });
     if (orgMember != null) {
-       await this.prisma.client.project_Member.create({
+      await this.prisma.client.project_Member.create({
         data: {
           organization_member_id: orgMember.id,
           project_id: project.id,
-          user_id: data.sub
-        }
-      })
+          user_id: data.sub,
+        },
+      });
       return project;
     }
-
   }
 
-  async findAllAssigned(organizationId: string, orgMemberId: string): Promise<Project[]> {
+  async findAllAssigned(
+    organizationId: string,
+    orgMemberId: string,
+  ): Promise<Project[]> {
     return this.prisma.client.project.findMany({
       where: {
         organization_id: organizationId,
         projectMembers: {
           some: {
-            organization_member_id: orgMemberId
-          }
-        }
+            organization_member_id: orgMemberId,
+          },
+        },
       },
-    })
+    });
   }
 
-  async findOneById(id: string, include?: projectInclude): Promise<Project2 | null> {
+  async findOneById(
+    id: string,
+    include?: projectInclude,
+  ): Promise<Project2 | null> {
     if (include) {
       const f = await this.prisma.client.project.findUnique({
         where: { id },
-        include
-      })
+        include,
+      });
       return f;
-    };
+    }
     return await this.prisma.client.project.findUnique({
       where: { id },
     });
@@ -72,10 +76,10 @@ export class ProjectRepository {
     });
   }
 
-  async allMembers(id: string): Promise<any[]>{
+  async allMembers(id: string): Promise<any[]> {
     return await this.prisma.client.project_Member.findMany({
       where: {
-        project_id: id
+        project_id: id,
       },
       include: {
         organization_member: {
@@ -83,13 +87,13 @@ export class ProjectRepository {
             user: {
               select: {
                 name: true,
-                email: true
-              }
-            }
-          }
-        }
-      }
-    })
+                email: true,
+              },
+            },
+          },
+        },
+      },
+    });
   }
   async update(project: UpdateProjectInput) {
     await this.prisma.client.project.update({
@@ -100,52 +104,33 @@ export class ProjectRepository {
     });
   }
 
-  async disconnectFromProject(projectId: string) {
-    return await this.prisma.client.project.update({
-      where: { id: projectId },
-      data: {
-        categories: {
-          set: []
-        },
-        tags: {
-          set: []
-        },
-        projectMembers: {
-          set: []
-        }
-      },
-      include: {
-        tags: true,
-        categories: true,
-        projectMembers: true,
-      }
-    })
+  async disconnectFromProject(_projectId: string) {
+    return { categories: [], projectMembers: [], tags: [] };
   }
 
-  async disconnectTestimonials(projectId: string) {
-    return this.prisma.client.project.update({
-      where: { id: projectId },
-      data: {
-        testimonials: {
-          deleteMany: {},
-        },
-      },
-      include: { testimonials: true, }
-    });
-  };
+  async disconnectTestimonials(_projectId: string) {
+    return { testimonials: [] };
+  }
 
   async delete(id: string) {
-    return this.prisma.client.project.delete({
-      where: {
-        id
-      }, include:
-      {
-        tags: true,
-        categories: true,
-        projectMembers: true,
-        testimonials: true,
-      }
-    })
+    // 1. Null out member_id (FK to Project_Member, no cascade)
+    await this.prisma.client.testimonial.updateMany({
+      where: { project_id: id, member_id: { not: null } },
+      data: { member_id: null },
+    });
+
+    // 2. Delete Testimonial_Tag rows (no cascade from Testimonial)
+    await this.prisma.client.testimonial_Tag.deleteMany({
+      where: { testimonial: { project_id: id } },
+    });
+
+    // 3. Delete Testimonials (no cascade from Project)
+    await this.prisma.client.testimonial.deleteMany({
+      where: { project_id: id },
+    });
+
+    // 4. Delete Project — Category, Project_Member and _ProjectToTag cascade automatically
+    return this.prisma.client.project.delete({ where: { id } });
   }
 
   async generateApiKey(key: string, projectId: string) {
@@ -154,6 +139,23 @@ export class ProjectRepository {
       data: {
         api_key: key,
       },
+    });
+  }
+
+  async getProjectsbyMember(memberId: string){
+    return this.prisma.client.project.findMany({
+      where: {
+        projectMembers: {
+          some: {
+            organization_member_id: memberId
+          }
+        }
+      },
+      select: {
+        id: true,
+        name: true,
+        description: true
+      }
     })
   }
 }
