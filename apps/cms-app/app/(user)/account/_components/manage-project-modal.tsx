@@ -31,6 +31,7 @@ import {
   toast,
 } from '@repo/ui/components';
 import type { Project } from './table';
+import { useQuery } from '@tanstack/react-query';
 
 interface ProjectFormValues {
   name: string;
@@ -56,6 +57,17 @@ export function ManageProjectModal({
       // tags: project?.tags,
     },
     mode: 'onTouched',
+  });
+
+  const { data: categoriesData } = useQuery({
+    queryKey: ['category'],
+    queryFn: async () => {
+      if (!project) {
+        return;
+      }
+      const res = await apiClient.get(`/categories/${project.id}`);
+      return res.data.data;
+    },
   });
 
   const { control, handleSubmit, reset, formState } = form;
@@ -209,7 +221,12 @@ export function ManageProjectModal({
                 <AlertDialogFooter>
                   <AlertDialogCancel>Cancelar</AlertDialogCancel>
                   <AlertDialogAction
-                    onClick={() => deleteProject.mutate(project.id)}
+                    onClick={() => {
+                      if (!project) {
+                        return;
+                      }
+                      deleteProject.mutate(project.id);
+                    }}
                     disabled={deleteProject.isPending}
                   >
                     {deleteProject.isPending ? 'Eliminando...' : 'Eliminar'}

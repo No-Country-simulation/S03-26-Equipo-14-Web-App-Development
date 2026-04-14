@@ -54,8 +54,6 @@ export function ProjectSheet({
     retry: false,
   });
 
-  console.log('dataaaa', projectMembers);
-
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent>
