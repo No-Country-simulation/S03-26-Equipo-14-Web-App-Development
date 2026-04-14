@@ -115,6 +115,13 @@ export class TestimonialRepository {
     return this.prisma.client.testimonial.findMany({
       where,
       orderBy: orderBy ?? { created_at: 'desc' },
+      include:{
+        testimonialTags:{
+          include:{
+            tag: true,
+          }
+        }
+      }
     });
   }
 
