@@ -1,6 +1,6 @@
 'use client';
 
-/* import { TestimonialCarrousel } from '@repo/cms-library'; */
+import { TestimonialCarrousel } from "@team14/cms-library"
 import { useEffect, useState } from 'react';
 import {
   Avatar,
@@ -267,13 +267,13 @@ export default function LandingPage() {
           </div>
           <div className="flex flex-col">
             <b className="w-full text-center text-xl">CMS Library Components</b>
-            {/* <TestimonialCarrousel
+            <TestimonialCarrousel
               length={2}
               apiKey={
-                
+                process.env.NEXT_PUBLIC_API_KEY
               }
               className={''}
-            /> */}
+            />
           </div>
         </div>
       </section>
