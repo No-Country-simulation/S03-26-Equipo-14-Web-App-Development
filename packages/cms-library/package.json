@@ -1,7 +1,7 @@
 {
   "name": "@team14/cms-library",
   "private": false,
-  "version": "0.1.3",
+  "version": "0.2.0",
   "description": "Library of Components for CMS Web App.",
   "repository": {
     "type": "git",
