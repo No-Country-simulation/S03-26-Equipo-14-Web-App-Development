@@ -16,7 +16,7 @@
     "clean:builds": "rm -rf packages/*/dist && rm -rf apps/*/dist && rm -rf apps/*/.next && rm -rf .turbo/ && rm -rf apps/*/.turbo && rm -rf packages/*/.turbo",
     "changeset": "changeset",
     "version-packages": "changeset version",
-    "publish-packages": "turbo run build --filter=@team14/cms-library && changeset publish --provenance"
+    "publish-packages": "turbo run build --filter=@team14/cms-library && changeset publish --provenance --access public"
   },
   "devDependencies": {
     "@changesets/changelog-github": "^0.6.0",
