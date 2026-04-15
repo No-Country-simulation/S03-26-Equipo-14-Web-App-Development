@@ -11,7 +11,7 @@
   "author": "Team 14 - EmanuelFuneS",
   "license": "MIT",
   "homepage": "https://github.com/No-Country-simulation/S03-26-Equipo-14-Web-App-Development",
-
+  "files": ["dist"],
   "type": "module",
   "main": "./dist/index.cjs.js",
   "module": "./dist/index.es.js",

@@ -14,13 +14,9 @@
     "format": "prettier --write \"**/*.{ts,tsx,md}\"",
     "clean:node": "rm -rf node_modules/ && rm -rf apps/*/node_modules && rm -rf packages/*/node_modules && rm -rf packages/*/dist && rm -rf apps/*/dist && rm -rf apps/*/.next && rm -rf .turbo/ && rm -rf apps/*/.turbo && rm -rf packages/*/.turbo && rm -rf pnpm-lock.yaml",
     "clean:builds": "rm -rf packages/*/dist && rm -rf apps/*/dist && rm -rf apps/*/.next && rm -rf .turbo/ && rm -rf apps/*/.turbo && rm -rf packages/*/.turbo",
-    "changeset": "changeset",
-    "version-packages": "changeset version",
-    "publish-packages": "turbo run build --filter=@team14/cms-library && changeset publish --provenance --access public"
+    "release": "node scripts/release.mjs"
   },
   "devDependencies": {
-    "@changesets/changelog-github": "^0.6.0",
-    "@changesets/cli": "^2.30.0",
     "@repo/eslint-config": "workspace:*",
     "@repo/typescript-config": "workspace:*",
     "prettier": "^3.2.5",
