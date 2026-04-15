@@ -1,6 +1,7 @@
-"use client";
+'use client';
 
-import { useEffect, useState } from "react";
+/* import { TestimonialCarrousel } from '@repo/cms-library'; */
+import { useEffect, useState } from 'react';
 import {
   Avatar,
   AvatarFallback,
@@ -11,11 +12,11 @@ import {
   CardContent,
   Input,
   Textarea,
-} from "@repo/ui/components";
+} from '@repo/ui/components';
 
 interface Testimonial {
   id: string;
-  type: "text" | "video" | "audio";
+  type: 'text' | 'video' | 'audio';
   title?: string;
   content?: string;
   author: string;
@@ -27,7 +28,7 @@ interface Testimonial {
   published_at?: string;
 }
 
-function StarRating({ rating }: { rating: number; }) {
+function StarRating({ rating }: { rating: number }) {
   const rounded = Math.round(rating);
   return (
     <div className="flex gap-0.5" aria-label={`${rounded} de 5 estrellas`}>
@@ -37,7 +38,7 @@ function StarRating({ rating }: { rating: number; }) {
           xmlns="http://www.w3.org/2000/svg"
           viewBox="0 0 24 24"
           fill="currentColor"
-          className={`w-4 h-4 ${i < rounded ? "text-amber-400" : "text-muted-foreground/25"}`}
+          className={`w-4 h-4 ${i < rounded ? 'text-amber-400' : 'text-muted-foreground/25'}`}
         >
           <path d="M12 17.27 18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z" />
         </svg>
@@ -46,19 +47,19 @@ function StarRating({ rating }: { rating: number; }) {
   );
 }
 
-function TestimonialCard({ t }: { t: Testimonial; }) {
+function TestimonialCard({ t }: { t: Testimonial }) {
   const initials = t.author
-    .split(" ")
+    .split(' ')
     .slice(0, 2)
     .map((n) => n[0])
-    .join("")
+    .join('')
     .toUpperCase();
 
   const youtubeId =
-    t.type === "video" && t.media_url
+    t.type === 'video' && t.media_url
       ? (t.media_url.match(
-        /(?:youtube\.com\/watch\?v=|youtu\.be\/)([^&\n?#]+)/
-      )?.[1] ?? null)
+          /(?:youtube\.com\/watch\?v=|youtu\.be\/)([^&\n?#]+)/,
+        )?.[1] ?? null)
       : null;
 
   return (
@@ -92,7 +93,7 @@ function TestimonialCard({ t }: { t: Testimonial; }) {
               src={`https://www.youtube.com/embed/${youtubeId}`}
               allowFullScreen
               allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-              title={t.media_description ?? "Video testimonial"}
+              title={t.media_description ?? 'Video testimonial'}
             />
           </div>
         )}
@@ -129,7 +130,7 @@ export default function LandingPage() {
   const [testimonials, setTestimonials] = useState<Testimonial[]>([]);
   const [testimonialsWidgets, setTestimonialsWidgets] = useState<string[]>([]);
   useEffect(() => {
-    fetch("/api/get-testimonials")
+    fetch('/api/get-testimonials')
       .then((r) => r.json())
       .then((data) => setTestimonials(Array.isArray(data) ? data : []))
       .catch(() => setTestimonials([]));
@@ -160,9 +161,15 @@ export default function LandingPage() {
             <span className="font-semibold text-sm">AcmeCorp</span>
           </div>
           <div className="hidden md:flex items-center gap-6 text-sm text-muted-foreground">
-            <a href="#" className="hover:text-foreground transition-colors">Producto</a>
-            <a href="#" className="hover:text-foreground transition-colors">Precios</a>
-            <a href="#" className="hover:text-foreground transition-colors">Blog</a>
+            <a href="#" className="hover:text-foreground transition-colors">
+              Producto
+            </a>
+            <a href="#" className="hover:text-foreground transition-colors">
+              Precios
+            </a>
+            <a href="#" className="hover:text-foreground transition-colors">
+              Blog
+            </a>
           </div>
           <button className="text-sm bg-primary text-primary-foreground px-4 py-1.5 rounded-lg font-medium hover:bg-primary/90 transition-colors">
             Empezar gratis
@@ -174,10 +181,11 @@ export default function LandingPage() {
       <section className="px-6 pt-20 pb-16 text-center">
         <div className="max-w-3xl mx-auto space-y-5">
           <Badge variant="secondary" className="text-xs px-3 py-1">
-            +{testimonials.length > 0 ? testimonials.length : "500"} clientes satisfechos
+            +{testimonials.length > 0 ? testimonials.length : '500'} clientes
+            satisfechos
           </Badge>
           <h1 className="text-4xl sm:text-5xl font-bold text-foreground tracking-tight leading-tight">
-            La plataforma que impulsa tu{" "}
+            La plataforma que impulsa tu{' '}
             <span className="text-primary">crecimiento</span>
           </h1>
           <p className="text-lg text-muted-foreground max-w-xl mx-auto leading-relaxed">
@@ -203,36 +211,43 @@ export default function LandingPage() {
               Lo que dicen nuestros clientes
             </h2>
             <p className="text-muted-foreground text-sm">
-              Historias reales de personas que ya transformaron su forma de trabajar.
+              Historias reales de personas que ya transformaron su forma de
+              trabajar.
             </p>
           </div>
-          <div className='flex flex-col border gap-4 p-4 rounded-lg'>
-            <b className='text-center text-xl'>widgets</b>
+          <div className="flex flex-col border gap-4 p-4 rounded-lg">
+            <b className="text-center text-xl">widgets</b>
             <div>
-              <form action="" onSubmit={(e) => {
-                e.preventDefault();
-                const formData = new FormData(e.currentTarget);
-                const iframe = formData.get('iframe') as string;
-                if (!iframe) return;
-                setTestimonialsWidgets((prev) => [...prev, iframe]);
-              }} className="flex gap-2 border p-2 ">
-                <Textarea name="iframe" placeholder='Pega el código del widget generado' className='bg-gray-100' />
-                <Button type='submit'>Cargar widget</Button>
+              <form
+                action=""
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  const formData = new FormData(e.currentTarget);
+                  const iframe = formData.get('iframe') as string;
+                  if (!iframe) return;
+                  setTestimonialsWidgets((prev) => [...prev, iframe]);
+                }}
+                className="flex gap-2 border p-2 "
+              >
+                <Textarea
+                  name="iframe"
+                  placeholder="Pega el código del widget generado"
+                  className="bg-gray-100"
+                />
+                <Button type="submit">Cargar widget</Button>
               </form>
             </div>
-            {
-              testimonialsWidgets.length > 0 ? (
-                <div className="grid grid-cols-2 gap-5">
-                  {testimonialsWidgets.map((W, i) => (
-                    <div key={i} dangerouslySetInnerHTML={{ __html: W }} />
-                  ))}
-                </div>
-              ) : (
-                <p className="text-center text-muted-foreground py-16">
-                  No hay widgets cargados aún.
-                </p>
-              )
-            }
+            {testimonialsWidgets.length > 0 ? (
+              <div className="grid grid-cols-2 gap-5">
+                {testimonialsWidgets.map((W, i) => (
+                  <div key={i} dangerouslySetInnerHTML={{ __html: W }} />
+                ))}
+              </div>
+            ) : (
+              <p className="text-center text-muted-foreground py-16">
+                No hay widgets cargados aún.
+              </p>
+            )}
           </div>
           <div className="flex flex-col gap-5">
             <b className="text-center text-xl">api-key</b>
@@ -250,15 +265,28 @@ export default function LandingPage() {
               </p>
             )}
           </div>
+          <div className="flex flex-col">
+            <b className="w-full text-center text-xl">CMS Library Components</b>
+            {/* <TestimonialCarrousel
+              length={2}
+              apiKey={
+                
+              }
+              className={''}
+            /> */}
+          </div>
         </div>
       </section>
 
       {/* CTA final */}
       <section className="border-t border-border bg-muted/40 px-6 py-20 text-center">
         <div className="max-w-2xl mx-auto space-y-5">
-          <h2 className="text-3xl font-bold text-foreground">¿Listo para empezar?</h2>
+          <h2 className="text-3xl font-bold text-foreground">
+            ¿Listo para empezar?
+          </h2>
           <p className="text-muted-foreground">
-            Únete a miles de equipos que ya utilizan AcmeCorp. Sin tarjeta de crédito.
+            Únete a miles de equipos que ya utilizan AcmeCorp. Sin tarjeta de
+            crédito.
           </p>
           <button className="bg-primary text-primary-foreground px-8 py-3 rounded-lg font-medium hover:bg-primary/90 transition-colors">
             Crear cuenta gratis
