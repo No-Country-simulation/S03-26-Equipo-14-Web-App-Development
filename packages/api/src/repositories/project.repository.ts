@@ -158,4 +158,13 @@ export class ProjectRepository {
       }
     })
   }
+
+  async deleteMember (memberId: string, projectId: string) {
+    return await this.prisma.client.project_Member.delete({
+      where: {
+        id: memberId,
+        project_id: projectId
+      }
+    })
+  }
 }

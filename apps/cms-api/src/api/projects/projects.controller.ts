@@ -64,4 +64,9 @@ export class ProjectsController {
   async getMember(@Param("memberId") memberId: string) {
     return this.projectsService.getProjectsbyMember(memberId);
   }
+
+  @Delete("/:projectId/member/:memberId")
+  async deleteMember(@Param("memberId") memberId: string, @Param("projectId") projectId: string ,@GetUser () user: JwtPayload) {
+    return this.projectsService.deleteMember(memberId, projectId, user)
+  }
 }

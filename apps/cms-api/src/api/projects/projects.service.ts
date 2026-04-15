@@ -192,6 +192,11 @@ export class ProjectsService {
     return this.projectRepository.getProjectsbyMember(memberId);
   }
 
+  async deleteMember(memberId: string, projectId: string, user: JwtPayload){
+    await this.VerifyOwnerCredentials(user);
+    return this.projectRepository.deleteMember(memberId, projectId);
+  }
+
   async createApiKey(user: JwtPayload, projectId: string) {
     await this.VerifyOwnerCredentials(user);
     const orgId = user.organizationId;
