@@ -31,5 +31,9 @@ export class UpdateOrganizationMemberRoleDto {
     @IsEnum([OrganizationRoleEnum.Admin, OrganizationRoleEnum.Editor], {message: "The role must be admin or editor."})
     role! : OrganizationRoleEnum
 }
-
+export class addMember2ProjectDto{
+    @IsString()
+    @IsNotEmpty()
+    projectId!: string
+}
 export class UpdateOrganizationDto extends PartialType(PickType(createOrganizationDto, ['name', 'description'])) {}

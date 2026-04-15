@@ -28,4 +28,13 @@ export class OrganizationMemberRepository {
             },
         })
     }
+
+    async findById(id: string){
+        return await this.prisma.client.organization_Member.findUnique({
+            where: {id},
+            include:{
+                projectMembers: true,
+            }
+        })
+    }
 }
