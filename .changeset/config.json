@@ -7,14 +7,5 @@
   "access": "public",
   "baseBranch": "cms-package",
   "updateInternalDependencies": "patch",
-  "ignore": [
-    "cms-app",
-    "cms-api",
-    "embed-test",
-    "my-turborepo",
-    "@repo/api",
-    "@repo/env",
-    "@repo/ui",
-    "@workspace/database"
-  ]
+  "ignore": []
 }
