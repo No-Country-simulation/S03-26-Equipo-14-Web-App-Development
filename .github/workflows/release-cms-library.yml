@@ -4,8 +4,6 @@ on:
   push:
     branches:
       - cms-package
-    paths:
-      - '.changeset/**'
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }} 
@@ -45,8 +43,8 @@ jobs:
       - name: Create Release PR or Publish to npm
         uses: changesets/action@v1
         with:
-          publish: pnpm run publish-packages
           version: pnpm run version-packages
+          publish: pnpm run publish-packages
           commit: "chore(release): version packages [skip ci]"
           title: "chore(release): version packages"
         env: 
