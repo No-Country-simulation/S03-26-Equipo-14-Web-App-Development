@@ -1,7 +1,7 @@
 {
   "name": "@team14/cms-library",
   "private": false,
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Library of Components for CMS Web App.",
   "repository": {
     "type": "git",
@@ -11,7 +11,6 @@
   "author": "Team 14 - EmanuelFuneS",
   "license": "MIT",
   "homepage": "https://github.com/No-Country-simulation/S03-26-Equipo-14-Web-App-Development",
-
   "type": "module",
   "main": "./dist/index.cjs.js",
   "module": "./dist/index.es.js",
