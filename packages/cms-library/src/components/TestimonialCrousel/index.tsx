@@ -20,8 +20,13 @@ const variants = {
   }),
 };
 
-const TestimonialCarrousel = ({ apiKey, length = 2, className }: ComponentProps) => {
-  const { isLoading, testimonials } = useFetchTestimonials({ apiKey });
+const TestimonialCarrousel = ({
+  apiKey,
+  length = 2,
+  className,
+  type,
+}: ComponentProps) => {
+  const { isLoading, testimonials } = useFetchTestimonials({ apiKey, type });
   const [currentIndex, setCurrentIndex] = useState(0);
   const [direction, setDirection] = useState(1);
 
@@ -29,7 +34,9 @@ const TestimonialCarrousel = ({ apiKey, length = 2, className }: ComponentProps)
 
   const paginate = (newDirection: number) => {
     setDirection(newDirection);
-    setCurrentIndex((prev) => (prev + newDirection + data.length) % data.length);
+    setCurrentIndex(
+      (prev) => (prev + newDirection + data.length) % data.length,
+    );
   };
 
   const renderCard = (testimonial: Testimonial) => {
@@ -44,7 +51,7 @@ const TestimonialCarrousel = ({ apiKey, length = 2, className }: ComponentProps)
   };
 
   return (
-    <div className={cn("w-full flex flex-col my-10", className)}>
+    <div className={cn('w-full flex flex-col my-10', className)}>
       <div className="flex items-center justify-center px-4">
         {isLoading ? (
           <div className="text-muted-foreground">Cargando testimonios...</div>
@@ -68,7 +75,6 @@ const TestimonialCarrousel = ({ apiKey, length = 2, className }: ComponentProps)
               </AnimatePresence>
             </div>
 
-            
             <div className="flex items-center justify-center gap-8">
               <button
                 onClick={() => paginate(-1)}
@@ -87,10 +93,10 @@ const TestimonialCarrousel = ({ apiKey, length = 2, className }: ComponentProps)
                       setCurrentIndex(idx);
                     }}
                     className={cn(
-                      "w-3.5 h-3.5 rounded-full transition-all",
+                      'w-3.5 h-3.5 rounded-full transition-all',
                       idx === currentIndex
-                        ? "bg-primary scale-125"
-                        : "bg-muted-foreground/30 hover:bg-muted-foreground/50"
+                        ? 'bg-primary scale-125'
+                        : 'bg-muted-foreground/30 hover:bg-muted-foreground/50',
                     )}
                     aria-label={`Ir al testimonio ${idx + 1}`}
                   />
