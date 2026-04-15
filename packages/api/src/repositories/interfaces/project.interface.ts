@@ -16,12 +16,13 @@ export interface UpdateProjectInput {
   description: string;
 }
 
+
 export interface projectInclude {
   projectMembers?: boolean;
   categories?: boolean;
   tags?: boolean;
-  testimonials: boolean;
-}
+  testimonials?: boolean;
+}  
 
 export type Project2 = Project & {
   projectMembers?: Project_Member[];
