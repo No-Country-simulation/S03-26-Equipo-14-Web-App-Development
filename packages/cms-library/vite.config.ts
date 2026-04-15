@@ -13,7 +13,7 @@ export default defineConfig(({ command }) => {
   }
 
   return {
-    plugins: [react(), dts({ insertTypesEntry: true })],
+    plugins: [react(), dts({ insertTypesEntry: true, include: ['src/**/*'], outDir: 'dist' })],
     build: {
       cssCodeSplit: false,
       lib: {
