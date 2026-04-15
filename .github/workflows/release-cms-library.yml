@@ -4,6 +4,8 @@ on:
   push:
     branches:
       - cms-package
+    paths:
+      - '.changeset/**'
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }} 
