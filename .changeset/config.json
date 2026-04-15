@@ -1,6 +1,5 @@
 {
   "$schema": "https://unpkg.com/@changesets/config@3.1.3/schema.json",
-  /* "changelog": ["@changesets/changelog-github", {"repo": "No-Country-simulation/S03-26-Equipo-14-Web-App-Development"}], */
   "changelog": "@changesets/cli/changelog",
   "commit": false,
   "fixed": [],
