@@ -2,6 +2,7 @@ export * from './prisma/prisma.module';
 export * from './prisma/prisma.service';
 export * from './repositories/analytics.repository';
 export * from './repositories/category.repository';
+export * from './repositories/project-member.repository';
 export * from './repositories/embed.repository';
 export * from './repositories/organization-member.repository';
 export * from './repositories/organization.repository';
