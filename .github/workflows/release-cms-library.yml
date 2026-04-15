@@ -36,7 +36,7 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       - name: Build CMS Library
-        run: cd packages/cms-library && pnpm build
+        run: pnpm turbo build --filter=@team14/cms-library
 
       - name: Publish to npm
         run: pnpm publish --filter=@team14/cms-library --no-git-checks --access public
