@@ -1,5 +1,10 @@
 import { Injectable } from '@nestjs/common';
-import { Prisma, Testimonial, TestimonialStatus } from '@workspace/database';
+import {
+  Prisma,
+  Testimonial,
+  TestimonialStatus,
+  TestimonialType,
+} from '@workspace/database';
 import { PrismaService } from '../prisma/prisma.service';
 
 @Injectable()
@@ -25,12 +30,18 @@ export class EmbedRepository {
 
   async findAllPublishedTestimonials(
     projectId: string,
+    type?: TestimonialType,
   ): Promise<Testimonial[]> {
+    let where: Prisma.TestimonialWhereInput = {
+      project_id: projectId,
+      status: TestimonialStatus.published,
+    };
+    if (type && Object.values(TestimonialType).includes(type)) {
+      where.type = type;
+    }
+
     return await this.prisma.client.testimonial.findMany({
-      where: {
-        project_id: projectId,
-        status: TestimonialStatus.published,
-      },
+      where,
     });
   }
 }
