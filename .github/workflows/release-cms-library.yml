@@ -4,6 +4,8 @@ on:
   push:
     branches:
       - cms-package
+    paths:
+      - 'packages/cms-library/**'
 
 jobs:
   release: 
