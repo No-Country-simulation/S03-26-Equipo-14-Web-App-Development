@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import apiClient from '@/shared/lib/apiClient';
@@ -14,6 +14,7 @@ import {
   AlertDialogFooter,
   AlertDialogCancel,
   AlertDialogAction,
+  Badge,
   Button,
   Dialog,
   DialogContent,
@@ -27,17 +28,24 @@ import {
   FormControl,
   FormMessage,
   Input,
+  Separator,
   Textarea,
   toast,
 } from '@repo/ui/components';
 import type { Project } from './table';
 import { useQuery } from '@tanstack/react-query';
+import { X } from '@repo/ui/lib';
 
 interface ProjectFormValues {
   name: string;
   description: string;
   categoryId: string;
   tags: string[];
+}
+
+interface Category {
+  id: string;
+  name: string;
 }
 
 export function ManageProjectModal({
@@ -49,25 +57,23 @@ export function ManageProjectModal({
   onOpenChange: (open: boolean) => void;
   project: Project | null;
 }) {
+  const [newCategoryName, setNewCategoryName] = useState('');
+
   const form = useForm<ProjectFormValues>({
     defaultValues: {
       name: project?.name,
       description: project?.description,
-      // categoryId: project?.category,
-      // tags: project?.tags,
     },
     mode: 'onTouched',
   });
 
-  const { data: categoriesData } = useQuery({
-    queryKey: ['category'],
+  const { data: categoriesData, isLoading: categoriesLoading } = useQuery<Category[]>({
+    queryKey: ['categories', project?.id],
     queryFn: async () => {
-      if (!project) {
-        return;
-      }
-      const res = await apiClient.get(`/categories/${project.id}`);
-      return res.data.data;
+      const res = await apiClient.get(`/categories/${project!.id}`);
+      return res.data.data ?? res.data;
     },
+    enabled: open && !!project?.id,
   });
 
   const { control, handleSubmit, reset, formState } = form;
@@ -100,6 +106,31 @@ export function ManageProjectModal({
     },
   });
 
+  const createCategory = useMutation({
+    mutationFn: (name: string) =>
+      apiClient.post(`/categories/${project?.id}`, { name }),
+    onSuccess: () => {
+      toast.success('Categoría creada');
+      setNewCategoryName('');
+      queryClient.invalidateQueries({ queryKey: ['categories', project?.id] });
+    },
+    onError: () => {
+      toast.error('Error al crear categoría');
+    },
+  });
+
+  const deleteCategory = useMutation({
+    mutationFn: (categoryId: string) =>
+      apiClient.delete(`/categories/${project?.id}/${categoryId}`),
+    onSuccess: () => {
+      toast.success('Categoría eliminada');
+      queryClient.invalidateQueries({ queryKey: ['categories', project?.id] });
+    },
+    onError: () => {
+      toast.error('Error al eliminar categoría');
+    },
+  });
+
   const onSubmit = (data: ProjectFormValues) => {
     if (!project?.id) return;
     updateProject.mutate(data);
@@ -110,11 +141,10 @@ export function ManageProjectModal({
       reset({
         name: project.name,
         description: project.description ?? '',
-        // categoryId: project.categoryId ?? '',
-        // tags: project.tags?.map((t) => t.id) ?? [],
       });
     }
   }, [project, reset]);
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent>
@@ -156,47 +186,70 @@ export function ManageProjectModal({
               )}
             />
 
-            {/* Categoría */}
-            {/* <FormField
-      control={control}
-      name="categoryId"
-      rules={{ required: 'Seleccione una categoría' }}
-      render={({ field }) => (
-        <FormItem>
-          <FormLabel>Categoría</FormLabel>
-          <Select onValueChange={field.onChange} value={field.value}>
-            <SelectTrigger>
-              <SelectValue placeholder="Selecciona categoría" />
-            </SelectTrigger>
-            <SelectContent>
-              {categories.map((c) => (
-                <SelectItem key={c.id} value={c.id}>
-                  {c.name}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-          <FormMessage />
-        </FormItem>
-      )}
-    /> */}
+            <Separator />
 
-            {/* Tags */}
-            {/* <FormField
-      control={control}
-      name="tags"
-      render={({ field }) => (
-        <FormItem>
-          <FormLabel>Tags</FormLabel>
-          <MultiSelect
-            options={tagsOptions}
-            value={field.value}
-            onChange={field.onChange}
-            placeholder="Selecciona tags"
-          />
-        </FormItem>
-      )}
-    /> */}
+            {/* Categorías */}
+            <div className="flex flex-col gap-2">
+              <FormLabel>Categorías</FormLabel>
+
+              {/* Lista de categorías existentes */}
+              {categoriesLoading ? (
+                <p className="text-sm text-muted-foreground">Cargando categorías...</p>
+              ) : categoriesData && categoriesData.length > 0 ? (
+                <div className="flex flex-wrap gap-2">
+                  {categoriesData.map((cat) => (
+                    <Badge key={cat.id} variant="secondary" className="flex items-center gap-1 pr-1">
+                      {cat.name}
+                      <button
+                        type="button"
+                        className="ml-1 rounded-full hover:bg-muted p-0.5"
+                        disabled={deleteCategory.isPending}
+                        onClick={() => deleteCategory.mutate(cat.id)}
+                        aria-label={`Eliminar categoría ${cat.name}`}
+                      >
+                        <X className="h-3 w-3" />
+                      </button>
+                    </Badge>
+                  ))}
+                </div>
+              ) : (
+                <p className="text-sm text-muted-foreground">
+                  No hay categorías creadas para este proyecto.
+                </p>
+              )}
+
+              {/* Nueva categoría */}
+              <div className="flex gap-2">
+                <Input
+                  placeholder="Nueva categoría"
+                  value={newCategoryName}
+                  onChange={(e) => setNewCategoryName(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                      e.preventDefault();
+                      if (newCategoryName.trim()) {
+                        createCategory.mutate(newCategoryName.trim());
+                      }
+                    }
+                  }}
+                />
+                <Button
+                  type="button"
+                  variant="outline"
+                  disabled={!newCategoryName.trim() || createCategory.isPending}
+                  onClick={() => {
+                    if (newCategoryName.trim()) {
+                      createCategory.mutate(newCategoryName.trim());
+                    }
+                  }}
+                >
+                  {createCategory.isPending ? 'Creando...' : 'Agregar'}
+                </Button>
+              </div>
+            </div>
+
+            <Separator />
+
             <AlertDialog>
               <AlertDialogTrigger asChild>
                 <Button
@@ -210,7 +263,7 @@ export function ManageProjectModal({
               <AlertDialogContent>
                 <AlertDialogHeader>
                   <AlertDialogTitle>
-                    ¿Eliminar el proyecto "{project?.name}"?
+                    ¿Eliminar el proyecto &ldquo;{project?.name}&rdquo;?
                   </AlertDialogTitle>
                   <AlertDialogDescription>
                     Se eliminarán permanentemente el proyecto y todos sus
@@ -234,6 +287,7 @@ export function ManageProjectModal({
                 </AlertDialogFooter>
               </AlertDialogContent>
             </AlertDialog>
+
             {/* Footer */}
             <DialogFooter className="flex ">
               <Button

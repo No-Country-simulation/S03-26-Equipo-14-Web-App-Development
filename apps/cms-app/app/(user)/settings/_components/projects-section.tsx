@@ -18,11 +18,10 @@ export function ProjectsSection() {
   const { data: projects = [], isLoading: loadingProjects } = useQuery({
     queryKey: ['projects'],
     queryFn: async () => {
-      const res = await apiClient.get<{ data: Project[] }>('/projects');
+      const res = await apiClient.get<{ data: Project[]; }>('/projects');
       return res.data.data;
     },
   });
-  console.log(projects);
 
   const handleManageProject = (project: Project) => {
     setSelected(project);
