@@ -193,6 +193,9 @@ export class TestimonialRepository {
   }
 
   async delete(id: string) {
+    await this.prisma.client.testimonial_Tag.deleteMany({
+      where: { testimonial_id: id },
+    });
     return await this.prisma.client.testimonial.delete({ where: { id } });
   }
 }

@@ -267,7 +267,7 @@ export default function LandingPage() {
           </div>
           <div className='flex flex-col gap-5'>
             <b className="text-center text-xl">CMS LIBRARY</b>
-            <TestimonialCarrousel apiKey={process.env.NEXT_PUBLIC_API_KEY!} />
+            <TestimonialCarrousel length={5} apiKey={process.env.NEXT_PUBLIC_API_KEY!} />
           </div>
         </div>
       </section>
