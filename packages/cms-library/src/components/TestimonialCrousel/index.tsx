@@ -49,7 +49,8 @@ const TestimonialCarrousel = ({
         return <QuoteCard data={testimonial} />;
     }
   };
-
+  const containerHeight =
+    data[currentIndex]?.type === 'video' ? 'min-h-96' : 'min-h-85';
   return (
     <div className={cn('w-full flex flex-col my-10', className)}>
       <div className="flex items-center justify-center px-4">
@@ -58,7 +59,9 @@ const TestimonialCarrousel = ({
         ) : (
           <div className="w-full max-w-3xl flex flex-col gap-8">
             {/* Card animada */}
-            <div className="min-h-70 flex items-center">
+            <div
+              className={`${containerHeight} flex items-center transition-all duration-500`}
+            >
               <AnimatePresence custom={direction} mode="wait">
                 <motion.div
                   key={currentIndex}
@@ -69,6 +72,7 @@ const TestimonialCarrousel = ({
                   exit="exit"
                   transition={{ duration: 0.5, ease: 'easeInOut' }}
                   className="w-full"
+                  layout
                 >
                   {data[currentIndex] && renderCard(data[currentIndex])}
                 </motion.div>
