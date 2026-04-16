@@ -155,7 +155,7 @@ export function TestimonialModal({
                 >
                   Editar
                 </Button>
-                <AlertDialog>
+                {testimonial.status === 'rejected' && <AlertDialog>
                   <AlertDialogTrigger asChild>
                     <Button
                       size="xs"
@@ -187,7 +187,7 @@ export function TestimonialModal({
                       </AlertDialogAction>
                     </AlertDialogFooter>
                   </AlertDialogContent>
-                </AlertDialog>
+                </AlertDialog>}
               </>) : (
               <>
                 <AlertDialog>
