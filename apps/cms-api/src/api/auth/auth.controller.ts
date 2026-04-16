@@ -74,6 +74,8 @@ export class AuthController {
   ) {
     return this.authService.updateProfile(user.sub, updateProfileDto);
   }
+  
+  @Public()
   @Post('owner')
   async owner(@Body() registerOwnerDto: CreateRegisterOwnerDto) {
     //use service registerOwner
