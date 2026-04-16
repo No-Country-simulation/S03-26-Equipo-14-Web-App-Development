@@ -8,6 +8,7 @@ export function LogoutButton() {
 
   const handleLogout = async () => {
     await signOut({ redirect: false });
+    localStorage.clear();
     router.push('/auth/login');
   };
 

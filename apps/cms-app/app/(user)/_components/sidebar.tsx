@@ -41,6 +41,7 @@ export function AppSidebar() {
 
   const handleLogout = async () => {
     await signOut({ redirect: false });
+    localStorage.clear();
     router.push('/auth/login');
   };
 
