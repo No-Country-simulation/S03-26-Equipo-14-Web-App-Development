@@ -15,6 +15,7 @@ interface Testimonial {
   media_url?: string;
   media_description?: string;
   rating?: number | null;
+  project_id?: string;
 }
 
 function StarRating({ rating }: { rating: number; }) {
@@ -103,6 +104,20 @@ function TestimonialWidget({ t }: { t: Testimonial; }) {
         </div>
         {t.rating != null && <StarRating rating={Number(t.rating)} />}
       </div>
+
+      {t.project_id && (
+        <a
+          href={`/testimonial-visitor/${t.project_id}`}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="mt-2 inline-flex items-center justify-center gap-1.5 w-full rounded-lg border border-primary/30 bg-primary/5 hover:bg-primary/10 text-primary text-xs font-medium py-2 px-3 transition-colors"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-3.5 h-3.5 shrink-0">
+            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+          </svg>
+          Deja tu testimonio
+        </a>
+      )}
     </div>
   );
 }
