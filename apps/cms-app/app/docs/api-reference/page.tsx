@@ -105,7 +105,7 @@ const Page = () => {
               <span className="text-purple-400">await</span>{' '}
               <span className="text-yellow-200">fetch</span>( {'\n'}
               {'      '}
-              <span className="text-green-400">"https://onrender.com"</span>,
+              <span className="text-green-400">"https://s03-26-equipo-14-web-app-development.onrender.com/embed"</span>,
               {'\n'}
               {'      '}
               {'{'} {'\n'}
