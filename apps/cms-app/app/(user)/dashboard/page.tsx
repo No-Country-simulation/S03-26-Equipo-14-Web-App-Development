@@ -11,6 +11,7 @@ import { toast } from '@repo/ui/components';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import apiClient from '@/shared/lib/apiClient';
 import { type Filters } from './_components/filtersbar';
+import { useSession } from 'next-auth/react';
 
 const DEFAULT_FILTERS: Filters = {
   search: '',
@@ -25,6 +26,7 @@ const DEFAULT_FILTERS: Filters = {
 export default function DashboardPage() {
   const { projects, currentProject } = useProjectStore();
   const queryClient = useQueryClient();
+  const { data: session } = useSession();
 
   const [selected, setSelected] = useState<Testimonial | null>(null);
   const [open, setOpen] = useState(false);
@@ -84,9 +86,19 @@ export default function DashboardPage() {
     },
   });
 
-  const handleDelete = async (_id: string) => {
-    handleClose();
-    toast.success('Testimonio eliminado con éxito');
+  const deleteMutation = useMutation({
+    mutationFn: (id: string) =>
+      apiClient.delete(`/testimonials/${id}`, { data: { userId: session?.user?.id } }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['testimonials', currentProject?.id] });
+    },
+  });
+
+  const handleDelete = (id: string) => {
+    toast.promise(
+      deleteMutation.mutateAsync(id).then(() => handleClose()),
+      { loading: 'Eliminando...', success: 'Testimonio eliminado con éxito', error: 'Error al eliminar el testimonio' },
+    );
   };
 
   const handlePublish = (id: string) => {
