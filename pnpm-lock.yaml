@@ -221,8 +221,8 @@ importers:
         specifier: workspace:*
         version: link:../../packages/ui
       '@team14/cms-library':
-        specifier: ^0.2.0
-        version: 0.2.0(clsx@2.1.1)(framer-motion@12.38.0)(react-dom@19.2.4)(react@19.2.4)(tailwind-merge@2.6.1)
+        specifier: ^1.0.0
+        version: 1.0.0(clsx@2.1.1)(framer-motion@12.38.0)(react-dom@19.2.4)(react@19.2.4)(tailwind-merge@2.6.1)
       next:
         specifier: 16.2.3
         version: 16.2.3(@babel/core@7.29.0)(react-dom@19.2.4)(react@19.2.4)
@@ -4589,8 +4589,8 @@ packages:
     engines: {node: '>=12'}
     dev: false
 
-  /@team14/cms-library@0.2.0(clsx@2.1.1)(framer-motion@12.38.0)(react-dom@19.2.4)(react@19.2.4)(tailwind-merge@2.6.1):
-    resolution: {integrity: sha512-Nv+QwsjQ8/Vn+qLAdOFSe0eVqOsI9hLNNO8DKP/Gd78COn29zDeW2dLWtjGLKqDzW+vzIMeoxgEZvkeq7/s05g==}
+  /@team14/cms-library@1.0.0(clsx@2.1.1)(framer-motion@12.38.0)(react-dom@19.2.4)(react@19.2.4)(tailwind-merge@2.6.1):
+    resolution: {integrity: sha512-gep5QJUFr1m14St73VfqT9w5IFlRhi3W5qYQ0r30g0lTkHzsbXUr10PjodeycTaQy9cLSJxhIIm8FokmlfftyA==}
     peerDependencies:
       clsx: ^2.1.1
       framer-motion: '>=11'
