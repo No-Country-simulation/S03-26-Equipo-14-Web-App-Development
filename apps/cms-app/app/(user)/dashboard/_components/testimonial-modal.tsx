@@ -104,6 +104,7 @@ export function TestimonialModal({
 
   // quote = enviado por visitor; case/video = enviado por editor
   const isFromVisitor = testimonial.type === 'quote';
+  const canEdit = ['editor', 'admin', 'owner'].includes(userRole?.toLowerCase() ?? '');
   const canAct = isFromVisitor
     ? ['editor', 'admin', 'owner'].includes(userRole?.toLowerCase() ?? '')
     : ['admin', 'owner'].includes(userRole?.toLowerCase() ?? '');
@@ -143,7 +144,7 @@ export function TestimonialModal({
             </div>
           </div>
           <div className="flex gap-1">
-            {testimonial.status !== 'published' && canAct ? (
+            {testimonial.status !== 'published' && canEdit ? (
               <>
                 <Button
                   size="xs"
