@@ -28,17 +28,18 @@
     "@repo/env": "workspace:*",
     "@sendgrid/mail": "^8.1.6",
     "@types/bcrypt": "^6.0.0",
+    "@types/cors": "^2.8.19",
     "bcrypt": "^6.0.0",
     "class-transformer": "^0.5.1",
     "class-validator": "^0.15.1",
     "cookie-parser": "^1.4.7",
+    "cors": "^2.8.6",
     "crypto": "^1.0.1",
     "escape-html": "^1.0.3",
     "passport": "^0.7.0",
     "passport-jwt": "^4.0.1",
     "reflect-metadata": "^0.2.2",
     "rxjs": "^7.8.2"
-    
   },
   "devDependencies": {
     "@jest/globals": "^30.2.0",

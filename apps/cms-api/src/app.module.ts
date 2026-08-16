@@ -2,41 +2,12 @@ import { Module } from '@nestjs/common';
 
 import { AppService } from './app.service';
 import { AppController } from './app.controller';
-import { AuthModule } from './auth/auth.module';
-import { ConfigModule } from '@nestjs/config';
-import { JwtStrategy } from './auth/strategies/jwt.strategy';
-import { APP_GUARD } from '@nestjs/core';
-import { JwtAuthGuard } from './auth/guards/jwt-auth.guard';
-import {
-  UserRepository,
-  CategoryRepository,
-  TestimonialRepository,
-  PrismaModule,
-} from '@repo/api';
-import { CategoryModule } from './category/category.module';
-import { MailModule } from './mail/mail.module';
-import { TestimonialsModule } from './testimonials/testimonials.module';
+import { ApiModule } from './api/api.module';
+import { PublicModule } from './public/public.module';
 
 @Module({
-  imports: [
-    AuthModule,
-    PrismaModule,
-    ConfigModule.forRoot({
-      isGlobal: true,
-      envFilePath: '../../.env',
-    }),
-    CategoryModule,
-    MailModule,
-    TestimonialsModule,
-  ],
+  imports: [ApiModule, PublicModule],
   controllers: [AppController],
-  providers: [
-    AppService,
-    JwtStrategy,
-    UserRepository,
-    CategoryRepository,
-    TestimonialRepository,
-    { provide: APP_GUARD, useClass: JwtAuthGuard },
-  ],
+  providers: [AppService],
 })
 export class AppModule {}

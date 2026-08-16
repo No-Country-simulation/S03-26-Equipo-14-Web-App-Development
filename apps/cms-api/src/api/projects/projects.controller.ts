@@ -1,0 +1,62 @@
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+} from '@nestjs/common';
+import { ProjectsService } from './projects.service';
+import { CreateProjectDto } from './dto/create-project.dto';
+import { UpdateProjectDto } from './dto/update-project.dto';
+import { GetUser } from 'src/api/auth/decorators/get-user.decorator';
+import { JwtPayload } from 'src/api/auth/types/jwt-payload.type';
+
+@Controller('projects')
+export class ProjectsController {
+  constructor(private readonly projectsService: ProjectsService) {}
+
+  @Post()
+  create(
+    @Body() createProjectDto: CreateProjectDto,
+    @GetUser() user: JwtPayload,
+  ) {
+    return this.projectsService.create(createProjectDto, user);
+  }
+
+  @Get()
+  findAll(@GetUser() user: JwtPayload) {
+    return this.projectsService.findAll(user);
+  }
+
+  @Get(':id')
+  findOne(@Param('id') id: string) {
+    return this.projectsService.findOne(id);
+  }
+  @Get('projectMembers/:id')
+  async(@Param('id') id: string) {
+    return this.projectsService.allProjectMembers(id);
+  }
+  @Patch(':id')
+  update(
+    @Param('id') id: string,
+    @Body() updateProjectDto: UpdateProjectDto,
+    @GetUser() user: JwtPayload,
+  ) {
+    this.projectsService.update(id, updateProjectDto, user);
+  }
+
+  @Delete(':id')
+  remove(@Param('id') id: string, @GetUser() user: JwtPayload) {
+    return this.projectsService.remove(id, user.sub);
+  }
+
+  @Post('/:projectId/api-key')
+  generateApiKey(
+    @GetUser() user: JwtPayload,
+    @Param('projectId') projectId: string,
+  ) {
+    return this.projectsService.createApiKey(user, projectId);
+  }
+}

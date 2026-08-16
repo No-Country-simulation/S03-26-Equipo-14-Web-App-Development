@@ -1,8 +1,0 @@
-# Keep environment variables out of version control
-node_modules
-src/generated
-dist
-dist/
-.env
-
-cheatSheet.txt
