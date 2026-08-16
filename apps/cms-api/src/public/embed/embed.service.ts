@@ -1,7 +1,7 @@
 import { ConflictException, Injectable } from '@nestjs/common';
 import crypto from 'crypto';
 import env from '@repo/env';
-import { EmbedRepository, Testimonial } from '@repo/api';
+import { EmbedRepository, Testimonial, TestimonialType } from '@repo/api';
 import { FindAllDto } from './dto/findAll.dto';
 import { test } from '@jest/globals';
 
@@ -10,6 +10,7 @@ export class EmbedService {
   constructor(private readonly api: EmbedRepository) {}
 
   async getPublishedTestimonials(
+    type: string,
     credentials: FindAllDto,
   ): Promise<Testimonial[]> {
     const isVerify = await this.api.verifyProject(credentials);
@@ -21,6 +22,7 @@ export class EmbedService {
 
     const testimonials = await this.api.findAllPublishedTestimonials(
       credentials.projectId,
+      type as TestimonialType,
     );
 
     return testimonials;

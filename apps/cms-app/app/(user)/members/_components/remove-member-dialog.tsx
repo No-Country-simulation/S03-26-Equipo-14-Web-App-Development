@@ -34,9 +34,9 @@ export function RemoveMemberDialog({
       toast.success('Miembro eliminado correctamente');
       onSuccess();
     },
-    onError: () => {
-      toast.error('Error al eliminar el miembro');
-    },
+    // onError: () => {
+    //   toast.error('Error al eliminar el miembro');
+    // },
   });
 
   return (

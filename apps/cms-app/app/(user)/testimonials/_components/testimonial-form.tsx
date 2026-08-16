@@ -171,7 +171,6 @@ export function TestimonialForm({
         const prevTagIds = (prev.tagIds ?? []).slice().sort().join(',');
         const newTagIds = data.tagIds.slice().sort().join(',');
         if (newTagIds !== prevTagIds) fullBody.tags = data.tagIds;
-        console.log(fullBody);
 
         const response = await apiClient.patch(endpoint, fullBody);
         return response.data;
@@ -193,8 +192,6 @@ export function TestimonialForm({
         slug: toSlug(titleValue),
         status: data.isDraft ? 'draft' : 'pending',
       };
-      console.log(createBody);
-
       const response = await apiClient.post(endpoint, createBody);
       return response.data;
     },
