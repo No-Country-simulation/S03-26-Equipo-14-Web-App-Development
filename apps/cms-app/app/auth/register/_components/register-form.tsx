@@ -19,12 +19,13 @@ import {
   FormLabel,
   FormMessage,
   Input,
+  Textarea,
   toast,
 } from '@repo/ui';
 
 type RegisterFormValues = {
   orgName: string;
-  projectName: string;
+  orgDescription: string;
   ownerName: string;
   email: string;
   password: string;
@@ -37,7 +38,7 @@ export function RegisterForm() {
   const form = useForm<RegisterFormValues>({
     defaultValues: {
       orgName: '',
-      projectName: '',
+      orgDescription: '',
       ownerName: '',
       email: '',
       password: '',
@@ -61,7 +62,7 @@ export function RegisterForm() {
         password: data.password,
         name: data.ownerName,
         organizationName: data.orgName,
-        organizationDescription: data.projectName,
+        organizationDescription: data.orgDescription,
       });
 
       toast.success('Cuenta creada correctamente. Ya puedes iniciar sesión.');
@@ -174,9 +175,9 @@ export function RegisterForm() {
                 {/* Project name */}
                 <FormField
                   control={control}
-                  name="projectName"
+                  name="orgDescription"
                   rules={{
-                    required: 'El nombre del proyecto es obligatorio',
+                    required: 'La descripción de la organización es obligatoria',
                     minLength: {
                       value: 2,
                       message: 'Debe tener al menos 2 caracteres',
@@ -185,14 +186,13 @@ export function RegisterForm() {
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel className="block text-[10px] font-semibold uppercase tracking-widest text-gray-500 mb-1.5">
-                        Nombre del proyecto
+                        Descripción de la organización
                       </FormLabel>
                       <FormControl>
-                        <Input
-                          type="text"
+                        <Textarea
                           {...field}
                           className="w-full h-auto px-4 py-2.5 bg-gray-100 border-0 text-sm text-gray-700 placeholder:text-gray-400 focus-visible:ring-2 focus-visible:ring-indigo-500"
-                          placeholder="p. ej. Impacto Alumni 2024"
+                          placeholder="p. ej. Institución educativa líder en investigación y enseñanza, comprometida con la excelencia académica y la innovación."
                         />
                       </FormControl>
                       <FormMessage className="mt-1.5 text-xs text-red-600" />

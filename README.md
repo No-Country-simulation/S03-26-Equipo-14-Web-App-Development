@@ -1,124 +1,127 @@
-# Turborepo starter
+# 🚀 CMS Multi-tenant para Testimonios EdTech
 
-This is a community-maintained example. If you experience a problem, please submit a pull request with a fix. GitHub Issues will be closed.
+## 🧠 Overview
 
-## Using this example
+Plataforma SaaS tipo **CMS multi-tenant** para gestionar testimonios en empresas EdTech, con control de acceso por roles y workflow de aprobación.
 
-Run the following command:
+---
 
-```bash
-npx create-turbo@latest -e with-nestjs
-```
+🔌 API Documentation
 
-## What's inside?
+La API se encuentra documentada con Swagger, donde se pueden visualizar todos los endpoints, parámetros y respuestas.
 
-This Turborepo includes the following packages & apps:
+👉 Swagger UI: [https://s03-26-equipo-14-web-app-development.onrender.com/docs]
 
-### Apps and Packages
+---
 
-```shell
-.
-├── apps
-│   ├── api                       # NestJS app (https://nestjs.com).
-│   └── web                       # Next.js app (https://nextjs.org).
-└── packages
-    ├── @repo/api                 # Shared `NestJS` resources.
-    ├── @repo/eslint-config       # `eslint` configurations (includes `prettier`)
-    ├── @repo/jest-config         # `jest` configurations
-    ├── @repo/typescript-config   # `tsconfig.json`s used throughout the monorepo
-    └── @repo/ui                  # Shareable stub React component library.
-```
+## 🎯 Problema
 
-Each package and application are mostly written in [TypeScript](https://www.typescriptlang.org/).
+Las instituciones con comunidades activas necesitan demostrar el impacto de sus productos o programas mediante experiencias reales de usuarios.
 
-### Utilities
+Sin embargo:
 
-This `Turborepo` has some additional tools already set for you:
+* Los testimonios están dispersos
+* No existe control de calidad
+* No se pueden reutilizar fácilmente
 
-- [TypeScript](https://www.typescriptlang.org/) for static type-safety
-- [ESLint](https://eslint.org/) for code linting
-- [Prettier](https://prettier.io) for code formatting
-- [Jest](https://prettier.io) & [Playwright](https://playwright.dev/) for testing
+---
 
-### Commands
+## 💡 Solución
 
-This `Turborepo` already configured useful commands for all your apps and packages.
+Se desarrolló un CMS que permite:
 
-#### Build
+* Centralizar testimonios
+* Moderarlos antes de publicarlos
+* Clasificarlos y filtrarlos
+* Integrarlos en otros sitios mediante API
 
-```bash
-# Will build all the app & packages with the supported `build` script.
-pnpm run build
+---
 
-# ℹ️ If you plan to only build apps individually,
-# Please make sure you've built the packages first.
-```
+## 🏗️ Arquitectura
 
-#### Develop
+* Multi-tenant por `organizationId`
+* RBAC (Role-Based Access Control)
+* Separación por módulos (NestJS)
+* ORM con Prisma
 
-```bash
-# Will run the development server for all the app & packages with the supported `dev` script.
-pnpm run dev
-```
+---
 
-#### test
+## ⚙️ Funcionalidades
 
-```bash
-# Will launch a test suites for all the app & packages with the supported `test` script.
-pnpm run test
+* Gestión de organizaciones, proyectos, testimonios y usuarios
+* CRUD de testimonios (quote, case, video)
+* Workflow de aprobación
+* Filtros avanzados
+* Formulario público (visitor)
+* Autosave en frontend
 
-# You can launch e2e testes with `test:e2e`
-pnpm run test:e2e
+---
 
-# See `@repo/jest-config` to customize the behavior.
-```
+## 🧪 Casos de Uso
 
-#### Lint
+* Empresas que necesitan validar testimonios antes de publicarlos
+* Equipos de marketing que reutilizan contenido
+* Plataformas educativas con múltiples cursos
 
-```bash
-# Will lint all the app & packages with the supported `lint` script.
-# See `@repo/eslint-config` to customize the behavior.
-pnpm run lint
-```
+---
 
-#### Format
+## 🧠 Decisiones Técnicas
 
-```bash
-# Will format all the supported `.ts,.js,json,.tsx,.jsx` files.
-# See `@repo/eslint-config/prettier-base.js` to customize the behavior.
-pnpm format
-```
+* Arquitectura modular
+* Separación por organización (multi-tenant)
+* Workflow basado en estados
+* RBAC para control de acceso
+  
+---
 
-### Remote Caching
+## 🚧 Desafíos
 
-> [!TIP]
-> Vercel Remote Cache is free for all plans. Get started today at [vercel.com](https://vercel.com/signup?/signup?utm_source=remote-cache-sdk&utm_campaign=free_remote_cache).
+* Manejo de permisos complejos
+* Flujo de estados consistente
+* Validación de formularios dinámicos
 
-Turborepo can use a technique known as [Remote Caching](https://turborepo.dev/docs/core-concepts/remote-caching) to share cache artifacts across machines, enabling you to share build caches with your team and CI/CD pipelines.
+---
 
-By default, Turborepo will cache locally. To enable Remote Caching you will need an account with Vercel. If you don't have an account you can [create one](https://vercel.com/signup?utm_source=turborepo-examples), then enter the following commands:
+## 🛠️ Stack
 
-```bash
-npx turbo login
-```
+* Node.js
+* NestJS
+* Prisma
+* Next.js
+* PostgreSQL
 
-This will authenticate the Turborepo CLI with your [Vercel account](https://vercel.com/docs/concepts/personal-accounts/overview).
+Media
 
-Next, you can link your Turborepo to your Remote Cache by running the following command from the root of your Turborepo:
+* Cloudinary
+* YouTube API
 
-```bash
-npx turbo link
-```
+---
 
-## Useful Links
+## ⚙️ Setup
 
-This example take some inspiration the [with-nextjs](https://github.com/vercel/turborepo/tree/main/examples/with-nextjs) `Turbo` example and [01-cats-app](https://github.com/nestjs/nest/tree/master/sample/01-cats-app) `NestJs` sample.
+1. Instalar dependencias : `pnpm i`.
+2. `pnpm --filter=database db:generate`
+3. `pnpm build`
+4. Añadir las variables de entorno
+5. `pnpm dev`
 
-Learn more about the power of Turborepo:
+---
 
-- [Tasks](https://turborepo.dev/docs/crafting-your-repository/running-tasks)
-- [Caching](https://turborepo.dev/docs/crafting-your-repository/caching)
-- [Remote Caching](https://turborepo.dev/docs/core-concepts/remote-caching)
-- [Filtering](https://turborepo.dev/docs/crafting-your-repository/running-tasks#using-filters)
-- [Configuration Options](https://turborepo.dev/docs/reference/configuration)
-- [CLI Usage](https://turborepo.dev/docs/reference/command-line-reference)
+## 👨‍💻 Equipo
+
+Proyecto desarrollado por:
+
+* Franco Casafus (@francocasafus22) — Backend
+* Emanuel Funes (@EmanuelFuneS) - Backend
+* Gabriela Díaz (@G9D4) - Frontend
+* Lautaro Durán (@LautaroLD) - Frontend
+* Santiago Soto (@SH-ur) - Backend
+* Zulay Peraza (@Zulay7424) - Tester QA
+
+Proyecto realizado en el contexto de No Country 🚀
+
+---
+
+## 🔗 Repo
+
+https://github.com/No-Country-simulation/S03-26-Equipo-14-Web-App-Development

@@ -19,6 +19,7 @@ const authSecret = process.env.JWT_SECRET;
 
 type MeResponse = {
   sub: string;
+  name: string;
   email: string;
   organizationId: string | null;
   role: string | null;
@@ -74,7 +75,7 @@ export const authConfig: NextAuthOptions = {
 
           return {
             id: me.sub,
-            name: me.email,
+            name: me.name,
             email: me.email,
             organizationId: me.organizationId,
             role: me.role,
@@ -88,15 +89,21 @@ export const authConfig: NextAuthOptions = {
     }),
   ],
   callbacks: {
-    async jwt({ token, user }) {
+    async jwt({ token, user, trigger, session }) {
       if (user) {
         token.id = user.id;
+        token.name = user.name;
         token.email = user.email;
         token.organizationId = (
           user as { organizationId?: string | null }
         ).organizationId;
         token.role = (user as { role?: string | null }).role;
         token.accessToken = (user as { accessToken?: string }).accessToken;
+      }
+
+      if (trigger === 'update' && session) {
+        if (session.name) token.name = session.name;
+        if (session.email) token.email = session.email;
       }
 
       return token;
@@ -107,7 +114,7 @@ export const authConfig: NextAuthOptions = {
         session.user.organizationId = token.organizationId as string | null;
         session.user.role = token.role as string | null;
         session.user.accessToken = token.accessToken as string;
-        session.user.name = token.email;
+        session.user.name = token.name as string | null;
         session.user.email = token.email;
       }
       return session;

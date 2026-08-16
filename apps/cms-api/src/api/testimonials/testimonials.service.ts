@@ -80,6 +80,13 @@ export class TestimonialsService {
     await this.api.createTestimonial(synthTestimonial);
   }
 
+  async findPublicById(id: string) {
+    return await this.api.findOneById({
+      id,
+      status: TestimonialStatus.published,
+    });
+  }
+
   async findAll(
     queryDto: FindAllQueryTestimonialDto,
     projectId: string,
@@ -102,7 +109,7 @@ export class TestimonialsService {
     if (project.organization_id !== user.organizationId)
       throw new NotFoundException('Project not found');
 
-    console.log(queryDto)
+    console.log(queryDto);
 
     return this.api.findAll(
       {
@@ -151,7 +158,7 @@ export class TestimonialsService {
     const { draft, ...updateData } = updateTestimonialDto;
 
     const { status, type }: { status: string | null; type: string | null } =
-      await this.api.findOneById(id, { status: true, type: true });
+      await this.api.findOneById({ id, select: { status: true, type: true } });
 
     if (type === 'quote')
       throw new BadRequestException(`Cannot edit quote testimonials`);
@@ -159,10 +166,21 @@ export class TestimonialsService {
       throw new BadRequestException(
         `Cannot edit testimonials with status ${status}`,
       );
-
+    const updatedData2 = {
+      category_id: updateData.categoryId,
+      title: updateData.title,
+      content: updateData.content,
+      author: updateData.author,
+      author_photo: updateData.authorPhoto,
+      author_role: updateData.authorRole,
+      media_url: updateData.mediaUrl,
+      media_description: updateData.mediaDescription,
+      slug: updateData.slug,
+      tags: updateData.tags,
+    };
     const result = await this.api.updateTestimonial(
       id,
-      updateData,
+      updatedData2,
       draft,
       status === TestimonialStatus.rejected,
     );
@@ -181,16 +199,19 @@ export class TestimonialsService {
       //First Things First: User's Role
       const verifyRole = await this.userApi.findById(userId.userId);
 
-      if (verifyRole?.organizationMembers[0]?.role == 'Editor')
+      if (verifyRole?.organizationMembers?.[0]?.role == 'Editor')
         throw new NotAcceptableException(
           'Only the Owner and the Admin can use this functionality.',
         );
 
       //Second things Second: Verify Testimonial
-      const testimonialExists = await this.api.findOneById(testimonialId, {
-        id: true,
-        title: true,
-        status: true,
+      const testimonialExists = await this.api.findOneById({
+        id: testimonialId,
+        select: {
+          id: true,
+          title: true,
+          status: true,
+        },
       });
       console.log(testimonialExists);
       if (!testimonialExists)

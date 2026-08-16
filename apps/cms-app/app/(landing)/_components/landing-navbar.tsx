@@ -1,8 +1,11 @@
-import { Button } from "@repo/ui/components";
+'use client';
+import { Button, Skeleton } from "@repo/ui/components";
 import { BookOpen } from '@repo/ui/lib';
+import { useSession } from 'next-auth/react';
 import Link from "next/link";
 
 export function LandingNavbar() {
+  const { data: session, status } = useSession();
   return (
     <header className="border-b border-gray-100 bg-white sticky top-0 z-50">
       <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
@@ -30,26 +33,47 @@ export function LandingNavbar() {
           >
             Precios
           </Link>
+          <Link
+            href="/docs"
+            className="text-sm text-gray-600 hover:text-gray-900 transition-colors"
+          >
+            Docs
+          </Link>
         </nav>
 
         {/* Auth buttons */}
-        <div className="flex items-center gap-2">
-          <Button
-            variant="ghost"
-            size="sm"
-            className="text-sm text-gray-700 font-medium"
-            asChild
-          >
-            <Link href="/auth/login">Iniciar Sesión</Link>
-          </Button>
-          <Button
-            size="sm"
-            className="text-sm bg-indigo-600 hover:bg-indigo-700 text-white"
-            asChild
-          >
-            <Link href="/auth/login">Registrarse</Link>
-          </Button>
-        </div>
+        {status === 'loading' ? (
+          <div className="flex items-center gap-2">
+            <Skeleton className="h-7 w-20" />
+          </div>
+        ) : session?.user?.id ? (<>
+          <div className="flex items-center gap-2">
+            <Button
+              size="sm"
+              asChild
+            >
+              <Link href="/dashboard">Dashboard</Link>
+            </Button>
+          </div>
+        </>) : (<>
+          <div className="flex items-center gap-2">
+            <Button
+              variant="ghost"
+              size="sm"
+              className="text-sm text-gray-700 font-medium"
+              asChild
+            >
+              <Link href="/auth/login">Iniciar Sesión</Link>
+            </Button>
+            <Button
+              size="sm"
+              className="text-sm bg-indigo-600 hover:bg-indigo-700 text-white"
+              asChild
+            >
+              <Link href="/auth/login">Registrarse</Link>
+            </Button>
+          </div>
+        </>)}
       </div>
     </header>
   );

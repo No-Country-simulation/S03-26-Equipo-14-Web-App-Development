@@ -1,11 +1,13 @@
+import { getToken } from 'next-auth/jwt';
 import type { NextRequest } from 'next/server';
 import { NextResponse } from 'next/server';
 
 export default async function proxy(request: NextRequest) {
-  const isProd = process.env.NODE_ENV === 'production' ? true : false;
-  const isAuthenticated = request.cookies.get(
-    isProd ? '__Secure-next-auth.session-token' : 'next-auth.session-token',
-  )?.value;
+  const token = await getToken({
+    req: request,
+    secret: process.env.JWT_SECRET,
+  });
+  const isAuthenticated = !!token;
   const pathname = request.nextUrl.pathname;
 
   // Rutas protegidas que requieren autenticación

@@ -1,4 +1,12 @@
-import { BadRequestException, ConflictException, Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
+import {
+  BadRequestException,
+  ConflictException,
+  HttpException,
+  Injectable,
+  InternalServerErrorException,
+  NotFoundException,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { compare, hash } from 'bcrypt';
 import {
@@ -14,7 +22,7 @@ import globalEnv from '@repo/env';
 import { ResetPasswordDto } from 'src/api/auth/dto/reset-password.dto';
 import { resetPasswordTemplate } from 'src/api/mail/templates/reset-password.template';
 import { MailService } from 'src/api/mail/mail.service';
-import {ValidateTokenDto } from './dto/validate-token.dto';
+import { ValidateTokenDto } from './dto/validate-token.dto';
 import { ValidateTokenQueryDto } from './dto/validate-token-query.dto';
 import { ForgotPasswordDto } from './dto/forgot-password.dto';
 import { createOrganizationDto } from 'src/api/organization/dto/organization.dto';
@@ -26,8 +34,8 @@ export class AuthService {
     private jwtService: JwtService,
     private mailService: MailService,
     private readonly apiUser: UserRepository,
-    private readonly orgApi: OrganizationRepository
-  ) { }
+    private readonly orgApi: OrganizationRepository,
+  ) {}
 
   async validateUser(email: string, pass: string): Promise<any> {
     const user = await this.apiUser.findByEmail(email);
@@ -75,7 +83,9 @@ export class AuthService {
       await this.apiUser.createOwner(synthUser);
       return { message: 'Owner Created Successfully' };
     } catch (error) {
-      throw new ConflictException('Error in Owner Creation');
+      if (error instanceof HttpException) throw error;
+      console.error('[registerOwner] Error:', error);
+      throw new InternalServerErrorException('Error al crear el owner');
     }
   }
 
@@ -102,77 +112,122 @@ export class AuthService {
       throw new ConflictException('Error in Member Creation');
     }
   }
-  async registerOrganization(registerOrganizationData: createOrganizationInput) {
+  async registerOrganization(
+    registerOrganizationData: createOrganizationInput,
+  ) {
     try {
       const answer = await this.orgApi.findOne(registerOrganizationData);
 
-      if (answer != null) throw new ConflictException("That organization already exists. ");
+      if (answer != null)
+        throw new ConflictException('That organization already exists. ');
       const creation = await this.orgApi.create(registerOrganizationData);
-      if (!creation) throw new ConflictException("Something happened registering the organization. Try again later please.");
+      if (!creation)
+        throw new ConflictException(
+          'Something happened registering the organization. Try again later please.',
+        );
       return `The Organization ${creation.name} has been successfully created!`;
     } catch (error) {
       throw new ConflictException(error);
     }
   }
   async forgotPassword(forgotPasswordDto: ForgotPasswordDto) {
-
     const userExist = await this.apiUser.findByEmail(forgotPasswordDto.email);
-    if (!userExist) throw new NotFoundException("User not found");
+    if (!userExist) throw new NotFoundException('User not found');
 
     const rawToken = crypto.randomInt(100000, 1000000).toString();
     const hashedToken = await hash(rawToken, 10);
     const resetExpiration = new Date(Date.now() + 3600000); // 1hs
 
-    console.log(rawToken)
-    await this.mailService.sendResetPassword(userExist.email, userExist.name, rawToken);
+    console.log(rawToken);
+    await this.mailService.sendResetPassword(
+      userExist.email,
+      userExist.name,
+      rawToken,
+    );
 
-    await this.apiUser.setResetToken({ userId: userExist.id, resetToken: hashedToken, resetTokenExpires: resetExpiration });
+    await this.apiUser.setResetToken({
+      userId: userExist.id,
+      resetToken: hashedToken,
+      resetTokenExpires: resetExpiration,
+    });
 
     return {
       message: 'Email sent',
     };
   }
 
-  async validateToken({ token, email }: { token: string, email: string }) {
-
+  async validateToken({ token, email }: { token: string; email: string }) {
     const userExist = await this.apiUser.findByEmail(email);
-    if (!userExist) throw new NotFoundException("User not found");
+    if (!userExist) throw new NotFoundException('User not found');
 
-    if (!userExist.resetTokenExpires || userExist.resetTokenExpires < new Date()) {
-      throw new BadRequestException("Token expired");
+    if (
+      !userExist.resetTokenExpires ||
+      userExist.resetTokenExpires < new Date()
+    ) {
+      throw new BadRequestException('Token expired');
     }
 
     const isMatch = await compare(token, userExist.resetToken!);
-    if (!isMatch) throw new NotFoundException("Token not valid");
+    if (!isMatch) throw new NotFoundException('Token not valid');
 
-    const resetToken = this.jwtService.sign({
-      userId: userExist.id
-    }, {
-      secret: globalEnv.JWT_RESET_TOKEN_SECRET,
-      expiresIn: '1h'
-    })
+    const resetToken = this.jwtService.sign(
+      {
+        userId: userExist.id,
+      },
+      {
+        secret: globalEnv.JWT_RESET_TOKEN_SECRET,
+        expiresIn: '1h',
+      },
+    );
 
     await this.apiUser.deleteResetToken({ userId: userExist.id });
 
-    return resetToken
+    return resetToken;
   }
 
-  async resetPassword({ userId, newPassword }: { userId: string, newPassword: string }) {
-
+  async resetPassword({
+    userId,
+    newPassword,
+  }: {
+    userId: string;
+    newPassword: string;
+  }) {
     const userExist = await this.apiUser.findById(userId);
-    if (!userExist) throw new NotFoundException("User not found");
+    if (!userExist) throw new NotFoundException('User not found');
 
     const hashPassword = await hash(newPassword, 10);
 
     await this.apiUser.changePassword(hashPassword, userId);
 
     return {
-      message: "Password changed"
+      message: 'Password changed',
+    };
+  }
+
+  async getMe(userId: string) {
+    const user = await this.apiUser.findById(userId, true);
+    if (!user) throw new NotFoundException('User not found');
+    const org = (user as any).organizationMembers?.[0];
+    return {
+      sub: user.id,
+      name: user.name,
+      email: user.email,
+      organizationId: org?.organization_id ?? null,
+      role: org?.role ?? null,
+    };
+  }
+
+  async updateProfile(userId: string, data: { name?: string; email?: string }) {
+    if (data.email) {
+      const existing = await this.apiUser.findByEmail(data.email);
+      if (existing && existing.id !== userId) {
+        throw new ConflictException('El email ya está en uso');
+      }
     }
+    return this.apiUser.updateProfile(userId, data);
   }
 
   private async generateRandomPassword() {
     return crypto.randomBytes(4).toString('base64').slice(0, 6);
   }
-
 }

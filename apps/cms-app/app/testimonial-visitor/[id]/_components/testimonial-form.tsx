@@ -74,7 +74,6 @@ export function TestimonialForm({ projectId }: TestimonialFormProps) {
     },
     onSuccess: () => {
       form.reset();
-      setTimeout(() => router.back(), 5000);
     }
   });
 
@@ -100,7 +99,7 @@ export function TestimonialForm({ projectId }: TestimonialFormProps) {
             </p>
           </div>
           <hr className="w-full border-border" />
-          <p className="text-sm text-muted-foreground">Serás redirigido en unos segundos...</p>
+          <p className="text-sm text-muted-foreground">Ya puedes cerrar esta pestaña.</p>
         </div>
       ) : (
         <Form {...form}>
